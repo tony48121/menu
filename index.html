@@ -3,142 +3,505 @@
 <html lang="en">
 
 <head><script>
+/* =====================================================================
+   PONT  JuL (Menu.lua)  ->  Sky UI   (NUI)
+   ---------------------------------------------------------------------
+   Menu.lua parle son propre protocole (showMenu, setCurrent, notify...).
+   Ce pont traduit CHAQUE action vers l'interface NATIVE Sky correspondante,
+   de sorte que toutes les interfaces du menu Sky soient pilotables par le
+   menu Lua :
+       menu / onglets / lignes      -> showUI + updateElements
+       banniere + couleur d'accent  -> updateBanner
+       logo du pied                 -> updateBanner (bannerAvatar)
+       position                     -> updatePositionPrecise
+       echelle                      -> zoom #root (CSS injectee ici)
+       notifications                -> showNotification
+       ecran de chargement          -> loading (+ liste anti-cheat)
+       saisie clavier               -> updateKeyboard
+       capture d'une touche         -> bindPrompt
+       panneau Keybinds             -> displayBinds
+       fiche joueur                 -> playerInfo
+       panneau Freecam (molette)    -> freecam
+       viseur                       -> .Crosshair
 
+   Volontairement NON repris : l'interface SOURIS ("Design Mode" du Lua,
+   deplacement du menu au curseur). Aucun drag n'est implemente ici.
+   ===================================================================== */
 (function () {
-  var tabs = [];
+  if (window.__julBridge) return;
+  window.__julBridge = true;
+
+  var SKY_CROSSHAIR = "https://files.catbox.moe/cm9g47.png";
+  var BLANK_PNG = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+  /* ------------------------- etat local ------------------------- */
+  var tabs = [];                  // noms d'onglets recus par setTabs
   var tabIndex = 0;
-  function post(data) { data.__jul = true; window.postMessage(data, "*"); }
-  function hex(r, g, b) {
-    function p(v) { v = Math.max(0, Math.min(255, Math.round(Number(v) || 0)));
-      return (v < 16 ? "0" : "") + v.toString(16); }
-    return "#" + p(r) + p(g) + p(b);
+  var username = "";              // pied de menu (setFooterUser)
+  var menuVisible = false;
+  var view = { elements: [], index: 0 };   // derniere liste affichee
+  var kb = { visible: false, title: "", value: "" };   // updateKeyboard
+  var bind = { visible: false, title: "", label: "", state: "listen", keyName: "", feature: false };
+  var load = { visible: false, progress: 0, status: "Initializing...", username: "", avatar: "", anticheats: [] };
+  var fc = { visible: false, options: [], index: 0 };
+  var out = [];                   // messages en attente (app pas encore montee)
+  var ready = false;
+
+  /* ------------------------- emission ------------------------- */
+  function post(msg) {
+    msg.__jul = true;
+    if (ready) { window.postMessage(msg, "*"); return; }
+    out.push(msg);
   }
-  function mkTabs(names, index) {
-    tabs = (names || []).map(function (n, i) { return { id: "t" + i, title: String(n), tabs: [] }; });
-    tabIndex = Math.max(0, Math.min(tabs.length - 1, Number(index) || 0));
+  function flush() {
+    if (ready) return;
+    ready = true;
+    var q = out, i;
+    out = [];
+    for (i = 0; i < q.length; i++) window.postMessage(q[i], "*");
   }
-  function mapItem(it) {
+  function boot() {
+    requestAnimationFrame(function () { requestAnimationFrame(flush); });
+  }
+  if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot);
+  setTimeout(flush, 1500);            // filet de securite
+
+  /* ------------------------- utilitaires ------------------------- */
+  function n(v, d) { var x = Number(v); return isFinite(x) ? x : d; }
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function str(v) { return v == null ? "" : String(v); }
+
+  var cssState = { scale: "", banner: "" };
+  function cssEl() {
+    var st = document.getElementById("julBridgeCss");
+    if (!st) {
+      st = document.createElement("style");
+      st.id = "julBridgeCss";
+      (document.head || document.documentElement).appendChild(st);
+    }
+    return st;
+  }
+  function refreshCss() {
+    cssEl().textContent =
+      (cssState.scale ? "#root{zoom:" + cssState.scale + " !important;}" : "") +
+      (cssState.banner ? ".PWrapper .PBanner img{object-position:center calc(50% + " + cssState.banner + "%) !important;}" : "");
+  }
+
+  /* ---------------------- menu : onglets + lignes ---------------------- */
+  function categories() {
+    var a = [], i;
+    if (!tabs.length) {
+      /* racine du menu (aucun onglet cote Lua) : on garde l'en-tete par
+         defaut de Sky plutot qu'une barre vide. */
+      return [{ label: "Main Menu", tabs: [] }];
+    }
+    for (i = 0; i < tabs.length; i++) a.push({ label: tabs[i], tabs: [] });
+    return a;
+  }
+  function refreshMenu() {
+    view.index = snapIndex(view.elements, view.index);
+    post({
+      action: "updateElements",
+      elements: view.elements,
+      index: view.index,
+      keybindMode: false,
+      categories: categories(),
+      categoryIndex: tabs.length ? clamp(tabIndex, 0, tabs.length - 1) : 0
+    });
+  }
+  /* Sky affiche "0/4" et surligne un separateur si l'index tombe dessus :
+     on recale sur la premiere ligne selectionnable, comme le fait le Lua. */
+  function snapIndex(list, idx) {
+    var n = list.length, k, j;
+    if (!n) return 0;
+    if (idx < 0 || idx >= n) idx = 0;
+    if (list[idx].type !== "divider") return idx;
+    for (k = 0; k < n; k++) {
+      j = (idx + k) % n;
+      if (list[j].type !== "divider") return j;
+    }
+    return 0;
+  }
+  function scrollValues(it) {
+    var a = [], i, o;
+    if (it.options && it.options.length) {
+      for (i = 0; i < it.options.length; i++) {
+        o = it.options[i];
+        a.push(o && typeof o === "object" ? str(o.label != null ? o.label : o.value) : str(o));
+      }
+      return a;
+    }
+    if (it.values && it.values.length) {
+      for (i = 0; i < it.values.length; i++) a.push(str(it.values[i]));
+    }
+    return a;
+  }
+  function scrollIndex(it) {
+    var v = Math.round(n(it.selected, n(it.value, 1)));
+    return v < 1 ? 1 : v;
+  }
+  function toSky(it) {
     if (!it || typeof it !== "object") return null;
-    var t = String(it.type || "button").toLowerCase();
-    var o = { label: it.label || "" };
-    if (t === "divider" || t === "separator") { o.type = "divider"; return o; }
-    if (t === "checkbox") { o.type = "checkbox"; o.checked = !!it.checked; return o; }
-    if (t === "slider") {
-      o.type = "slider";
-      o.value = Number(it.value != null ? it.value : (it.min || 0));
-      o.min = Number(it.min || 0);
-      o.max = Number(it.max || 100);
-      o.step = Number(it.step || 1);
+    var raw = it.type, t = [], i;
+    if (Object.prototype.toString.call(raw) === "[object Array]") {
+      for (i = 0; i < raw.length; i++) t.push(str(raw[i]).toLowerCase());
+    } else {
+      t.push(str(raw || "button").toLowerCase());
+    }
+    function has(x) { return t.indexOf(x) !== -1; }
+
+    var o = { label: str(it.label) };
+    if (typeof it.icon === "string" && /^(https?:|data:|\.{0,2}\/)/i.test(it.icon)) o.icon = it.icon;
+
+    if (has("divider") || has("separator")) { o.type = "divider"; return o; }
+    if (has("submenu")) { o.type = "subMenu"; return o; }
+
+    var cb = has("checkbox"), sl = has("slider"), sc = has("scroll") || has("list") || has("select");
+
+    if (sl && cb) {
+      o.type = "slider-checkbox"; o.checked = !!it.checked;
+      o.value = n(it.value, 0); o.min = n(it.min, 0); o.max = n(it.max, 100);
       return o;
     }
-    if (t === "scroll" || t === "list" || t === "select") {
-      o.type = "scrollable";
-      o.values = Array.isArray(it.options) ? it.options : (it.values || []);
-      o.value = Number(it.selected != null ? it.selected : 1);
+    if (sc && cb) {
+      o.type = "scrollable-checkbox"; o.checked = !!it.checked;
+      o.values = scrollValues(it); o.value = scrollIndex(it);
       return o;
     }
+    if (sl) {
+      o.type = "slider"; o.value = n(it.value, 0);
+      o.min = n(it.min, 0); o.max = n(it.max, 100);
+      return o;
+    }
+    if (sc) {
+      o.type = "scrollable"; o.values = scrollValues(it); o.value = scrollIndex(it);
+      return o;
+    }
+    if (cb) { o.type = "checkbox"; o.checked = !!it.checked; return o; }
     o.type = "button";
     return o;
   }
-  function currentElements(menu) {
-    var rows = [];
-    (menu || []).forEach(function (it) { var m = mapItem(it); if (m) rows.push(m); });
-    return rows;
+  function toSkyList(list) {
+    var a = [], i, e;
+    if (!list || !list.length) return a;
+    for (i = 0; i < list.length; i++) { e = toSky(list[i]); if (e) a.push(e); }
+    return a;
   }
-  function currentCategories() {
-    if (!tabs || tabs.length <= 1) return null;
-    return tabs.map(function (t, i) {
-      return { label: t.title, tabs: [] };
+
+  /* ---------------------- saisie / capture touche ---------------------- */
+  function postKb() {
+    post({ action: "updateKeyboard", visible: kb.visible, title: kb.title, value: kb.value });
+  }
+  function postBind() {
+    post({
+      action: "bindPrompt", visible: bind.visible, title: bind.title,
+      label: bind.label, state: bind.state, keyName: bind.keyName, feature: bind.feature
     });
   }
-  window.addEventListener("message", function (e) {
-    var d = e && e.data;
-    if (!d || !d.action || d.__jul) return;
+  function postLoad() {
+    post({
+      action: "loading", visible: load.visible, progress: load.progress, status: load.status,
+      username: load.username, avatar: load.avatar, anticheats: load.anticheats
+    });
+  }
+  function postFc() {
+    post({ action: "freecam", visible: fc.visible, options: fc.options, index: fc.index });
+  }
+  function crosshair(on) {
+    var el = document.getElementById("jul-crosshair");
+    if (!on) {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
+    if (el || !document.body) return;
+    el = document.createElement("img");
+    el.id = "jul-crosshair";
+    el.className = "Crosshair";
+    el.src = SKY_CROSSHAIR;
+    el.draggable = false;
+    el.style.pointerEvents = "none";
+    document.body.appendChild(el);
+  }
+
+  /* ---------------------- routeur  Lua -> Sky ---------------------- */
+  function onLua(d) {
+    var i, a, r;
     switch (d.action) {
+
       case "showMenu":
-        post({ action: "showUI", visible: d.visible !== false, elements: [], index: 0, keybindMode: false, username: "" });
+        menuVisible = d.visible !== false;
+        post({ action: "showUI", visible: menuVisible, username: username });
         break;
+
       case "setTabs":
-        mkTabs(d.tabs, d.index);
+        a = d.tabs || [];
+        tabs = [];
+        for (i = 0; i < a.length; i++) {
+          var tb = a[i];
+          tabs.push(tb && typeof tb === "object" ? str(tb.name != null ? tb.name : tb.label) : str(tb));
+        }
+        tabIndex = clamp(Math.round(n(d.index, 0)), 0, Math.max(0, tabs.length - 1));
+        refreshMenu();                 // le nom du sous-menu doit apparaitre tout de suite
         break;
+
       case "setTabIndex":
-        tabIndex = Math.max(0, Math.min(tabs.length - 1, Number(d.index) || 0));
-        post({ action: "updateElements", elements: [], index: 0, categories: currentCategories(), categoryIndex: tabIndex, path: [] });
+        tabIndex = clamp(Math.round(n(d.index, 0)), 0, Math.max(0, tabs.length - 1));
+        refreshMenu();
         break;
+
       case "resetTabs":
-        tabs = []; tabIndex = 0;
+        tabs = [];
+        tabIndex = 0;
+        refreshMenu();
         break;
+
       case "setCurrent":
-        post({ action: "updateElements", elements: currentElements(d.menu), index: (Number(d.current || 1) - 1),
-          categories: currentCategories(), categoryIndex: tabIndex, path: [] });
+        view.elements = toSkyList(d.menu);
+        view.index = Math.max(0, Math.round(n(d.current, 1)) - 1);
+        refreshMenu();
         break;
+
       case "setMenuColor":
-        post({ action: "updateTheme", themeAccent: hex(d.r, d.g, d.b) });
-        post({ action: "updateBanner", bannerColor: hex(d.r, d.g, d.b) });
+        post({
+          action: "updateBanner",
+          bannerColor: [Math.round(clamp(n(d.r, 255), 0, 255)),
+                        Math.round(clamp(n(d.g, 255), 0, 255)),
+                        Math.round(clamp(n(d.b, 255), 0, 255))].join(", ")
+        });
         break;
+
       case "setMenuPos":
-        post({ action: "setOverlayPosition", panel: "menu", x: d.x, y: d.y });
+        post({ action: "updatePositionPrecise", position: { x: n(d.x, 50), y: n(d.y, 44) } });
         break;
+
       case "setUiScale":
-        post({ action: "setMenuScale", scale: (Number(d.scale) || 1) * 100 });
+        cssState.scale = String(n(d.scale, 1) > 0 ? n(d.scale, 1) : 1);
+        refreshCss();
         break;
+
       case "setBanner":
-        post({ action: "updateBanner", bannerLink: d.url || "" });
+        post({ action: "updateBanner", bannerLink: str(d.url) });
         break;
+
+      case "setBannerOffset":
+        cssState.banner = String(n(d.v, 0) * 10);
+        refreshCss();
+        break;
+
       case "setFooterUser":
-        post({ action: "updateFooterUser", username: d.name || "" });
+        username = str(d.name);
+        post({ action: "showUI", visible: menuVisible, username: username });
         break;
+
+      case "setFooterLogo":
+        post({ action: "updateBanner", bannerAvatar: str(d.url) || BLANK_PNG });
+        break;
+
       case "setKeybinds":
-        post({ action: "updateKeybindList", keybinds: d.rows || [] });
-        post({ action: "toggleKeybindListUI", visible: true });
+        a = d.rows || d.keybinds || [];
+        var binds = [];
+        for (i = 0; i < a.length; i++) {
+          r = a[i] || {};
+          var st = str(r.state).toLowerCase();
+          var isCb = (st === "on" || st === "off") || str(r.type).toLowerCase() === "checkbox";
+          binds.push({
+            label: str(r.label),
+            keyLabel: str(r.key != null ? r.key : r.keyLabel),
+            type: isCb ? "checkbox" : "button",
+            checked: st === "on" || r.checked === true
+          });
+        }
+        post({ action: "displayBinds", visible: binds.length > 0, binds: binds });
         break;
+
       case "notify":
-        post({ action: "notify", type: d.type || d.kind || "info", title: d.title || "",
-          message: d.message || d.text || d.desc || "" });
+        post({
+          action: "showNotification",
+          type: str(d.type || "info").toLowerCase(),
+          title: str(d.header || d.title || "JuL Menu"),
+          desc: str(d.message || d.text || d.desc),
+          duration: n(d.duration, 4000)
+        });
         break;
+
       case "showInputPrompt":
-        post({ action: "openTextInput", title: d.title || "Saisie", placeholder: d.placeholder || "", value: d.value || "" });
+        var mode = str(d.mode).toLowerCase();
+        if (mode === "keybind" || mode === "itemkeybind") {
+          bind.visible = true;
+          bind.feature = (mode === "itemkeybind");
+          bind.title = bind.feature ? "Bind Key" : str(d.title || "Choose Menu Key");
+          bind.label = bind.feature ? str(d.title).replace(/^[^:]*:\s*/, "") : "Menu";
+          bind.keyName = str(d.value);
+          bind.state = bind.keyName ? "pending" : "listen";
+          postBind();
+          kb.visible = false;
+          postKb();
+        } else {
+          bind.visible = false;
+          postBind();
+          kb.visible = true;
+          kb.title = str(d.title || "Saisie");
+          kb.value = str(d.value);
+          postKb();
+        }
         break;
+
       case "updateInputPrompt":
-        post({ action: "updateTextInput", value: d.value || "", allSelected: !!d.selectAll });
+        if (typeof d.title === "string" && d.title) kb.title = d.title;
+        if (typeof d.value === "string") kb.value = d.value;
+        if (bind.visible) {
+          bind.keyName = kb.value;
+          bind.state = bind.keyName ? "pending" : "listen";
+          postBind();
+        } else {
+          postKb();
+        }
         break;
+
       case "hideInputPrompt":
-        post({ action: "closeTextInput" });
+        kb.visible = false;
+        postKb();
+        bind.visible = false;
+        postBind();
         break;
+
+      case "showLoading":
+        load.visible = true;
+        load.progress = 0;
+        load.status = str(d.status || "Chargement...");
+        load.username = str(d.welcome || d.username);
+        if (d.anticheats) load.anticheats = d.anticheats;
+        postLoad();
+        break;
+
+      case "loadingProgress":
+        load.visible = true;
+        load.progress = clamp(n(d.percent, load.progress), 0, 100);
+        if (d.status) load.status = str(d.status);
+        postLoad();
+        break;
+
+      case "hideLoading":
+        load.visible = false;
+        postLoad();
+        break;
+
+      case "displayPlayerCard":
+        if (d.visible === false || !d.data) {
+          post({ action: "playerInfo", visible: false });
+          break;
+        }
+        var p = d.data, hpMax = n(p.hpMax, 0), hpN = n(p.hpN, 0);
+        var pct = hpMax > 0 ? (hpN / hpMax) * 100 : n(p.healthPct, 0);
+        post({
+          action: "playerInfo",
+          visible: true,
+          info: {
+            name: str(p.name),
+            serverId: p.sid != null ? p.sid : p.serverId,
+            distance: p.dist != null ? p.dist : p.distance,
+            vehicle: p.veh != null ? p.veh : p.vehicle,
+            weapon: p.wep != null ? p.wep : p.weapon,
+            speed: p.spd != null ? p.spd : p.speed,
+            character: p.character,
+            job: p.job,
+            phone: p.num != null ? p.num : p.phone,
+            healthPct: clamp(Math.round(pct), 0, 100),
+            armorPct: clamp(Math.round(n(p.apN, n(p.armorPct, 0))), 0, 100)
+          }
+        });
+        break;
+
+      case "displayFreecam":
+        a = d.options || [];
+        fc.options = [];
+        for (i = 0; i < a.length; i++) {
+          var op = a[i];
+          fc.options.push(op && typeof op === "object" ? str(op.label != null ? op.label : op.value) : str(op));
+        }
+        fc.visible = d.visible !== false;
+        if (fc.visible) fc.index = 0;      // chaque ouverture repart sur la 1re option
+        postFc();
+        break;
+
+      case "scroll":
+        if (fc.visible && fc.options.length) {
+          var cnt = fc.options.length;
+          fc.index = str(d.direction).toLowerCase() === "up"
+            ? (fc.index - 1 + cnt) % cnt
+            : (fc.index + 1) % cnt;
+          postFc();
+        }
+        break;
+
+      case "displayCrosshair":
+        crosshair(d.visible !== false);
+        break;
+
+      case "designMode":
+        /* Interface SOURIS volontairement non portee : aucun deplacement du
+           menu / keybinds au curseur n'est implemente. */
+        break;
+
+      /* actions deja natives cote Sky : passe-plat */
+      case "setLang":
+      case "injectCSS":
+      case "setSubtabColor":
+      case "setBgOpacity":
+      case "setMaxVisible":
+      case "setAnimSpeed":
+      case "setNotifyPosition":
+      case "setMenuPosition":
+      case "setKeybindPos":
+      case "moveHint":
+      case "updatePosition":
+      case "updatePositionPrecise":
+      case "keydown":
+      case "updateWeapon":
+      case "updateVehicle":
+        post(d);
+        break;
+
       default:
-        if (d.action === "showLoading" || d.action === "loadingProgress" || d.action === "hideLoading") post(d);
         break;
     }
-  }, true);
-})();
-</script>
-
-<script>
-(function(){
-  if (window.__navShim) return; window.__navShim = true;
-  var activeIdx = 0;
-  function items(){ return Array.from(document.querySelectorAll('.PTab')); }
-  function sync(){ var its = items(); if(!its.length) return; activeIdx = Math.max(0, Math.min(its.length-1, activeIdx));
-    its.forEach(function(el,i){ if(i===activeIdx) el.classList.add('active'); else el.classList.remove('active'); }); }
-  function move(d){ var its=items(); if(!its.length) return; activeIdx = (activeIdx + d + its.length) % its.length; sync(); }
-  window.addEventListener('keydown', function(e){
-    var its = items(); if(!its.length) return;
-    var k = e.key;
-    if (k === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); move(1); }
-    else if (k === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); move(-1); }
-    else if (k === 'Enter' || k === ' ') { e.preventDefault(); e.stopPropagation(); if(its[activeIdx]) its[activeIdx].click(); }
-  }, true);
-  // keep activeIdx in sync when DOM changes (guard: body may be null at script run)
-  if (document.body) {
-    var obs = new MutationObserver(function(){ sync(); });
-    obs.observe(document.body, {childList:true, subtree:true});
-  } else {
-    window.addEventListener('DOMContentLoaded', function(){
-      var obs = new MutationObserver(function(){ sync(); });
-      obs.observe(document.body, {childList:true, subtree:true});
-    });
   }
-  window.__navMove = move;
+
+  /* ------------------------- ecoute ------------------------- */
+  window.addEventListener("message", function (ev) {
+    var d = ev.data;
+    if (!d || typeof d !== "object" || !d.action) return;
+    if (d.__jul) return;                     // nos propres emissions
+    /* Sky s'auto-notifie "Success <label>" quand ENTER tombe sur une ligne :
+       le Lua gere deja ses notifications, ce doublon est avale. */
+    if (d.action === "showNotification") { ev.stopImmediatePropagation(); return; }
+    onLua(d);
+  }, true);
+
+  /* Pendant une saisie / une capture de touche, les touches ne doivent pas
+     atteindre le clavier interne de Sky (sinon q/e changeraient d'onglet). */
+  window.addEventListener("keydown", function (ev) {
+    if (kb.visible || bind.visible) ev.stopImmediatePropagation();
+  }, true);
+
+  /* Pied de menu : pas de logo tant que le Lua n'en fournit pas
+     (evite l'image cassee "vyrx_logo.png"). */
+  post({ action: "updateBanner", bannerAvatar: BLANK_PNG });
+
+  /* Dans le jeu, on affiche tout de suite l'ecran de chargement de Sky :
+     la fenetre CEF apparait sinon noire pendant les 2 s qui precedent le
+     premier "showLoading" du Lua. Filet de securite : si le Lua n'envoie
+     jamais "hideLoading", l'ecran se retire seul au bout de 15 s. */
+  if (typeof window.invokeNative !== "undefined") {
+    load.visible = true;
+    load.progress = 0;
+    load.status = "Initialisation...";
+    postLoad();
+    setTimeout(function () {
+      if (load.visible) { load.visible = false; postLoad(); }
+    }, 15000);
+  }
 })();
 </script>
 

@@ -1696,7 +1696,24 @@ i.menu-category-icon.fas.svelte-1ysny0v.svelte-1ysny0v {
   }
 })();
 </script>
-    <script type="module">
+    <script>
+(function(){
+  if (window.__aryaShim) return; window.__aryaShim = true;
+  window.addEventListener('message', function(e){
+    var d = e && e.data; if (!d || !d.action || d.__arya || d.__jul || d.__demoMsg) return;
+    if (d.action === 'position') {
+      window.postMessage({__arya:true, action:'updatePosition', x:d.x, y:d.y}, '*');
+    } else if (d.action === 'updateKeybinds') {
+      window.postMessage({__arya:true, action:'updateKeybindList', keybinds: d.keybinds || d.rows || []}, '*');
+      window.postMessage({__arya:true, action:'toggleKeybindListUI', visible: true}, '*');
+    } else if (d.action === 'keybindPosition') {
+      window.postMessage({__arya:true, action:'setOverlayPosition', panel: d.panel || 'keybindList',
+        anchor: d.anchor || 'top-right', x: d.x, y: d.y, scale: d.scale}, '*');
+    }
+  }, true);
+})();
+</script>
+<script type="module">
 var ts = Object.defineProperty;
 var ns = (n, e, t) =>
   e in n

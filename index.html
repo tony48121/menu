@@ -417,5 +417,1425 @@ var Rn=Object.defineProperty;var $n=(t,e,n)=>e in t?Rn(t,e,{enumerable:!0,config
       });
     })();
     </script>
+    <style id="nexus-skin">
+/* ===== NEXUS SKIN — blocs arrondis à contour clair, icônes, chevrons, onglets pastilles ===== */
+:root {
+    --nx-line: rgba(255,255,255,0.42);
+    --nx-radius: 1.7vh;
+    --nx-glass: rgba(var(--ui-back-r), var(--ui-back-g), var(--ui-back-b), 0.82);
+}
+#menu-root { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 600; }
+
+/* --- bannière --- */
+#header-wrapper {
+    background: var(--nx-glass);
+    border: 0.14vh solid var(--nx-line);
+    border-radius: var(--nx-radius);
+    margin-bottom: 0.6vh;
+    backdrop-filter: blur(0.6vh);
+}
+#banner-image { height: 8.8vh; }
+
+/* --- bloc liste (onglets + éléments) --- */
+#menu-container {
+    background: var(--nx-glass);
+    border: 0.14vh solid var(--nx-line);
+    border-radius: var(--nx-radius);
+    padding: 0.5vh 0;
+    backdrop-filter: blur(0.6vh);
+}
+
+/* --- onglets en pastilles, presque collés aux bords du bloc (même espace que la surbrillance de sélection : 0.5vh) (déplacés dans le bloc liste par le script) --- */
+#menu-tabs { justify-content: stretch; gap: 0.3vh; padding: 0 0.5vh 0.5vh; margin-top: 0; }
+#menu-tabs:has(.tab-item.single) { display: none; }
+.tab-item {
+    flex: 1 1 0; max-width: none; padding: 0.95vh 0.4vh; font-size: 1.1vh; font-weight: 600;
+    border-radius: 1.3vh; border: 0.12vh solid transparent; color: rgba(255,255,255,0.78);
+    background: transparent;
+}
+.tab-item::before { display: none; }
+.tab-item.active {
+    color: #fff; font-weight: 600; background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.75);
+}
+
+/* --- lignes --- */
+.menu-item {
+    justify-content: flex-start; margin: 0 0.5vh; padding: 0 1vh;
+    font-size: 1.25vh; font-weight: 600; border-radius: 1.4vh;
+}
+.menu-item .components-container { margin-left: auto; }
+.menu-item.separator { margin: 0 0.5vh; padding: 0 1vh; color: rgba(255,255,255,0.7); }
+.nx-left-icon { width: 1.9vh; height: 1.9vh; object-fit: contain; flex-shrink: 0; margin-right: 1.2vh; }
+.nx-chevron {
+    width: 1.3vh; height: 1.3vh; margin-left: auto; flex-shrink: 0;
+    background: var(--nx-chevron) center / contain no-repeat;
+}
+.nx-chevron + .components-container, .components-container + .nx-chevron { margin-left: 1vh; }
+
+#selection-highlight {
+    left: 0.5vh; right: 0.5vh; height: 2.8vh; margin-top: 0.1vh;
+    background: rgba(255,255,255,0.16);
+    border: 0.15vh solid rgba(255,255,255,0.92);
+    box-shadow: none; border-radius: 1.4vh;
+}
+
+/* --- séparateurs : traits fins + libellé en capitales --- */
+.separator-container { gap: 1.2vh; }
+.separator-bar {
+    height: 0.1vh; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55));
+    border-radius: 0; min-width: 2vh;
+}
+.separator-container .separator-bar:last-child { background: linear-gradient(270deg, transparent, rgba(255,255,255,0.55)); }
+.separator-text {
+    font-size: 0.95vh; font-weight: 600; letter-spacing: 0.28vh; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+}
+
+/* --- composants --- */
+.component input[type="checkbox"] {
+    width: 3.4vh; height: 1.6vh; background-color: rgba(255,255,255,0.1);
+    border: 0.1vh solid rgba(255,255,255,0.35);
+}
+.component input[type="checkbox"]::after { top: 0.2vh; background-color: rgba(255,255,255,0.6); }
+.component input[type="checkbox"]:checked {
+    background-color: rgba(var(--ui-main-r), var(--ui-main-g), var(--ui-main-b), 0.9);
+    border-color: rgba(255,255,255,0.7);
+}
+.component input[type="checkbox"]:checked::after { background-color: #111; }
+.component .slider-component { font-weight: 600; }
+
+/* --- scrollbar rangée dans le bloc liste --- */
+#menu-scrollbar { left: auto; right: 0.15vh; top: 0.3vh; height: auto; bottom: 0.3vh; width: 0.35vh; z-index: 3; }
+#scrollbar-track { background: transparent; }
+#scrollbar-thumb { background-color: rgba(255,255,255,0.55); }
+
+/* --- pied de page : avatar + nom, pastille de version, compteur --- */
+#menu-footer {
+    background: var(--nx-glass); border: 0.14vh solid var(--nx-line); border-radius: var(--nx-radius);
+    height: 3.9vh; margin-top: 0.6vh; padding: 0 1vh 0 0.8vh; gap: 0.9vh;
+    justify-content: flex-start; backdrop-filter: blur(0.6vh);
+}
+#footer-avatar {
+    width: 2.4vh; height: 2.4vh; border-radius: 50%; flex-shrink: 0;
+    background: var(--nx-avatar) center / cover no-repeat, #2a2a2e;
+    border: 0.1vh solid rgba(255,255,255,0.45);
+}
+#footer-left { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.15vh; font-weight: 600 !important; }
+#footer-pill {
+    flex-shrink: 0; min-width: 11vh; text-align: center; font-size: 1.1vh; font-weight: 600;
+    padding: 0.5vh 1.2vh; border-radius: 0.9vh; background: rgba(255,255,255,0.1);
+    border: 0.13vh solid rgba(255,255,255,0.6);
+}
+#footer-right { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 600; font-size: 1.15vh; flex-shrink: 0; min-width: 3.4vh; text-align: right; }
+
+/* --- tooltip, listes, notifications : même langage visuel --- */
+#tooltip-container {
+    background-color: var(--nx-glass); border: 0.14vh solid var(--nx-line);
+    border-radius: var(--nx-radius); padding: 1vh 1.5vh; font-weight: 600; backdrop-filter: blur(0.6vh);
+}
+.live-list-container { border-radius: 1.2vh; border: 0.12vh solid var(--nx-line); }
+#help-message { border-radius: 1.2vh; border: 0.12vh solid var(--nx-line); font-weight: 600; }
+
+/* --- notifications : bloc verre arrondi, pastille d'icône par type, barre de durée fine --- */
+#notification-container { font-family: 'Poppins', 'Inter', sans-serif; gap: 0.7vh; width: 32vh; }
+.notification {
+    flex-direction: row; align-items: center; gap: 1.2vh; min-height: 5vh;
+    padding: 1.1vh 1.4vh 1.6vh 1.1vh; border-radius: 1.5vh;
+    background: var(--nx-glass); border: 0.14vh solid var(--nx-line);
+    backdrop-filter: blur(0.6vh); --nx-c: var(--ui-main);
+}
+.notification-side { display: none; }
+.nx-notif-badge {
+    position: relative; flex-shrink: 0; width: 3.2vh; height: 3.2vh; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: var(--nx-c);
+    border: 0.12vh solid var(--nx-c);
+}
+.nx-notif-badge::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--nx-c); opacity: 0.16; }
+.nx-notif-badge svg { position: relative; width: 1.7vh; height: 1.7vh; }
+.nx-notif-badge img { position: relative; width: 1.9vh; height: 1.9vh; object-fit: contain; }
+.nx-notif-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.2vh; }
+.notification-header { font-size: 1.3vh; font-weight: 600; margin: 0; letter-spacing: 0.02vh; }
+.notification-message { font-size: 1.1vh; font-weight: 500; color: rgba(255,255,255,0.72); }
+.notification-icon { display: none; }
+.notification-progress {
+    left: 1.4vh; right: 1.4vh; bottom: 0.7vh; width: auto; height: 0.28vh;
+    background: rgba(255,255,255,0.12); border-radius: 0.2vh; overflow: hidden;
+}
+.notification-progress-bar { border-radius: 0.2vh; background: var(--nx-c) !important; }
+
+    </style>
+    <script>
+/* ===== NEXUS SKIN (JS) =====
+   - range les onglets dans le bloc liste et la scrollbar dans la zone d'items
+   - icône d'un item (champ "icon" envoyé par le Lua) affichée à GAUCHE du nom
+   - chevron ">" sur les items de type "submenu" (ou item.submenu / item.arrow)
+   - pied de page : avatar + nom, pastille de version, compteur
+   API : window.NexusSkin.setFooterBadge('Nexus V1.0'), .setAvatar(url)
+*/
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var tabs = $('menu-tabs'), cont = $('menu-container'), items = $('menu-items'),
+      list = $('items-list'), sb = $('menu-scrollbar'), foot = $('menu-footer');
+  if (!tabs || !cont || !items || !list) return;
+
+  var root = document.documentElement;
+  function uri(svg) { return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '")'; }
+  root.style.setProperty('--nx-chevron', uri(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5l7.5 7.5L9 19.5"/></svg>'));
+  root.style.setProperty('--nx-avatar', uri(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#303036"/><circle cx="20" cy="15" r="7" fill="#c9c9cf"/><path d="M5 40c1-9 7-13 15-13s14 4 15 13z" fill="#c9c9cf"/></svg>'));
+
+  // structure
+  cont.insertBefore(tabs, items);
+  if (sb) items.appendChild(sb);
+  if (foot) {
+    var left = $('footer-left'), right = $('footer-right');
+    var av = document.createElement('span'); av.id = 'footer-avatar';
+    foot.insertBefore(av, left);
+    var pill = document.createElement('span'); pill.id = 'footer-pill'; pill.textContent = 'Nexus V1.0';
+    foot.insertBefore(pill, right);
+  }
+
+  // décoration des lignes (idempotente)
+  var lastMenu = [];
+  function decorate(menu) {
+    var rows = list.querySelectorAll(':scope > .menu-item');
+    rows.forEach(function (row, i) {
+      var raw = (menu && menu[i]) || {};
+      var holder = row.querySelector('.component.icon');
+      var img = holder && holder.querySelector('img');
+      if (img && !row.querySelector(':scope > .nx-left-icon')) {
+        var l = document.createElement('img');
+        l.className = 'nx-left-icon'; l.src = img.src; l.alt = '';
+        row.insertBefore(l, row.firstChild);
+        holder.remove();
+      }
+      var isSub = raw.type === 'submenu' || !!raw.submenu || !!raw.arrow;
+      var ch = row.querySelector(':scope > .nx-chevron');
+      if (isSub && !ch) {
+        ch = document.createElement('span'); ch.className = 'nx-chevron'; row.appendChild(ch);
+      } else if (!isSub && ch) ch.remove();
+    });
+  }
+  function syncScrollbar() {
+    if (!sb) return;
+    sb.style.display = list.scrollHeight > items.clientHeight + 2 ? '' : 'none';
+  }
+  window.addEventListener('resize', syncScrollbar);
+  window.addEventListener('message', function (e) {
+    var h = e.data;
+    if (h && h.action === 'setCurrent') {
+      lastMenu = h.menu || [];
+      decorate(lastMenu); syncScrollbar();
+      requestAnimationFrame(function () { decorate(lastMenu); syncScrollbar(); });
+    }
+  });
+  new MutationObserver(function () { decorate(lastMenu); syncScrollbar(); }).observe(list, { childList: true });
+
+
+  // --- notifications : pastille d'icône par type + corps de texte ---
+  var NOTIF_ICONS = {
+    success: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    info: '<path d="M12 11v6"/><circle cx="12" cy="7.4" r=".6" fill="currentColor"/>',
+    warning: '<path d="M12 4.5l8.5 15h-17z"/><path d="M12 10.5v4"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>',
+    error: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'
+  };
+  NOTIF_ICONS.warn = NOTIF_ICONS.warning;
+  var origNotify = window.showNotification;
+  if (typeof origNotify === 'function') {
+    window.showNotification = function (type, header, message, duration, icon) {
+      origNotify.apply(this, arguments);
+      var box = $('notification-container');
+      var el = box && box.lastElementChild;
+      if (!el || el.dataset.nx) return;
+      el.dataset.nx = '1';
+      var side = el.querySelector('.notification-side');
+      if (side && side.style.background) el.style.setProperty('--nx-c', side.style.background);
+      var key = String(type || 'info').toLowerCase();
+      var badge = document.createElement('div');
+      badge.className = 'nx-notif-badge';
+      var img = el.querySelector('.notification-icon');
+      var custom = img && img.getAttribute('src') && img.getAttribute('src').indexOf('CIPcU2j') === -1;
+      if (custom) {
+        var im = document.createElement('img'); im.src = img.getAttribute('src');
+        im.onerror = function () { im.remove(); badge.insertAdjacentHTML('beforeend', svgFor(key)); };
+        badge.appendChild(im);
+      } else badge.innerHTML = svgFor(key);
+      if (img) img.remove();
+      var body = document.createElement('div'); body.className = 'nx-notif-body';
+      var hd = el.querySelector('.notification-header'), ms = el.querySelector('.notification-message');
+      if (hd) body.appendChild(hd);
+      if (ms) body.appendChild(ms);
+      el.insertBefore(badge, el.firstChild);
+      el.insertBefore(body, badge.nextSibling);
+    };
+  }
+  function svgFor(k) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+      (NOTIF_ICONS[k] || NOTIF_ICONS.info) + '</svg>';
+  }
+
+  window.NexusSkin = {
+    setFooterBadge: function (t) { var p = $('footer-pill'); if (p) p.textContent = t; },
+    setAvatar: function (u) { root.style.setProperty('--nx-avatar', 'url("' + u + '")'); }
+  };
+})();
+
+    </script>
+    <script>
+/* ===========================================================
+   NEXUS UI — DEMO MODE
+   Remplace le Lua : simule les messages NUI (postMessage) et
+   les touches du jeu pour tester l'interface dans un navigateur.
+
+   - S'active tout seul hors du jeu (pas de GetParentResourceName)
+   - Forcer :   index.html?demo      Désactiver : index.html?demo=0
+   - Touches :  ↑ ↓ naviguer · ← → modifier · Entrée valider
+                Q / E (ou Tab) onglets · Retour/Échap : retour/fermer
+                F1 ou M : ouvrir/fermer · T : visite guidée · H : aide
+   =========================================================== */
+(function () {
+  var qs = new URLSearchParams(location.search);
+  var inGame = typeof window.GetParentResourceName === 'function' || typeof window.invokeNative === 'function';
+  var DEMO = qs.has('demo') ? qs.get('demo') !== '0' : !inGame;
+  if (!DEMO) return;
+
+  function send(o) { window.postMessage(o, '*'); }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- décor de démo (le body est transparent en jeu) ---------- */
+  var css = document.createElement('style');
+  css.textContent = [
+    '#nx-demo-bg{position:fixed;inset:0;z-index:0;pointer-events:none;',
+    ' background:linear-gradient(180deg,transparent 62%,rgba(255,255,255,.05) 62.2%,transparent 63%),',
+    ' repeating-linear-gradient(90deg,transparent 0 11.9vh,rgba(255,255,255,.035) 12vh 12.1vh),',
+    ' radial-gradient(110% 90% at 72% 12%,#6b7a96 0%,#2a3347 38%,#0d0f15 100%)}',
+    '#nx-demo-badge{position:fixed;top:1.6vh;left:50%;transform:translateX(-50%);z-index:3000;',
+    ' font:600 1.1vh Poppins,Inter,sans-serif;letter-spacing:.25vh;padding:.5vh 1.4vh;border-radius:1vh;',
+    ' background:rgba(var(--ui-back-r),var(--ui-back-g),var(--ui-back-b),.85);',
+    ' border:.12vh solid rgba(255,255,255,.45);color:#fff;pointer-events:none}',
+    '#nx-demo-badge b{color:var(--ui-main)}',
+    '#nx-demo-panel{position:fixed;left:2vh;bottom:2vh;z-index:3000;width:30vh;font:500 1.2vh/1.5 Poppins,Inter,sans-serif;',
+    ' background:rgba(var(--ui-back-r),var(--ui-back-g),var(--ui-back-b),.88);border:.12vh solid rgba(255,255,255,.35);border-radius:1.4vh;',
+    ' padding:1.2vh 1.4vh;color:rgba(255,255,255,.85);transition:opacity .25s,transform .25s}',
+    '#nx-demo-panel.off{opacity:0;transform:translateY(1vh);pointer-events:none}',
+    '#nx-demo-panel h4{font-size:1.2vh;font-weight:600;color:#fff;margin-bottom:.7vh;display:flex;justify-content:space-between}',
+    '#nx-demo-panel h4 span{color:var(--ui-main)}',
+    '#nx-demo-panel .row{display:flex;justify-content:space-between;gap:1vh;padding:.15vh 0}',
+    '#nx-demo-panel kbd{font:500 1.05vh monospace;background:rgba(255,255,255,.1);border-radius:.3vh;padding:0 .6vh}',
+    '#nx-demo-panel .btns{display:flex;flex-wrap:wrap;gap:.6vh;margin-top:1vh}',
+    '#nx-demo-panel button{pointer-events:auto;cursor:pointer;border:.1vh solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.08);border-radius:.8vh;',
+    ' padding:.5vh .9vh;font:500 1.1vh Poppins,Inter,sans-serif;transition:background .2s}',
+    '#nx-demo-panel button:hover{background:rgba(255,255,255,.22)}',
+    '#menu-root .menu-item,#menu-root .tab-item{cursor:pointer}'
+  ].join('\n');
+  document.head.appendChild(css);
+  var bg = document.createElement('div'); bg.id = 'nx-demo-bg'; document.body.insertBefore(bg, document.body.firstChild);
+  var badge = document.createElement('div');
+  badge.id = 'nx-demo-badge'; badge.innerHTML = '<b>DEMO</b> MODE';
+  document.body.appendChild(badge);
+
+  /* ---------- bannière générée (fumée grise) ---------- */
+  var BANNER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" preserveAspectRatio="xMidYMid slice">' +
+    '<defs><filter id="s" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.011 0.022" numOctaves="5" seed="11"/>' +
+    '<feColorMatrix type="matrix" values="0 0 0 0 .86  0 0 0 0 .86  0 0 0 0 .88  1.9 0 0 0 -.62"/></filter></defs>' +
+    '<rect width="420" height="100" fill="#17171a"/><rect width="420" height="100" filter="url(#s)" opacity=".8"/>' +
+    '<g stroke="#fff" stroke-opacity=".22" fill="none"><path d="M0 70L120 0M300 100L420 28M180 0L420 40"/></g>' +
+    '<text x="210" y="66" text-anchor="middle" font-family="Poppins,Arial Black,Arial,sans-serif" font-weight="800" font-size="46" fill="#c8c8cc" stroke="#7d7d82" stroke-width="1">Nexus</text></svg>');
+
+  /* ---------- icônes (SVG filaires blancs) ---------- */
+  function ico(p) {
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>');
+  }
+  var ICONS = {
+    self: ico('<circle cx="12" cy="8" r="3.7"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6z"/>'),
+    players: ico('<circle cx="9" cy="8.5" r="3"/><path d="M3 19.5c.6-3.4 3-5 6-5s5.4 1.6 6 5z"/><circle cx="17" cy="9.5" r="2.3"/><path d="M17.5 14.4c2.2.3 3.6 1.8 4 4.6"/>'),
+    vehicle: ico('<path d="M4 17.5v-5.2l1.9-4.4a2 2 0 0 1 1.8-1.2h8.6a2 2 0 0 1 1.8 1.2l1.9 4.4v5.2h-2.6V19H15v-1.5H9V19H6.6v-1.5z"/><path d="M4 12.3h16"/><circle cx="7.6" cy="14.9" r=".6"/><circle cx="16.4" cy="14.9" r=".6"/>'),
+    weapons: ico('<path d="M3 8.2h14.6a2.4 2.4 0 0 1 2.4 2.4v1.7h-9.3l-1.1 5.2H6.6l1.1-5.2H3z"/><path d="M13 12.3v1.8"/>'),
+    world: ico('<circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2M12 3.4c2.6 2.4 3.8 5.3 3.8 8.6s-1.2 6.2-3.8 8.6c-2.6-2.4-3.8-5.3-3.8-8.6S9.4 5.8 12 3.4z"/>'),
+    visual: ico('<path d="M2.5 12S6 5.6 12 5.6 21.5 12 21.5 12 18 18.4 12 18.4 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>'),
+    scripts: ico('<rect x="3" y="4.5" width="18" height="12.5" rx="2.2"/><path d="M8.5 20.5h7"/><path d="M13 7.6l-3 4.2h4l-3 4"/>'),
+    settings: ico('<circle cx="12" cy="12" r="2.8"/><circle cx="12" cy="12" r="6.3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/>')
+  };
+
+  /* ---------- définition des menus ---------- */
+  var COLORS = [['White', '#ffffff'], ['Red', '#e74c3c'], ['Blue', '#2f94d8'], ['Green', '#2cc45a'], ['Purple', '#9b59b6'], ['Orange', '#ff9800'], ['Pink', '#ff5ca8']];
+  var state = { open: false, busy: false, tour: false };
+
+  function check(name, v, extra) { return Object.assign({ name: name, type: 'checkbox', checked: !!v }, extra || {}); }
+  function range(name, min, max, step, v, extra) { return Object.assign({ name: name, type: 'slider', min: min, max: max, step: step, value: v }, extra || {}); }
+  function scroll(name, opts, i, extra) { return Object.assign({ name: name, type: 'scroll', options: opts, selected: i || 0 }, extra || {}); }
+  function btn(name, extra) { return Object.assign({ name: name, type: 'button' }, extra || {}); }
+  function sep(name) { return { name: name, type: 'divider' }; }
+  function sub(name, key, icon, extra) { return Object.assign({ name: name, type: 'submenu', submenu: key, icon: icon }, extra || {}); }
+
+  var visualHud = [
+    sep('HUD'),
+    check('Crosshair', false, { fx: 'crosshair' }),
+    check('Keybind List', false, { fx: 'keybinds' }),
+    check('Spectator List', false, { fx: 'spectators' }),
+    check('Hovering Text', false, { fx: 'hovering' }),
+    check('Help Message', true, { fx: 'help' })
+  ];
+  var visualTheme = [sep('Theme'), scroll('Menu Color', COLORS.map(function (c) { return c[0]; }), 0, { fx: 'color' })];
+
+  var menus = {
+    root: {
+      title: 'Menu',
+      tabs: [{
+        label: 'Menu', items: [
+          sub('Self', 'self', ICONS.self),
+          sub('Players', 'players', ICONS.players),
+          sub('Vehicle', 'vehicle', ICONS.vehicle),
+          sub('Weapons', 'weapons', ICONS.weapons),
+          sub('World', 'world', ICONS.world),
+          sub('Visual', 'visual', ICONS.visual),
+          sub('Scripts', 'scripts', ICONS.scripts),
+          sub('Settings', 'settings', ICONS.settings)
+        ]
+      }]
+    },
+    self: {
+      title: 'Self',
+      tabs: [
+        {
+          label: 'Status', items: [
+            sep('Toggles'),
+            check('Invincible', false, { tip: function (it) { return [{ label: 'Status', text: { value: it.checked ? 'Enabled' : 'Disabled', color: it.checked ? '#2cc45a' : '#ff4d4d' } }, { label: 'Damage', text: it.checked ? 'Ignored' : 'Normal' }]; } }),
+            check('Infinite Stamina', true),
+            sep('Values'),
+            range('Health', 0, 200, 10, 200, { tip: function (it) { return [{ label: 'Health', text: String(it.value), bar: { percent: it.value / 2, color: '#2cc45a' } }, { label: 'Max', text: '200' }]; } }),
+            range('Armor', 0, 100, 5, 40, { tip: function (it) { return [{ label: 'Armor', text: String(it.value), bar: { percent: it.value, color: '#2f94d8' } }]; } }),
+            scroll('Run Speed', ['Normal', 'Fast', 'Faster', 'Max'], 0),
+            btn('Heal', { notify: ['success', 'Self', 'Health and armor restored.'] })
+          ]
+        },
+        {
+          label: 'Appearance', items: [
+            sep('Outfit'),
+            sub('Outfit Editor', 'outfit', null, { tip: function () { return [{ label: 'Opens', text: 'Submenu' }, { label: 'Items', text: '7' }]; } }),
+            scroll('Gender', ['Male', 'Female'], 0),
+            btn('Randomize', { notify: ['info', 'Appearance', 'Random outfit applied.'] })
+          ]
+        }
+      ]
+    },
+    players: {
+      title: 'Players',
+      tabs: [
+        {
+          label: 'Everyone', items: [
+            sep('Toggles'),
+            check('Show Names', true),
+            check('Show Distance', false),
+            check('Show Health Bars', false),
+            check('Highlight Friends', false),
+            check('Voice Indicator', true),
+            sep('Filters'),
+            range('Max Distance', 50, 500, 25, 200),
+            scroll('Sort By', ['Distance', 'Name', 'ID'], 0)
+          ]
+        },
+        {
+          label: 'Nearby', items: [
+            sep('Nearby'),
+            range('Radius', 10, 200, 10, 80),
+            scroll('List Size', ['5', '10', '20'], 1),
+            btn('Refresh List', { notify: ['info', 'Players', 'List refreshed.'] })
+          ]
+        }
+      ]
+    },
+    vehicle: {
+      title: 'Vehicle',
+      tabs: [
+        {
+          label: 'Spawner', items: [
+            sep('Spawner'),
+            btn('Spawn Vehicle', { input: { title: 'Vehicle model name', placeholder: 'e.g. adder' }, onInput: function (v) { notify('success', 'Vehicle', v ? 'Spawning "' + v + '"…' : 'No model entered.'); } }),
+            scroll('Class', ['Super', 'Sports', 'Muscle', 'Off-road', 'Compact'], 0),
+            btn('Repair', { notify: ['success', 'Vehicle', 'Vehicle repaired.'] }),
+            btn('Delete', { notify: ['warning', 'Vehicle', 'Vehicle removed.'] })
+          ]
+        },
+        {
+          label: 'Handling', items: [
+            sep('Toggles'),
+            check('Engine Always On', true),
+            check('Invincible Vehicle', false),
+            sep('Values'),
+            range('Max Speed', 50, 400, 10, 180, { tip: function (it) { return [{ label: 'Speed', text: it.value + ' km/h', bar: { percent: (it.value - 50) / 3.5, color: '#ff9800' } }]; } }),
+            scroll('Color', ['Black', 'White', 'Red', 'Blue', 'Green'], 0)
+          ]
+        }
+      ]
+    },
+    weapons: {
+      title: 'Weapons',
+      tabs: [
+        {
+          label: 'Loadout', items: [
+            sep('Weapon'),
+            scroll('Weapon', ['Pistol', 'SMG', 'Rifle', 'Shotgun'], 0),
+            btn('Give Weapon', { notify: ['success', 'Weapons', 'Weapon added to loadout.'] }),
+            btn('Remove All', { notify: ['warning', 'Weapons', 'Loadout cleared.'] })
+          ]
+        },
+        {
+          label: 'Ammo', items: [
+            sep('Toggles'),
+            check('Infinite Ammo', false),
+            check('No Reload', false),
+            sep('Values'),
+            range('Ammo Amount', 0, 250, 10, 120),
+            btn('Refill', { notify: ['info', 'Weapons', 'Ammo refilled.'] })
+          ]
+        }
+      ]
+    },
+    world: {
+      title: 'World',
+      tabs: [
+        {
+          label: 'Time', items: [
+            sep('Time & Weather'),
+            scroll('Weather', ['Clear', 'Clouds', 'Rain', 'Thunder', 'Fog', 'Snow'], 0),
+            range('Hour', 0, 23, 1, 12),
+            check('Freeze Time', false),
+            range('Time Scale', 0, 10, 1, 1)
+          ]
+        },
+        {
+          label: 'Environment', items: [
+            sep('Density'),
+            range('Traffic Density', 0, 100, 5, 60),
+            range('Pedestrian Density', 0, 100, 5, 40),
+            check('Blackout', false, { notify: ['warning', 'World', 'Blackout enabled.'] })
+          ]
+        }
+      ]
+    },
+    visual: { title: 'Visual', tabs: [{ label: 'HUD', items: visualHud }, { label: 'Theme', items: visualTheme }] },
+    scripts: {
+      title: 'Scripts',
+      tabs: [{
+        label: 'Loaded', items: [
+          sep('Loaded Scripts'),
+          check('core', true), check('admin-tools', true), check('voice', true), check('inventory', false),
+          btn('Reload All', { fx: 'progress' })
+        ]
+      }]
+    },
+    settings: {
+      title: 'Settings',
+      tabs: [
+        {
+          label: 'Notifications', items: [
+            sep('Notifications'),
+            btn('Notify: Success', { notify: ['success', 'Nexus Menu', 'Everything went fine.'] }),
+            btn('Notify: Info', { notify: ['info', 'Nexus Menu', 'Here is some information for you.'] }),
+            btn('Notify: Warning', { notify: ['warning', 'Nexus Menu', 'Careful, this is a warning.'] }),
+            btn('Notify: Error', { notify: ['error', 'Nexus Menu', 'Something went wrong.'] })
+          ]
+        },
+        {
+          label: 'Misc', items: [
+            sep('Misc'),
+            btn('Progress Bar', { fx: 'progress' }),
+            btn('Text Input', { input: { title: 'Enter text:', placeholder: 'Type something…' }, onInput: function (v) { notify('info', 'Input', v ? 'You typed: ' + v : 'Empty input.'); } }),
+            btn('Keybind Setup', { fx: 'keybindSetup' }),
+            btn('Guided Tour', { fx: 'tour' })
+          ]
+        }
+      ]
+    },
+    outfit: {
+      title: 'Outfit Editor',
+      tabs: [{
+        label: 'Outfit', items: [
+          sep('Clothing'),
+          scroll('Top', ['T-Shirt', 'Hoodie', 'Jacket', 'Suit'], 0),
+          scroll('Pants', ['Jeans', 'Cargo', 'Shorts', 'Suit'], 0),
+          scroll('Shoes', ['Sneakers', 'Boots', 'Loafers'], 0),
+          sep('Accessories'),
+          check('Mask', false),
+          check('Hat', false),
+          btn('Back', { back: true })
+        ]
+      }]
+    }
+  };
+
+  /* ---------- état de navigation ---------- */
+  var stack = [{ menu: menus.root, tab: 0, sel: {} }];
+  function cur() { return stack[stack.length - 1]; }
+  function curTab() { return cur().menu.tabs[cur().tab]; }
+  function curItems() { return curTab().items; }
+  function selIndex() { return cur().sel[cur().tab] || 0; }
+  function setSel(i) { cur().sel[cur().tab] = i; }
+  function isSep(it) { return it.type === 'divider'; }
+  function firstValid() { var it = curItems(); for (var i = 0; i < it.length; i++) if (!isSep(it[i])) return i; return 0; }
+
+  function toMsgItem(it) {
+    var o = { name: it.name };
+    if (it.icon) o.icon = it.icon;
+    if (it.type === 'divider') o.type = 'divider';
+    if (it.type === 'submenu') { o.type = 'submenu'; o.submenu = it.submenu; }
+    if (it.type === 'checkbox') { o.type = 'checkbox'; o.checked = it.checked; }
+    if (it.type === 'slider') { o.type = 'slider'; o.min = it.min; o.max = it.max; o.step = it.step; o.value = it.value; }
+    if (it.type === 'scroll') { o.type = 'scroll'; o.options = it.options; o.selected = it.selected; }
+    return o;
+  }
+
+  /* ---------- rendu (= ce que ferait le Lua) ---------- */
+  function renderAll(opts) {
+    opts = opts || {};
+    var c = cur();
+    send({ action: 'setTabs', tabs: c.menu.tabs.map(function (t) { return t.label; }) });
+    send({ action: 'setTabIndex', index: c.tab });
+    if (c.sel[c.tab] == null) setSel(firstValid());
+    send({ action: 'setCurrent', menu: curItems().map(toMsgItem), current: selIndex() + 1 });
+    send({ action: 'updateBreadcrumb', breadcrumb: 'Player' });
+    if (opts.show !== false) send({ action: 'setVisible', visible: true });
+    pushSelection();
+  }
+
+  function pushSelection() {
+    send({ action: 'updateSelection', index: selIndex() });
+    var it = curItems()[selIndex()];
+    // l'UI met à jour le tooltip « en place » si le nombre de lignes est identique :
+    // on le vide pour forcer la reconstruction quand on change d'élément
+    var tt = $('tooltip-container'); if (tt) tt.innerHTML = '';
+    send({ action: 'updateTooltip', items: it && it.tip ? it.tip(it) : [] });
+  }
+
+  /* ---------- actions ---------- */
+  function notify(type, header, message, duration) {
+    send({ action: 'notify', type: type, header: header, message: message, duration: duration || 4000 });
+  }
+
+  function move(dir) {
+    var items = curItems(), n = items.length, i = selIndex();
+    for (var k = 0; k < n; k++) {
+      i = (i + dir + n) % n;
+      if (!isSep(items[i])) break;
+    }
+    setSel(i);
+    pushSelection();
+  }
+
+  function changeTab(dir) {
+    var c = cur(), n = c.menu.tabs.length;
+    if (n < 2) return;
+    c.tab = (c.tab + dir + n) % n;
+    renderAll({ show: false });
+  }
+
+  function applyFx(it) {
+    switch (it.fx) {
+      case 'crosshair': send({ action: it.checked ? 'showCrosshair' : 'hideCrosshair' }); break;
+      case 'keybinds':
+        send({
+          action: 'updateKeybindList', keybinds: [
+            { name: 'Invincible', controlName: 'F5', enabled: true },
+            { name: 'Noclip', controlName: 'F6', enabled: true },
+            { name: 'Engine On', controlName: 'G', enabled: false },
+            { name: 'Heal', controlName: 'H', enabled: true }
+          ]
+        });
+        send({ action: 'toggleKeybindList', visible: it.checked }); break;
+      case 'spectators':
+        send({ action: 'updateSpectatorList', spectators: [{ name: 'Alex', id: 12 }, { name: 'Sam', id: 7 }, { name: 'Jordan', id: 31 }] });
+        send({ action: 'toggleSpectatorList', visible: it.checked }); break;
+      case 'hovering':
+        send({
+          action: 'setHoveringTextOptions', options: [
+            { id: 1, name: 'Open Door', data: '' }, { id: 2, name: 'Search', data: '' },
+            { id: 3, name: 'Talk', data: '' }, { id: 4, name: 'Inspect', data: '' }]
+        });
+        send({ action: it.checked ? 'showHoveringText' : 'hideHoveringText' }); break;
+      case 'help':
+        send({ action: 'updateHelpMessage', message: it.checked ? helpText() : null }); break;
+      case 'color':
+        send({ action: 'updateMenuColors', mainColor: COLORS[it.selected][1] }); break;
+    }
+  }
+
+  function helpText() { return '↑ ↓ Navigate   ← → Adjust   Enter Select   Q / E Tabs   Backspace Back'; }
+
+  function onValueChanged(it, idx) {
+    if (it.type === 'checkbox') send({ action: 'updateCheckbox', index: idx, checked: it.checked });
+    if (it.type === 'slider') send({ action: 'updateRange', index: idx, value: it.value });
+    if (it.type === 'scroll') send({ action: 'updateSlider', index: idx, value: it.selected + 1 });
+    if (it.fx) applyFx(it);
+    if (it.notify && it.type === 'checkbox' && it.checked) notify.apply(null, it.notify);
+    if (curItems()[selIndex()] === it) send({ action: 'updateTooltip', items: it.tip ? it.tip(it) : [] });
+  }
+
+  function adjust(dir) {
+    var idx = selIndex(), it = curItems()[idx];
+    if (!it) return;
+    if (it.type === 'checkbox') { it.checked = !it.checked; }
+    else if (it.type === 'slider') { it.value = Math.max(it.min, Math.min(it.max, it.value + dir * it.step)); }
+    else if (it.type === 'scroll') { it.selected = (it.selected + dir + it.options.length) % it.options.length; }
+    else return;
+    onValueChanged(it, idx);
+  }
+
+  var inputActive = false, inputCb = null;
+  function openInput(it) {
+    inputActive = true;
+    send({ action: 'openTextInput', question: it.input.title, placeholder: it.input.placeholder, value: '' });
+    inputCb = it.onInput;
+  }
+  function closeInput(submit) {
+    var field = document.querySelector('.input-box input');
+    var v = field ? field.value : '';
+    send({ action: 'closeTextInput' });
+    inputActive = false;
+    var cb = inputCb; inputCb = null;
+    if (submit && cb) cb(v);
+  }
+
+  function runProgress() {
+    if (state.busy) return;
+    state.busy = true;
+    send({ action: 'showProgressBar' });
+    var p = 0;
+    var steps = ['Preparing…', 'Loading assets…', 'Applying changes…', 'Finishing…'];
+    var t = setInterval(function () {
+      p += 4 + Math.random() * 6;
+      if (p >= 100) {
+        p = 100; clearInterval(t);
+        send({ action: 'updateProgress', percent: 100, topText: 'Done', bottomText: 'Completed' });
+        setTimeout(function () { send({ action: 'hideProgressBar' }); state.busy = false; notify('success', 'Progress', 'Task completed.'); }, 600);
+        return;
+      }
+      send({ action: 'updateProgress', percent: Math.round(p), topText: steps[Math.min(3, Math.floor(p / 26))], bottomText: 'Please wait…' });
+    }, 120);
+  }
+
+  function runKeybindSetup() {
+    send({ action: 'openKeybindSetup', featureName: 'Invincible' });
+    inputActive = true; inputCb = null;
+    function onKey(e) {
+      e.preventDefault(); e.stopPropagation();
+      var name = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+      send({ action: 'updateKeybindSetup', keyName: name });
+      setTimeout(function () { send({ action: 'closeKeybindSetup' }); inputActive = false; notify('success', 'Keybind', 'Bound to ' + name + '.'); }, 500);
+      window.removeEventListener('keydown', onKey, true);
+    }
+    window.addEventListener('keydown', onKey, true);
+  }
+
+  function activate() {
+    var idx = selIndex(), it = curItems()[idx];
+    if (!it || isSep(it)) return;
+    if (it.type === 'checkbox' || it.type === 'slider' || it.type === 'scroll') { adjust(1); return; }
+    if (it.back) { goBack(); return; }
+    if (it.submenu) {
+      stack.push({ menu: menus[it.submenu], tab: 0, sel: {} });
+      renderAll({ show: false });
+      return;
+    }
+    if (it.input) { openInput(it); return; }
+    if (it.fx === 'progress') { runProgress(); return; }
+    if (it.fx === 'keybindSetup') { runKeybindSetup(); return; }
+    if (it.fx === 'tour') { startTour(); return; }
+    if (it.notify) notify.apply(null, it.notify);
+  }
+
+  function goBack() {
+    if (stack.length > 1) { stack.pop(); renderAll({ show: false }); }
+    else closeMenu();
+  }
+
+  function openMenu() {
+    state.open = true;
+    renderAll();
+    send({ action: 'updateHelpMessage', message: helpEnabled() ? helpText() : null });
+  }
+  function closeMenu() {
+    state.open = false;
+    send({ action: 'setVisible', visible: false });
+    send({ action: 'updateTooltip', items: [] });
+  }
+  function helpEnabled() {
+    for (var i = 0; i < visualHud.length; i++) if (visualHud[i].name === 'Help Message') return visualHud[i].checked;
+    return true;
+  }
+
+  /* ---------- clavier ---------- */
+  window.addEventListener('keydown', function (e) {
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) {
+      if (inputActive && e.key === 'Enter') { e.preventDefault(); closeInput(true); }
+      else if (inputActive && e.key === 'Escape') { e.preventDefault(); closeInput(false); }
+      return;
+    }
+    if (inputActive) return;
+    var k = e.key;
+    if (k === 'F1' || k === 'm' || k === 'M') { e.preventDefault(); state.open ? closeMenu() : openMenu(); return; }
+    if (k === 'h' || k === 'H') { togglePanel(); return; }
+    if (k === 't' || k === 'T') { state.tour ? stopTour() : startTour(); return; }
+    if (state.tour || !state.open) return;
+    switch (k) {
+      case 'ArrowUp': e.preventDefault(); move(-1); break;
+      case 'ArrowDown': e.preventDefault(); move(1); break;
+      case 'ArrowLeft': e.preventDefault(); adjust(-1); break;
+      case 'ArrowRight': e.preventDefault(); adjust(1); break;
+      case 'Enter': e.preventDefault(); activate(); break;
+      case 'q': case 'Q': changeTab(-1); break;
+      case 'e': case 'E': changeTab(1); break;
+      case 'Tab': e.preventDefault(); changeTab(e.shiftKey ? -1 : 1); break;
+      case 'Backspace': case 'Escape': e.preventDefault(); goBack(); break;
+    }
+  });
+
+  /* ---------- souris (bonus) ---------- */
+  document.addEventListener('wheel', function (e) {
+    if (!state.open || state.tour || inputActive) return;
+    if (e.target.closest && e.target.closest('#nx-demo-panel')) return;
+    move(e.deltaY > 0 ? 1 : -1);
+  }, { passive: true });
+
+  document.addEventListener('click', function (e) {
+    if (!state.open || state.tour || inputActive) return;
+    var tab = e.target.closest && e.target.closest('.tab-item');
+    if (tab) {
+      var n = parseInt(tab.dataset.index, 10);
+      if (!isNaN(n) && n !== cur().tab && cur().menu.tabs.length > 1) { cur().tab = n; renderAll({ show: false }); }
+      return;
+    }
+    var row = e.target.closest && e.target.closest('.menu-item');
+    if (row && !row.classList.contains('separator')) {
+      var i = parseInt(row.dataset.index, 10);
+      if (isNaN(i)) return;
+      if (i !== selIndex()) { setSel(i); pushSelection(); }
+      var it = curItems()[i];
+      var onComponent = e.target.closest('.component');
+      if (!onComponent || it.type === 'checkbox') activate();
+    }
+  });
+
+  /* ---------- panneau d'aide ---------- */
+  var panel = document.createElement('div');
+  panel.id = 'nx-demo-panel';
+  panel.innerHTML = [
+    '<h4>Demo controls <span>H</span></h4>',
+    '<div class="row"><span>Navigate</span><kbd>↑ ↓</kbd></div>',
+    '<div class="row"><span>Adjust value</span><kbd>← →</kbd></div>',
+    '<div class="row"><span>Select</span><kbd>Enter</kbd></div>',
+    '<div class="row"><span>Switch tab</span><kbd>Q / E</kbd></div>',
+    '<div class="row"><span>Back / close</span><kbd>Backspace</kbd></div>',
+    '<div class="row"><span>Open / close menu</span><kbd>F1 / M</kbd></div>',
+    '<div class="row"><span>Guided tour</span><kbd>T</kbd></div>',
+    '<div class="btns">',
+    '<button data-a="menu">Toggle menu</button>',
+    '<button data-a="tour">Guided tour</button>',
+    '<button data-a="notif">Notification</button>',
+    '<button data-a="progress">Progress</button>',
+    '</div>'
+  ].join('');
+  document.body.appendChild(panel);
+  function togglePanel() { panel.classList.toggle('off'); }
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var a = b.dataset.a;
+    if (a === 'menu') state.open ? closeMenu() : openMenu();
+    if (a === 'tour') state.tour ? stopTour() : startTour();
+    if (a === 'notif') { var t = ['success', 'info', 'warning', 'error']; notify(t[Math.floor(Math.random() * 4)], 'Nexus Menu', 'Demo notification.'); }
+    if (a === 'progress') runProgress();
+    b.blur();
+  });
+
+  /* ---------- visite guidée ---------- */
+  var tourToken = 0;
+  async function moveTo(name, alive) {
+    for (var k = 0; k < 30 && alive(); k++) {
+      var it = curItems()[selIndex()];
+      if (it && it.name === name) return;
+      move(1); await wait(140);
+    }
+  }
+  async function startTour() {
+    if (state.tour) return;
+    state.tour = true;
+    var my = ++tourToken;
+    var alive = function () { return state.tour && my === tourToken; };
+    stack = [{ menu: menus.root, tab: 0, sel: {} }];
+    openMenu();
+    try {
+      notify('info', 'Guided tour', 'Press T to stop at any time.', 3500);
+      await wait(1500); if (!alive()) return;
+      var i;
+
+      // Self > Status
+      await moveTo('Self', alive); await wait(500); activate(); await wait(1000); if (!alive()) return;
+      await moveTo('Invincible', alive); await wait(300); adjust(1); await wait(800);
+      await moveTo('Health', alive); await wait(300);
+      for (i = 0; i < 4 && alive(); i++) { adjust(-1); await wait(170); }
+      for (i = 0; i < 2 && alive(); i++) { adjust(1); await wait(170); }
+      await wait(500);
+      await moveTo('Run Speed', alive); await wait(300);
+      for (i = 0; i < 3 && alive(); i++) { adjust(1); await wait(380); }
+      await moveTo('Heal', alive); await wait(300); activate(); await wait(1400); if (!alive()) return;
+
+      // Self > Appearance > Outfit Editor
+      changeTab(1); await wait(1000);
+      await moveTo('Outfit Editor', alive); await wait(500); activate(); await wait(1200); if (!alive()) return;
+      await moveTo('Top', alive); adjust(1); await wait(500);
+      await moveTo('Pants', alive); adjust(1); await wait(500);
+      goBack(); await wait(700); goBack(); await wait(900); if (!alive()) return;
+
+      // Players (onglets)
+      await moveTo('Players', alive); await wait(400); activate(); await wait(1000);
+      await moveTo('Show Distance', alive); adjust(1); await wait(600);
+      changeTab(1); await wait(1000); changeTab(-1); await wait(700);
+      goBack(); await wait(800); if (!alive()) return;
+
+      // Visual > HUD + Theme
+      await moveTo('Visual', alive); await wait(400); activate(); await wait(900);
+      var names = ['Crosshair', 'Keybind List', 'Spectator List', 'Hovering Text'];
+      for (i = 0; i < names.length && alive(); i++) { await moveTo(names[i], alive); await wait(250); adjust(1); await wait(800); }
+      changeTab(1); await wait(900);
+      await moveTo('Menu Color', alive);
+      for (i = 0; i < 3 && alive(); i++) { adjust(1); await wait(700); }
+      if (!alive()) return;
+      resetFx(true); await wait(500);
+      goBack(); await wait(700);
+
+      // Settings > Notifications + Misc
+      await moveTo('Settings', alive); await wait(400); activate(); await wait(900);
+      await moveTo('Notify: Success', alive);
+      for (i = 0; i < 4 && alive(); i++) { activate(); await wait(650); move(1); await wait(200); }
+      await wait(1200); if (!alive()) return;
+      changeTab(1); await wait(900);
+      await moveTo('Progress Bar', alive); await wait(400); activate(); await wait(4300); if (!alive()) return;
+
+      resetFx();
+      notify('success', 'Tour finished', 'Use the arrow keys to explore on your own.', 4500);
+      await wait(800);
+    } finally {
+      if (my === tourToken) state.tour = false;
+    }
+  }
+  function stopTour() { state.tour = false; tourToken++; resetFx(); }
+
+  function resetFx(keepNav) {
+    visualHud.forEach(function (it) {
+      if (it.type === 'checkbox' && it.fx && it.fx !== 'help' && it.checked) { it.checked = false; applyFx(it); }
+    });
+    visualTheme.forEach(function (it) { if (it.fx === 'color') { it.selected = 0; applyFx(it); } });
+    send({ action: 'hideProgressBar' }); state.busy = false;
+    if (keepNav) {
+      if (state.open) renderAll({ show: false });
+      return;
+    }
+    stack = [{ menu: menus.root, tab: 0, sel: {} }];
+    if (state.open) renderAll({ show: false });
+  }
+
+  /* ---------- API manuelle (console) ---------- */
+  window.NexusDemo = {
+    open: openMenu, close: closeMenu, tour: startTour, stop: stopTour,
+    notify: notify, send: send, progress: runProgress
+  };
+
+  /* ---------- démarrage ---------- */
+  function boot() {
+    send({ action: 'updateMenuColors', mainColor: '#ffffff', backColor: '#0c0c0e' });
+    send({ action: 'banner', bannerLink: BANNER });
+    openMenu();
+    setTimeout(function () { notify('info', 'Nexus Menu', 'Demo mode active. Press H for the controls.', 5000); }, 700);
+  }
+  if (document.readyState === 'complete') setTimeout(boot, 250);
+  else window.addEventListener('load', function () { setTimeout(boot, 250); });
+})();
+
+    </script>
+
+<style id="player-panel-style">
+
+  :root{
+    --accent:#f2f4f8;            /* couleur principale du menu : change-la ici */
+    --accent-rgb:242,244,248;    /* même couleur en RGB (pour les lignes / lueurs) */
+    --danger:#ff4d5a;
+    --line:rgba(255,255,255,.28);
+    --muted:rgba(255,255,255,.62);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  /* Panneau d'information : rien n'est sélectionnable ni cliquable */
+  *,*::before,*::after{
+    -webkit-user-select:none;user-select:none;
+    -webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;
+    -webkit-user-drag:none;cursor:default;
+  }
+  ::selection{background:transparent;color:inherit}
+  html,body{height:100%}
+  body{
+    font-family:'Poppins','Montserrat','Segoe UI',system-ui,sans-serif;
+    color:#fff;background:transparent;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  body.ingame{overflow:hidden}
+  /* Fond de prévisualisation (navigateur uniquement) */
+  body.preview{
+    background:
+      repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 120px),
+      linear-gradient(180deg,#1a2032,#272d44);
+  }
+  .stage{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+  body.ingame .stage{justify-content:flex-start;padding-left:2vw}
+
+  .wrap{
+    width:min(360px,100%);
+    opacity:0;transform:translateY(10px) scale(.985);pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  .wrap.show{opacity:1;transform:none}
+
+  /* ───────── Carte principale ───────── */
+  .card{
+    padding:6px 12px 12px;border-radius:24px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,#0e0f14 0%,#08090c 100%);
+    box-shadow:0 14px 34px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .title{
+    display:flex;align-items:center;gap:14px;margin:12px 4px 8px;
+    font-size:11px;font-weight:800;letter-spacing:.34em;text-transform:uppercase;
+    color:rgba(255,255,255,.78);
+  }
+  .title span{margin-right:-.34em}
+  .title::before,.title::after{
+    content:"";flex:1;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(var(--accent-rgb),.5));
+  }
+  .title::after{background:linear-gradient(270deg,transparent,rgba(var(--accent-rgb),.5))}
+  .rows{list-style:none;display:flex;flex-direction:column;gap:2px}
+
+  .row{
+    display:flex;align-items:center;gap:12px;height:38px;padding:0 14px;
+    border-radius:999px;border:1.5px solid transparent;
+  }
+  .ico{
+    width:18px;height:18px;flex:0 0 18px;color:rgba(255,255,255,.88);
+    fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  }
+  .lbl{font-size:14px;font-weight:600;letter-spacing:-.01em;flex:1;white-space:nowrap}
+  .val{
+    display:flex;align-items:center;gap:10px;max-width:60%;
+    font-size:14px;font-weight:500;color:rgba(255,255,255,.92);
+  }
+  .txt{display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .txt.flash{animation:flash .55s ease-out}
+  @keyframes flash{from{opacity:.2;transform:translateY(-3px)}to{opacity:1;transform:none}}
+
+  .bar{width:54px;height:5px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;flex:0 0 54px}
+  .bar i{
+    display:block;height:100%;width:0;border-radius:inherit;
+    background:linear-gradient(90deg,rgba(255,255,255,.5),#fff);
+    transition:width .45s ease,background .3s;
+  }
+  .bar.low i{background:linear-gradient(90deg,rgba(255,77,90,.6),var(--danger))}
+  .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;background:var(--accent);box-shadow:0 0 9px rgba(var(--accent-rgb),.8)}
+  .dot.bad{background:var(--danger);box-shadow:0 0 9px rgba(255,77,90,.8)}
+
+
+</style>
+
+<div class="stage">
+  <div class="wrap" id="wrap">
+
+    <main class="card" id="card"></main>
+
+  </div>
+</div>
+
+<script>
+/* ──────────────────────────────────────────────────────────
+   Utilisation en jeu (FiveM / NUI) :
+     SendNUIMessage({ action = 'show' })
+     SendNUIMessage({ action = 'hide' })
+     SendNUIMessage({ action = 'update', data = {
+       name = 'DRILL', serverId = 1227, radio = 12, distance = 391.7,
+       health = 199, armour = 0, status = 'Alive', gender = 'Male',
+       interior = 'Outside', location = 'San Andreas Avenue', vehicle = 'On foot'
+     }})
+   Échap envoie le callback NUI « close ».
+   Hors jeu (navigateur) : le panneau s'affiche avec des données de démo.
+   ────────────────────────────────────────────────────────── */
+
+const ICONS = {
+  user:   '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  id:     '<rect x="2" y="5" width="20" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.5 1.7-2 3-2s2.4.5 3 2M14 10h5M14 14h4"/>',
+  radio:  '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  nav:    '<polygon points="3 11 22 2 13 21 11 13 3 11"/>',
+  heart:  '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  check:  '<circle cx="12" cy="12" r="10"/><path d="m8.5 12.3 2.4 2.4 4.6-4.9"/>',
+  mars:   '<circle cx="10" cy="14" r="5"/><path d="m14 10 6-6M15 4h5v5"/>',
+  venus:  '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M9 19h6"/>',
+  home:   '<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  pin:    '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+  car:    '<path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/>'
+};
+
+/* [clé, libellé, icône, type d'affichage] */
+const SECTIONS = [
+  { title: 'Player', rows: [
+    ['name',     'Name',      'user'],
+    ['serverId', 'Server ID', 'id'],
+    ['radio',    'Radio',     'radio'],
+    ['distance', 'Distance',  'nav']
+  ]},
+  { title: 'Status', rows: [
+    ['health',   'Health',    'heart',  'bar'],
+    ['armour',   'Armour',    'shield', 'bar'],
+    ['status',   'Status',    'check',  'dot'],
+    ['gender',   'Gender',    'mars'],
+    ['interior', 'Interior',  'home'],
+    ['location', 'Location',  'pin']
+  ]},
+  { title: 'Vehicle', rows: [
+    ['vehicle',  'Vehicle',   'car']
+  ]}
+];
+
+const FORMAT = {
+  distance: v => (v === null || v === undefined || v === '') ? '—' : Number(v).toFixed(1) + ' m',
+  radio:    v => v ? String(v) : 'Off'
+};
+
+const DEMO = {
+  name: 'DRILL', serverId: 1227, radio: 12, distance: 391.7,
+  health: 199, armour: 65, status: 'Alive', gender: 'Male',
+  interior: 'Outside', location: 'San Andreas Avenue', vehicle: 'On foot'
+};
+
+const IN_GAME = typeof GetParentResourceName === 'function';
+const state = {};
+const refs = {};
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+/* ── Construction du DOM ── */
+document.getElementById('card').innerHTML = SECTIONS.map(s => `
+  <section>
+    <div class="title"><span>${s.title}</span></div>
+    <ul class="rows">
+      ${s.rows.map(([k, label, ico, kind]) => `
+        <li class="row" data-k="${k}">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[ico]}</svg>
+          <span class="lbl">${label}</span>
+          <span class="val">
+            ${kind === 'bar' ? '<span class="bar"><i></i></span>' : ''}
+            ${kind === 'dot' ? '<i class="dot"></i>' : ''}
+            <span class="txt">—</span>
+          </span>
+        </li>`).join('')}
+    </ul>
+  </section>`).join('');
+
+document.querySelectorAll('.row').forEach(li => {
+  refs[li.dataset.k] = {
+    ico: li.querySelector('.ico'),
+    txt: li.querySelector('.txt'),
+    bar: li.querySelector('.bar'),
+    fill: li.querySelector('.bar i'),
+    dot: li.querySelector('.dot')
+  };
+});
+
+/* ── Mise à jour des valeurs ── */
+function paint() {
+  for (const k in refs) {
+    const r = refs[k];
+    const raw = state[k];
+    const text = FORMAT[k] ? FORMAT[k](raw) : (raw === null || raw === undefined || raw === '' ? '—' : String(raw));
+    if (r.txt.textContent !== text) {
+      r.txt.textContent = text;
+      r.txt.classList.remove('flash');
+      void r.txt.offsetWidth;
+      r.txt.classList.add('flash');
+    }
+  }
+  if (refs.health.fill) {
+    const p = clamp(((Number(state.health) || 100) - 100) / 100, 0, 1);
+    refs.health.fill.style.width = (p * 100) + '%';
+    refs.health.bar.classList.toggle('low', p < 0.3);
+  }
+  if (refs.armour.fill) {
+    refs.armour.fill.style.width = clamp(Number(state.armour) || 0, 0, 100) + '%';
+  }
+  if (refs.status.dot) {
+    refs.status.dot.classList.toggle('bad', !/alive|vivant/i.test(String(state.status || '')));
+  }
+  if (refs.gender.ico) {
+    refs.gender.ico.innerHTML = /^f/i.test(String(state.gender || '')) ? ICONS.venus : ICONS.mars;
+  }
+}
+
+function update(data) {
+  Object.assign(state, data);
+  paint();
+}
+
+function setVisible(on) {
+  document.getElementById('wrap').classList.toggle('show', on);
+}
+
+/* ── Pont NUI ── */
+function post(name, data) {
+  if (!IN_GAME) return;
+  fetch('https://' + GetParentResourceName() + '/' + name, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+    body: JSON.stringify(data || {})
+  }).catch(() => {});
+}
+
+window.addEventListener('message', ({ data }) => {
+  if (!data) return;
+  if (data.action === 'show') setVisible(true);
+  else if (data.action === 'hide') setVisible(false);
+  else if (data.action === 'update') update(data.data || {});
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') post('close');
+});
+
+/* Aucune sélection, glisser ou menu contextuel possible */
+['contextmenu', 'selectstart', 'dragstart', 'mousedown'].forEach(ev =>
+  document.addEventListener(ev, e => e.preventDefault())
+);
+
+/* ── Démo hors jeu ── */
+if (IN_GAME) {
+  document.body.classList.add('ingame');
+} else {
+  document.body.classList.add('preview');
+  update(DEMO);
+  setVisible(true);
+  setInterval(() => {
+    state.distance = Math.max(0, Number(state.distance) + (Math.random() * 6 - 3));
+    paint();
+  }, 1200);
+}
+</script>
+
+<script>window.GetParentResourceName = function(){ return "nexus"; };</script>
+<script id="player-panel-script">
+
+/* ──────────────────────────────────────────────────────────
+   Utilisation en jeu (FiveM / NUI) :
+     SendNUIMessage({ action = 'show' })
+     SendNUIMessage({ action = 'hide' })
+     SendNUIMessage({ action = 'update', data = {
+       name = 'DRILL', serverId = 1227, radio = 12, distance = 391.7,
+       health = 199, armour = 0, status = 'Alive', gender = 'Male',
+       interior = 'Outside', location = 'San Andreas Avenue', vehicle = 'On foot'
+     }})
+   Échap envoie le callback NUI « close ».
+   Hors jeu (navigateur) : le panneau s'affiche avec des données de démo.
+   ────────────────────────────────────────────────────────── */
+
+const ICONS = {
+  user:   '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  id:     '<rect x="2" y="5" width="20" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.5 1.7-2 3-2s2.4.5 3 2M14 10h5M14 14h4"/>',
+  radio:  '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  nav:    '<polygon points="3 11 22 2 13 21 11 13 3 11"/>',
+  heart:  '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  check:  '<circle cx="12" cy="12" r="10"/><path d="m8.5 12.3 2.4 2.4 4.6-4.9"/>',
+  mars:   '<circle cx="10" cy="14" r="5"/><path d="m14 10 6-6M15 4h5v5"/>',
+  venus:  '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M9 19h6"/>',
+  home:   '<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  pin:    '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+  car:    '<path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/>'
+};
+
+/* [clé, libellé, icône, type d'affichage] */
+const SECTIONS = [
+  { title: 'Player', rows: [
+    ['name',     'Name',      'user'],
+    ['serverId', 'Server ID', 'id'],
+    ['radio',    'Radio',     'radio'],
+    ['distance', 'Distance',  'nav']
+  ]},
+  { title: 'Status', rows: [
+    ['health',   'Health',    'heart',  'bar'],
+    ['armour',   'Armour',    'shield', 'bar'],
+    ['status',   'Status',    'check',  'dot'],
+    ['gender',   'Gender',    'mars'],
+    ['interior', 'Interior',  'home'],
+    ['location', 'Location',  'pin']
+  ]},
+  { title: 'Vehicle', rows: [
+    ['vehicle',  'Vehicle',   'car']
+  ]}
+];
+
+const FORMAT = {
+  distance: v => (v === null || v === undefined || v === '') ? '—' : Number(v).toFixed(1) + ' m',
+  radio:    v => v ? String(v) : 'Off'
+};
+
+const DEMO = {
+  name: 'DRILL', serverId: 1227, radio: 12, distance: 391.7,
+  health: 199, armour: 65, status: 'Alive', gender: 'Male',
+  interior: 'Outside', location: 'San Andreas Avenue', vehicle: 'On foot'
+};
+
+const IN_GAME = typeof GetParentResourceName === 'function';
+const state = {};
+const refs = {};
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+/* ── Construction du DOM ── */
+document.getElementById('card').innerHTML = SECTIONS.map(s => `
+  <section>
+    <div class="title"><span>${s.title}</span></div>
+    <ul class="rows">
+      ${s.rows.map(([k, label, ico, kind]) => `
+        <li class="row" data-k="${k}">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[ico]}</svg>
+          <span class="lbl">${label}</span>
+          <span class="val">
+            ${kind === 'bar' ? '<span class="bar"><i></i></span>' : ''}
+            ${kind === 'dot' ? '<i class="dot"></i>' : ''}
+            <span class="txt">—</span>
+          </span>
+        </li>`).join('')}
+    </ul>
+  </section>`).join('');
+
+document.querySelectorAll('.row').forEach(li => {
+  refs[li.dataset.k] = {
+    ico: li.querySelector('.ico'),
+    txt: li.querySelector('.txt'),
+    bar: li.querySelector('.bar'),
+    fill: li.querySelector('.bar i'),
+    dot: li.querySelector('.dot')
+  };
+});
+
+/* ── Mise à jour des valeurs ── */
+function paint() {
+  for (const k in refs) {
+    const r = refs[k];
+    const raw = state[k];
+    const text = FORMAT[k] ? FORMAT[k](raw) : (raw === null || raw === undefined || raw === '' ? '—' : String(raw));
+    if (r.txt.textContent !== text) {
+      r.txt.textContent = text;
+      r.txt.classList.remove('flash');
+      void r.txt.offsetWidth;
+      r.txt.classList.add('flash');
+    }
+  }
+  if (refs.health.fill) {
+    const p = clamp(((Number(state.health) || 100) - 100) / 100, 0, 1);
+    refs.health.fill.style.width = (p * 100) + '%';
+    refs.health.bar.classList.toggle('low', p < 0.3);
+  }
+  if (refs.armour.fill) {
+    refs.armour.fill.style.width = clamp(Number(state.armour) || 0, 0, 100) + '%';
+  }
+  if (refs.status.dot) {
+    refs.status.dot.classList.toggle('bad', !/alive|vivant/i.test(String(state.status || '')));
+  }
+  if (refs.gender.ico) {
+    refs.gender.ico.innerHTML = /^f/i.test(String(state.gender || '')) ? ICONS.venus : ICONS.mars;
+  }
+}
+
+function update(data) {
+  Object.assign(state, data);
+  paint();
+}
+
+function setVisible(on) {
+  document.getElementById('wrap').classList.toggle('show', on);
+}
+
+/* ── Pont NUI ── */
+function post(name, data) {
+  if (!IN_GAME) return;
+  fetch('https://' + GetParentResourceName() + '/' + name, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+    body: JSON.stringify(data || {})
+  }).catch(() => {});
+}
+
+window.addEventListener('message', ({ data }) => {
+  if (!data) return;
+  if (data.action === 'show') setVisible(true);
+  else if (data.action === 'hide') setVisible(false);
+  else if (data.action === 'update') update(data.data || {});
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') post('close');
+});
+
+/* Aucune sélection, glisser ou menu contextuel possible */
+['contextmenu', 'selectstart', 'dragstart', 'mousedown'].forEach(ev =>
+  document.addEventListener(ev, e => e.preventDefault())
+);
+
+/* ── Démo hors jeu ── */
+if (IN_GAME) {
+  document.body.classList.add('ingame');
+} else {
+  document.body.classList.add('preview');
+  update(DEMO);
+  setVisible(true);
+  setInterval(() => {
+    state.distance = Math.max(0, Number(state.distance) + (Math.random() * 6 - 3));
+    paint();
+  }, 1200);
+}
+
+</script>
+<script>document.body.classList.add("ingame");</script>
+
+<script>
+(function(){
+  function dispatch(data){ window.dispatchEvent(new MessageEvent('message', { data: data })); }
+  window.addEventListener('message', function(e){
+    var h = e.data || {};
+    if (!h || !h.action) return;
+    if (h.action === 'setSelectedPlayer') {
+      var p = h.playerData || {};
+      var d = {
+        name: p.name || 'Unknown',
+        serverId: p.id != null ? p.id : '',
+        radio: p.phone || '',
+        distance: p.distance || '',
+        health: p.health != null ? p.health : 0,
+        armour: p.armor != null ? p.armor : 0,
+        status: p.isAlive === false ? 'Dead' : 'Alive',
+        gender: '',
+        interior: p.isInVehicle ? 'In Vehicle' : 'Outside',
+        location: p.job || '',
+        vehicle: p.isInVehicle ? (p.vehicleName || 'In Vehicle') : 'On foot'
+      };
+      dispatch({ action: 'show' });
+      dispatch({ action: 'update', data: d });
+    } else if (h.action === 'updateSelectedPlayerInfo') {
+      // best-effort update
+      dispatch({ action: 'update', data: { health: h.health, armour: h.armor } });
+    } else if (h.action === 'clearSelectedPlayer') {
+      dispatch({ action: 'hide' });
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

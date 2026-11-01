@@ -1,587 +1,1261 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>JUL UI</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Menu</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script async src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
-  :root {
-    --accent: #b9bdc9;
-    --accent-rgb: 185, 189, 201;
-    --bg: #08080a;
-    --bg-2: #0e0e11;
-    --line: rgba(255, 255, 255, .07);
-    --text: #f1f2f6;
-    --muted: #6f7280;
-    --opacity: 1;
-    --scale: 1;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: transparent; overflow: hidden; }
-  body {
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-    color: var(--text); font-size: 13.5px;
-    -webkit-font-smoothing: antialiased; user-select: none;
-  }
-  /* Fond visible uniquement en mode démo (navigateur) */
-  body.demo {
-    background: transparent;
-  }
+*{background:transparent}
+::-webkit-scrollbar{display:none;width:0;height:0}
 
-  #root {
-    position: fixed; top: 40px; left: 56px; width: 400px;
-    transform-origin: top left; transform: scale(var(--scale)); opacity: var(--opacity);
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  #root.hidden { display: none; }
-  #root.open .card { animation: open .22s cubic-bezier(.2, .8, .3, 1) both; }
-  #root.open .card.c2 { animation-delay: .04s; }
-  @keyframes open { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+:root{
+  --accent-rgb:84,150,96;
+  --accent-light:178,208,183;
+  --line-rgb:178,208,183;
+  --color-main:rgba(var(--accent-rgb),0.35);
+  --color-border:rgba(var(--accent-rgb),0.35);
+  --color-shadow:rgba(var(--accent-rgb),0.35);
+  --color-notify-main:rgb(var(--accent-rgb));
+  --color-notify-shadow:rgba(var(--accent-rgb),0.35);
+  --color-mainSolid:rgb(var(--accent-rgb));
+  --color-tab:rgba(var(--accent-rgb),0.35);
+  /* ----- PALETTE DU MENU : panneau noir + UNE couleur (celle du menu) -----
+     Le fond reste noir (comme sur les captures) ; seule la couleur du menu
+     change : onglet actif, ligne selectionnee, filets, interrupteur allume,
+     barre de defilement. Tout est recalcule par mnApplyColor() au chargement
+     puis a chaque setMenuColor. Les variables sont des triplets "r,g,b" :
+     l'opacite se regle dans le CSS avec rgba(var(--mn-x-rgb),alpha).
+     Valeurs ci-dessous = repli (vert du menu par defaut).
+       bg   = fond de la liste (noir legerement teinte)
+       acc  = couleur du menu (filets, contours, barre de defilement)
+       hi   = fill eclairci (haut des degrades)   lo = fill assombri (bas)
+       fill = acc assombri au besoin pour que le texte BLANC reste lisible
+              dessus (onglet actif, ligne selectionnee, interrupteur allume)
+       on   = acc tres lumineux, pour le texte/les icones d'accent            */
+  --mn-bg-rgb:5,9,6;
+  --mn-char-rgb:32,36,38;
+  --mn-acc-rgb:84,150,96;
+  --mn-hi-rgb:106,153,114;
+  --mn-lo-rgb:37,65,42;
+  --mn-fill-rgb:73,130,83;
+  --mn-on-rgb:123,244,145;
+  --item-height:3.2vh;
+  --tabs-height:2.9vh;
+  --banner-height:10vh;
+  /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
+     la barre de defilement et la liste remontent d'elles-memes. */
+  --crumb-h:0vh;
+  --font:'Space Grotesk','Rubik','Geist',ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  /* police du menu et de la fiche joueur (les captures sont en Poppins) */
+  --menu-font:'Poppins','Space Grotesk','Rubik','Geist',ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
 
-  .card {
-    position: relative; background: var(--bg);
-    border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
-  }
+/* ---------- conteneur ---------- */
+/* Pas de fond sur la racine : la banniere et les barres sont noires, la liste
+   a son propre fond. Un fond sur la racine s'ajouterait a celui de la liste.
+   Pas d'overflow:hidden non plus : la barre de defilement vit HORS du panneau. */
+.menu-root{font-family:var(--menu-font);color:#fff;position:fixed;width:34vh;z-index:1000;border-radius:1vh;background:transparent;border:0.1vh solid rgba(255,255,255,0.08);border-right:0.3vh solid rgb(var(--mn-acc-rgb));box-shadow:0.2vh 0 1.1vh -0.2vh rgba(var(--mn-acc-rgb),0.6),0 1vh 3vh rgba(0,0,0,0.6)}
+.menu-banner{position:relative;border-radius:0.9vh 0.9vh 0 0;overflow:hidden;padding:0;background:#000}
+.menu-banner img{width:100%;height:var(--banner-height);object-fit:cover;display:block}
+.menu-body{background:rgba(var(--mn-char-rgb),0.94);overflow:hidden}
 
-  /* ---------- Bannière ---------- */
-  .banner { position: relative; height: 108px; overflow: hidden; border-radius: 11px 11px 0 0; background: #050506; }
-  .b-chrome { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+/* ---------- barre de titre : SUPPRIMEE a la demande (la photo demandait la
+   disparition du bandeau "Main Menu"). On garde le noeud dans le DOM (le Lua
+   envoie encore setBreadcrumb / renderCrumb) mais il ne rend PLUS rien : le
+   --crumb-h:0 fait remonter la barre de defilement et la liste. ---------- */
+.menu-crumb{display:none}
+.crumb-title{font-size:1.25vh;font-weight:500;letter-spacing:0.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%}
+/* le titre seul s'affiche, comme sur les captures */
+.crumb-parent{display:none}
 
-  /* Chrome (style brossé argenté) */
-  .b-chrome {
-    background:
-      linear-gradient(112deg, transparent 0 34%, rgba(255,255,255,.10) 44%, rgba(255,255,255,.55) 49%, rgba(255,255,255,.06) 55%, transparent 64%),
-      linear-gradient(135deg, #050506 0%, #17181c 45%, #2a2c33 62%, #0a0a0c 100%);
-  }
-  .b-chrome::before {
-    content: ""; position: absolute; right: -10px; top: 0; bottom: 0; width: 150px;
-    background: linear-gradient(120deg, #e9ebf0, #6c707b 55%, #c9ccd5);
-    clip-path: polygon(46% 0, 100% 0, 100% 100%, 0 100%); opacity: .5;
-  }
-  .b-chrome::after {
-    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 70px;
-    background: linear-gradient(60deg, #9fa3ae, #2d2f36);
-    clip-path: polygon(0 0, 100% 0, 0 100%); opacity: .35;
-  }
-  .brand { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; transform: skewX(-7deg); }
-  .brand .row1 { display: flex; align-items: center; gap: 10px; }
-  .brand svg { width: 40px; height: 40px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .8)); }
-  .brand b {
-    font-size: 35px; font-weight: 900; letter-spacing: .03em; line-height: 1;
-    background: linear-gradient(180deg, #fff 0%, #d4d7e0 42%, #6b6f7b 52%, #eceef3 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .9));
-  }
-  .brand small { font-size: 11px; font-weight: 700; letter-spacing: .55em; margin-left: .55em; color: #eceef3; }
+/* ---------- onglets : colonnes egales, onglet actif rempli de la couleur du menu ---------- */
+.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgb(var(--mn-char-rgb));overflow:hidden}
+.tab-item{flex:1;display:flex;align-items:center;justify-content:center;position:relative;font-size:1.25vh;font-weight:600;white-space:nowrap;color:rgba(255,255,255,0.92);user-select:none;transition:background 0.2s ease,color 0.2s ease}
+.tab-item.active{color:#fff;background:linear-gradient(180deg,rgb(var(--mn-hi-rgb)),rgb(var(--mn-fill-rgb)))}
+/* variante pilule (setTabStyle {style:'pill'}) */
+[data-tabs="pill"] .menu-tabs{padding:0.5vh 1vh}
+[data-tabs="pill"] .tab-item{text-transform:uppercase;letter-spacing:0.08em;font-size:1.05vh;border:0.1vh solid transparent;border-radius:2vh}
+[data-tabs="pill"] .tab-item.active{border-color:rgb(var(--mn-hi-rgb));background:rgba(var(--mn-fill-rgb),0.55);color:#fff}
 
+/* ---------- barre de défilement (hors du panneau) ---------- */
+.menu-scrollbar{position:absolute;left:-1.2vh;top:calc(var(--banner-height) + var(--crumb-h) + var(--tabs-height) + 0.4vh);width:0.6vh;height:39vh;transition:opacity 0.3s cubic-bezier(0.4,0,0.2,1)}
+.scrollbar-track{width:100%;height:100%;background-color:rgba(0,0,0,0.8);border-radius:0.4vh;position:relative;transition:0.5s}
+.scrollbar-thumb{position:absolute;top:0;left:0;width:100%;background-color:rgb(var(--mn-acc-rgb));border-radius:0.2vh;transition:top 0.25s ease-out,height 0.25s ease-out;min-height:2vh}
 
-  .crumb {
-    padding: 8px 10px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
-    color: #fff; background: #000; border-top: 1px solid rgba(255,255,255,.14); border-bottom: 1px solid rgba(255,255,255,.14);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .crumb i { font-style: normal; margin: 0 6px; opacity: .6; }
-  .crumb i::before { content: "›"; }
-  .crumb:not(.show) { display: none; }
+/* ---------- liste ---------- */
+.menu-items{position:relative;max-height:calc(var(--item-height) * 12);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.4vh 0}
+.menu-items::-webkit-scrollbar{display:none}
+/* etat "liste vide" : le cadre de selection flotte alors sur rien, on livre
+   donc l'explication plutot qu'un panneau blanc avec 0/0. */
+.menu-empty{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.35vh;align-items:center;text-align:center;padding:1.1vh 1.6vh}
+.menu-empty-title{font-size:1.15vh;font-weight:700;letter-spacing:0.08em;color:rgb(var(--mn-on-rgb))}
+.menu-empty-sub,.menu-empty-hint{font-size:1vh;font-weight:500;line-height:1.5;color:rgba(255,255,255,0.8)}
+/* selection : bande pleine largeur, degrade vertical de la couleur du menu (defaut)
+   ou degrade horizontal qui s'estompe (setSelectStyle {style:'gradient'}) */
+.selection-highlight{position:absolute;left:0;right:0;height:var(--item-height);box-sizing:border-box;
+  background:linear-gradient(180deg,rgb(var(--mn-hi-rgb)),rgb(var(--mn-fill-rgb)) 55%,rgb(var(--mn-lo-rgb)));
+  border-top:0.1vh solid rgba(255,255,255,0.3);border-bottom:0.1vh solid rgba(var(--mn-hi-rgb),0.9);
+  z-index:0;pointer-events:none;will-change:top;transform:translateZ(0)}
+[data-select="gradient"] .selection-highlight{border:none;background:linear-gradient(90deg,rgb(var(--mn-fill-rgb)),rgba(var(--mn-fill-rgb),0.12));box-shadow:inset 0.3vh 0 0 rgb(var(--mn-hi-rgb))}
+.menu-item{display:flex;justify-content:space-between;align-items:center;padding:0 2vh;height:var(--item-height);box-sizing:border-box;position:relative;z-index:1;border-bottom:0.07vh solid rgba(255,255,255,0.055)}
+.menu-item.is-selected{border-bottom-color:transparent}
+.menu-item.is-selected .name{font-weight:700}
+.item-label{display:flex;align-items:center;gap:1vh;min-width:0;flex:1}
+/* pas d'icones devant les lignes, comme sur les captures (le Lua peut toujours en envoyer) */
+.row-icon{display:none}
+.menu-item .name{font-size:1.25vh;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slider-val{color:rgba(255,255,255,0.95);font-size:1.1vh;font-weight:500}
+.components-container{display:flex;align-items:center;gap:0.8vh;flex-shrink:0}
+.component{display:flex;align-items:center}
+.caret-icon{font-size:1.25vh;font-weight:400;line-height:1;color:rgba(255,255,255,0.88)}
+.swatch{display:block;width:1.7vh;height:1.7vh;border-radius:0.45vh;box-shadow:inset 0 0 0 0.1vh rgba(255,255,255,0.3)}
+/* sur la ligne selectionnee, le texte prend la couleur lisible sur l'accent */
+.menu-item.is-selected .name,.menu-item.is-selected .caret-icon,.menu-item.is-selected .slider-val,.menu-item.is-selected .scroll-value{color:#fff}
 
-  /* ---------- Onglets ---------- */
-  .tabs { display: flex; background: var(--bg-2); border-radius: 0 0 11px 11px; overflow: hidden; }
-  .tabs.off { display: none; }
-  .crumb.solo { border-radius: 0 0 11px 11px; border-bottom: 0; }
-  .tab {
-    flex: 1; text-align: center; padding: 12px 2px; cursor: pointer;
-    font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
-    transition: color .15s, background .15s; border-bottom: 2px solid transparent;
-  }
-  .tab:hover { color: #c9ccd6; }
-  .tab.active {
-    color: #fff; background: linear-gradient(180deg, #34353b, #1d1d22);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.12); border-bottom-color: rgba(var(--accent-rgb), .9);
-  }
+/* ---------- interrupteur : piste grise eteinte / couleur du menu allumee ---------- */
+.toggle-switch{position:relative;display:inline-flex;align-items:center;cursor:pointer}
+.toggle-switch input{position:absolute;opacity:0;width:0;height:0}
+.toggle-track{display:block;width:3.7vh;height:1.9vh;background:#62636c;border-radius:1vh;position:relative;transition:background 0.22s ease;box-sizing:border-box}
+.toggle-thumb{position:absolute;top:50%;left:0.25vh;transform:translateY(-50%);width:1.35vh;height:1.35vh;border-radius:50%;background:#f2f2f4;transition:left 0.22s ease,background 0.22s ease}
+.toggle-switch input:checked ~ .toggle-track{background:rgb(var(--mn-fill-rgb))}
+.toggle-switch input:checked ~ .toggle-track .toggle-thumb{left:calc(100% - 1.35vh - 0.25vh);background:#fff}
+/* sur la ligne selectionnee la piste a la meme couleur que la bande : on l'inverse */
+.menu-item.is-selected .toggle-switch input:checked ~ .toggle-track{background:#fff}
+.menu-item.is-selected .toggle-switch input:checked ~ .toggle-track .toggle-thumb{background:rgb(var(--mn-fill-rgb))}
+.menu-item.is-selected .toggle-track{box-shadow:0 0 0 0.1vh rgba(255,255,255,0.35)}
 
-  /* ---------- Liste ---------- */
-  .c2 { background: var(--bg); }
-  .list { position: relative; max-height: 340px; overflow-y: auto; scrollbar-width: none; padding: 6px 0; border-radius: 11px 11px 0 0; }
-  .list::-webkit-scrollbar { display: none; }
-  .sb { position: absolute; left: -14px; top: 6px; height: 300px; width: 4px; border-radius: 2px; background: rgba(255,255,255,.14); display: block; z-index: 2; }
-  .sb i { position: absolute; left: 0; right: 0; top: 0; height: 100%; border-radius: 2px; background: rgba(255,255,255,.8); box-shadow: 0 0 6px rgba(255,255,255,.35);  transition: top .16s ease-out, height .16s ease-out; }
+/* ---------- slider ---------- */
+.range-component{position:relative;width:9vh;height:1.6vh;display:flex;align-items:center}
+.range-track{position:absolute;left:0;width:100%;height:0.35vh;background:rgba(255,255,255,0.28);border-radius:0.2vh;z-index:1}
+.range-fill{position:absolute;left:0;height:0.35vh;background:rgb(var(--mn-on-rgb));border-radius:0.2vh;z-index:2;pointer-events:none}
+.menu-item.is-selected .range-track{background:rgba(255,255,255,0.4)}
+.menu-item.is-selected .range-fill{background:#fff}
+.range-component input[type="range"]{-webkit-appearance:none;appearance:none;position:relative;width:100%;height:0.35vh;background:transparent;outline:none;margin:0;padding:0;cursor:pointer;z-index:3}
+.range-component input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:1.25vh;height:1.25vh;border-radius:50%;background:#fff;box-shadow:0 0 0.1vh rgba(0,0,0,0.4);margin-top:-0.125vh;cursor:pointer}
+.range-component input[type="range"]::-moz-range-thumb{width:1.25vh;height:1.25vh;border-radius:50%;background:#fff;border:none;cursor:pointer}
 
-  .row {
-    position: relative; display: flex; align-items: center; gap: 11px;
-    height: 37px; margin: 0 8px; padding: 0 10px; cursor: pointer;
-    border: 1px solid transparent; border-bottom-color: var(--line); border-radius: 9px;
-  }
-  .row.sel {
-    border-color: transparent;
-    background: linear-gradient(90deg, rgba(255,255,255,.24), rgba(255,255,255,.05));
-    box-shadow: 0 0 6px rgba(var(--accent-rgb), .18), inset 0 0 12px rgba(255,255,255,.06);
-  }
-  /* Filet continu de 1 px (dégradé) autour de la ligne sélectionnée — dessiné en masque pour éviter toute coupure */
-  .row.sel::before {
-    content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: inherit; pointer-events: none;
-    background: var(--ring, linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 55%),
-                            linear-gradient(100deg, rgba(var(--accent-rgb), .95), rgba(var(--accent-rgb), .3) 40%, rgba(var(--accent-rgb), .3) 62%, rgba(var(--accent-rgb), .95)));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  }
-  .row .ico { width: 17px; height: 17px; flex: none; color: #c9ccd6; }
-  .row .lbl { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .row .lbl em { font-style: normal; color: var(--muted); margin-left: 7px; font-size: 12.5px; }
-  .row.sel .lbl em { color: #c9ccd6; }
-  .row .chev { width: 15px; height: 15px; color: #8c90a0; flex: none; }
-  .row.sel .chev { color: #fff; }
-  .row .plus { width: 14px; height: 14px; color: #8c90a0; flex: none; }
-  .row.sel .plus { color: #fff; }
-  .row .val { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; width: 34px; text-align: right; flex: none; }
-  .row.sel .val { color: #e3e5ec; }
+/* ---------- sélecteur - valeur - ---------- */
+.scroll-value{display:flex;align-items:center;gap:0.6vh;font-size:1.1vh;font-weight:600;letter-spacing:0.02em;color:rgba(255,255,255,0.85);max-width:17vh}
+.scroll-value .val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scroll-value .arrow{opacity:0.7}
 
-  .section { display: flex; align-items: center; gap: 12px; height: 32px; margin: 0 8px; padding: 0 2px; color: #b4b7c3; font-size: 11.5px; font-weight: 600; pointer-events: none; }
-  .section::before, .section::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,.28); }
-  .section::before { flex: 1; } .section::after { flex: 1; }
+/* ---------- séparateur : filet blanc - titre - filet blanc ---------- */
+.separator-container{display:flex;align-items:center;height:var(--item-height);padding:0 0 0 2vh;gap:1.4vh;box-sizing:border-box;background:transparent}
+.separator-bar{display:block;flex:1;height:0.14vh;background:#fff;border-radius:0.1vh}
+.separator-text{color:#fff;font-size:1.15vh;font-weight:600;white-space:nowrap;letter-spacing:0.02em}
 
-  /* Interrupteur */
-  .sw { width: 36px; height: 20px; border-radius: 10px; background: #2c2c33; position: relative; flex: none; transition: background .18s; }
-  .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #d7d9e0; transition: transform .18s cubic-bezier(.3, .8, .3, 1); }
-  .sw.on { background: rgba(var(--accent-rgb), .85); box-shadow: 0 0 10px rgba(var(--accent-rgb), .35); }
-  .sw.on::after { transform: translateX(16px); background: #fff; }
+/* ---------- pied : texte a gauche | compteur a droite, filet de couleur au-dessus ---------- */
+.menu-footer{background:#000;display:grid;grid-template-columns:auto 1fr auto;align-items:center;height:3vh;box-sizing:border-box;border-top:0.15vh solid rgb(var(--mn-acc-rgb));border-radius:0 0 0.9vh 0.9vh;overflow:hidden}
+.footer-logo{display:flex;align-items:center;height:100%;padding:0 0 0 1.6vh;color:rgb(var(--mn-on-rgb))}
+/* Bas a gauche : volontairement vide. L'emplacement n'accueille un logo que
+   si une URL est explicitement fournie via FOOTER_LOGO_URL dans menu.lua ;
+   aucun contenu par defaut (ni hexagone, ni nom, ni marque).
+   :empty supprime aussi le padding, donc la colonne se reduit a zero et
+   il ne reste rien du tout a cet emplacement. Des qu'une image y est posee,
+   la regle generale ci-dessus reprend la main. */
+.footer-logo:empty{padding:0}
+/* Logo image en bas a gauche. Le visuel est blanc sur fond noir : "screen"
+   rend le noir entierement transparent, donc le cadre du fichier disparait
+   sur le pied et seul le lettrage subsiste. */
+.footer-logo img{height:2.2vh;width:auto;display:block;mix-blend-mode:screen}
+.footer-brand{text-align:left;font-size:1.1vh;font-weight:500;color:rgba(255,255,255,0.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1.6vh}
+.footer-counter{display:flex;align-items:center;height:100%;padding:0 1.6vh;font-size:1.1vh;font-weight:600;color:#fff;letter-spacing:0.02em}
 
-  /* Curseur */
-  .slider { width: 92px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.14); position: relative; flex: none; }
-  .slider i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: rgba(var(--accent-rgb), .9); }
-  .slider i::after { content: ""; position: absolute; right: -2px; top: -4px; width: 4px; height: 11px; border-radius: 2px; background: #fff; }
+/* ---------- saisie ---------- */
+.input-overlay{position:fixed;top:0;left:0;transform:none;width:100%;height:100%;background:rgb(0,0,0,0.5);z-index:999999;color:white;font-weight:500;font-family:var(--font);font-size:1.2vh}
+.input-box{background-color:rgba(18,19,24,0.94);border:0.1vh solid rgba(var(--line-rgb),0.5);border-radius:0.6vh;display:flex;flex-direction:column;position:fixed;bottom:17.5vh;left:50%;transform:translateX(-50%);height:auto;width:55vh;overflow:hidden;box-shadow:0 0 1.4vh rgba(var(--accent-rgb),0.35)}
+.input-box > .input-header{padding:0.8vh 1vh;border-bottom:0.1vh solid rgb(var(--line-rgb));width:100%;font-size:1.2vh;font-weight:600;background:linear-gradient(90deg,rgba(var(--accent-rgb),0.45) 0%,rgba(var(--accent-rgb),0) 100%)}
+.input-header-inner{display:flex;align-items:center;gap:0.5vh}
+.input-header-text{color:white}
+.input-box input{padding:1.25vh 1vh;border:none;outline:none;background:transparent;color:white;font-size:1.2vh;font-family:var(--font);display:block;margin:0}
 
-  /* Sélecteur « — VALEUR — » */
-  .pick { display: flex; align-items: center; gap: 7px; color: #9a9eae; font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
-  .pick::before, .pick::after { content: ""; width: 7px; height: 1px; background: currentColor; opacity: .8; }
-  .row.sel .pick { color: #fff; }
+/* ===== Panneau de saisie / capture de touche ("Choose Menu Key") =====
+   Reproduit menu-key (1).html : la reference faisait 1126 x 95 px
+   (en-tete 38 px). AGRAANDI a la demande : on est passe de 640 x 64 px
+   (en-tete 24 px) a 860 x 86 px (en-tete 32 px), polices 15 -> 20 px,
+   icone 22x15 -> 30x21. Tous les ratios d'origine sont conserves (echelle
+   ~1.34), donc rien n'est deforme.
+   Il sert MAINTENANT pour TOUTES les prompts, keybinds compris : la saisie
+   n'a pas besoin de <input> (c'est le Lua qui pousse le buffer via
+   updateInputPrompt, avec cursorPos), donc le rendu est identique partout.
+   LA LARGEUR EST EN vw : min(860px, 66vw). Un simple width fixe serait
+   ecrase par max-width sur les petits ecrans et le panneau SEMBLERAIT ne pas
+   changer ; en vw il suit toutes les resolutions (66vw sur un ecran de 800px,
+   plafonne a 860px au-dela de ~1300px).
+   VOILE : .kb-overlay fond un rideau sombre plein ecran derriere le panneau,
+   comme l'ancien .input-overlay.
+   Tout le panneau est calcule a partir d'UNE couleur, celle du menu
+   (--accent-rgb), via kbApplyColor().
+   POSITION : centre exactement a l'ecran (place-items:center). La reference
+   le collait en haut (padding-top:30px) ; ici on le veut au milieu. */
+.kb-overlay{box-sizing:border-box;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;
+  pointer-events:none;display:grid;place-items:center;background:rgba(0,0,0,0.55);
+  font-family:var(--font);font-weight:500;color:var(--kb-text,#fff)}
+.kb-panel{box-sizing:border-box;width:min(860px,66vw);max-width:calc(100vw - 48px);height:86px;display:flex;
+  flex-direction:column;overflow:hidden;background:var(--kb-panel,rgba(98,98,98,0.82));
+  border:1px solid var(--kb-border,rgba(208,208,208,0.35));border-radius:6px;
+  box-shadow:0 0.35vh 1.4vh rgba(0,0,0,0.55)}
+.kb-head{flex:none;height:32px;display:flex;align-items:center;gap:14px;padding:0 15px;
+  background:var(--kb-head,rgba(57,57,57,0.92));border-bottom:1px solid var(--kb-rule,rgba(224,224,224,0.7))}
+.kb-head svg{flex:none;color:var(--kb-icon,#e5e5e5)}
+.kb-divider{flex:none;width:1px;height:20px;background:var(--kb-line,rgba(255,255,255,0.14))}
+.kb-title{margin:0;font-size:20px;font-weight:700;letter-spacing:0.01em;color:#fff}
+.kb-value{flex:1;min-height:0;display:flex;align-items:center;padding:0 21px;font-size:20px;font-weight:700}
+.kb-key{overflow:hidden;text-overflow:ellipsis;white-space:pre;display:inline-flex;align-items:center}
+.kb-key.placeholder{font-weight:400;color:var(--kb-text-off,rgba(255,255,255,0.72))}
+.kb-caret{flex:none;width:3px;height:23px;background:var(--kb-text,#fff);
+  animation:kb-blink 1.1s steps(1) infinite}
+/* le curseur ne prend sa marge que quand il est en fin de texte : au milieu
+   d'un mot il doit coller au caractere, sinon tout le texte glisse de 4px */
+.kb-key.kb-gap .kb-caret{margin-left:5px}
+@keyframes kb-blink{50%{opacity:0}}
+.kb-hint{margin-left:auto;padding-left:21px;font-size:16px;font-weight:500;white-space:nowrap;
+  color:var(--kb-text-off,rgba(255,255,255,0.72))}
+@media (prefers-reduced-motion:reduce){.kb-caret{animation:none}}
+body,main{all:unset;display:block}
 
-  .empty { padding: 34px 16px; text-align: center; color: var(--muted); }
+/* ---------- notifications (maquette notifications.html) ----------
+   Pile en haut a droite, 340px. Tout se calcule a partir d'UNE couleur,
+   celle du menu (--accent-rgb), via ntApplyColor() : fond derive + texte
+   blanc/fonce selon contraste. Niveaux : info (couleur du menu), success,
+   warning, error, chacun avec sa propre icone SVG. Barre de temps en bas,
+   en pause au survol. duration 0 = reste jusqu'a fermeture. */
+.notify-stack{position:fixed;top:calc(24px + var(--kb-hud-h,0px));right:24px;width:390px;max-width:calc(100vw - 32px);
+  display:flex;flex-direction:column;gap:12px;z-index:9999;pointer-events:none;--slide:32px}
+.nt-toast{--accent:var(--nt-on,#e0e0e0);position:relative;overflow:hidden;display:flex;
+  align-items:flex-start;gap:14px;padding:14px 12px 17px 14px;pointer-events:auto;
+  background:var(--nt-panel,rgba(98,98,98,0.88));border:1px solid var(--nt-border,rgba(208,208,208,0.35));
+  border-radius:10px;animation:nt-in 0.28s ease-out both;
+  font-family:var(--font);color:var(--nt-text,#fff)}
+.nt-toast[data-level="success"]{--accent:var(--nt-success,#7be38b)}
+.nt-toast[data-level="warning"]{--accent:var(--nt-warning,#ffcf5a)}
+.nt-toast[data-level="error"]{--accent:var(--nt-error,#ff7a70)}
+.nt-toast.leaving{animation:nt-out 0.22s ease-in forwards}
+@keyframes nt-in{from{opacity:0;transform:translateX(var(--slide))}to{opacity:1;transform:none}}
+@keyframes nt-out{from{opacity:1;transform:none}to{opacity:0;transform:translateX(var(--slide))}}
+.nt-icon{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;
+  background:rgba(0,0,0,0.28);color:var(--accent)}
+.nt-icon svg{width:22px;height:22px}
+.nt-body{flex:1;min-width:0;padding-top:1px}
+.nt-title{margin:0;font-size:16px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.nt-msg{margin:3px 0 0;font-size:14px;line-height:1.4;color:var(--nt-text-off,rgba(255,255,255,0.72));overflow-wrap:anywhere}
+.nt-close{flex:none;width:28px;height:28px;border:0;border-radius:6px;background:transparent;
+  color:var(--nt-text-off,rgba(255,255,255,0.72));font:400 22px/1 var(--font);cursor:pointer}
+.nt-close:hover{background:rgba(0,0,0,0.25);color:var(--nt-text,#fff)}
+.nt-timer{position:absolute;left:0;bottom:0;width:100%;height:3px;background:var(--accent);
+  transform-origin:left center;animation:nt-shrink linear forwards}
+.nt-toast:hover .nt-timer{animation-play-state:paused}
+@keyframes nt-shrink{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){.nt-toast,.nt-toast.leaving,.nt-timer{animation:none}.nt-toast.leaving{opacity:0}}
 
-  /* ---------- Pied ---------- */
-  .foot { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 14px; height: 46px; border-top: 1px solid rgba(255,255,255,.1); border-radius: 0 0 11px 11px; background: #050507; }
-  .who { display: flex; align-items: center; gap: 9px; min-width: 0; }
-  .avatar { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex: none; background: linear-gradient(135deg, #e9ebf0, #5d616d); color: #0a0a0c; font-size: 11px; font-weight: 800; }
-  .who b { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mid { display: flex; align-items: center; justify-content: center; }
-  .mark { width: 20px; height: 20px; opacity: .9; }
+/* ---------- cible (reticule overlay) ---------- */
+/* Dessinee par le NUI, pas par un composant HUD : ainsi elle coexiste avec
+   Remove UI, qui masque les composants 1 a 22 chaque frame.
+   Disque blanc plein + croix sombre qui depasse du disque.
+   La croix est APRES le disque dans le DOM : elle doit le recouvrir. */
+.jul-crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:4.6vh;height:4.6vh;pointer-events:none;z-index:9998}
+.jul-cross-ring{position:absolute;top:50%;left:50%;width:2.3vh;height:2.3vh;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0.55vh rgba(0,0,0,0.5)}
+.jul-cross-h{position:absolute;top:50%;left:0;width:100%;height:0.28vh;background-color:#0b0b0b;transform:translateY(-50%);box-shadow:0 0 0 0.08vh rgba(255,255,255,0.5)}
+.jul-cross-v{position:absolute;left:50%;top:0;width:0.28vh;height:100%;background-color:#0b0b0b;transform:translateX(-50%);box-shadow:0 0 0 0.08vh rgba(255,255,255,0.5)}
 
-  #count { justify-self: end; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: #e3e5ec; }
+/* ---------- freecam ---------- */
+.hovering-text-wrap{position:fixed;bottom:7.5vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;outline:none;min-width:18.52vh;font-family:var(--font)}
+.hovering-text-list{list-style:none;margin:0;padding:0;text-align:center;pointer-events:none;user-select:none;max-height:calc(9 * (1.3vh * 1.3 + 0.37vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;align-items:center;scroll-behavior:smooth}
+.hovering-text-item{padding:0.185vh 0;font-size:1.3vh;line-height:1.3;transition:transform 0.22s cubic-bezier(.2,.9,.2,1),color 0.22s cubic-bezier(.2,.9,.2,1),letter-spacing 0.22s;transform-origin:center;white-space:nowrap;min-width:27.78vh;font-weight:600;color:#fff}
+.hovering-text-inactive{color:#fff;transform:scale(0.98);letter-spacing:0}
+.hovering-text-selected{transform:scale(1.03);font-weight:600;letter-spacing:0.015vh;color:var(--color-mainSolid)}
+li{display:list-item;text-align:-webkit-match-parent}
+ul{list-style-type:disc}
 
-  .hints { display: flex; justify-content: center; gap: 14px; padding: 7px 10px 9px; color: var(--muted); font-size: 10.5px; border-top: 1px solid var(--line); border-radius: 0 0 11px 11px; }
-  .hints b { color: #c9ccd6; font-weight: 600; margin-right: 4px; }
-  .hints.off { display: none; }
-  .foot.alone { border-radius: 0 0 11px 11px; }
+/* ---------- fiche joueur ----------
+   Carte d'infos qui apparait quand la selection du menu se pose sur un
+   joueur de la liste. Tout le contenu vient de Lua : ce bloc ne fait que
+   le poser a l'ecran. pointer-events:none, elle ne doit jamais capter un
+   clic ni bloquer le menu. Fond noir, nom et barres a la couleur du menu. */
+.jul-pcard{position:fixed;right:1.6vh;top:50%;transform:translateY(-50%);width:29vh;box-sizing:border-box;padding:1.6vh;display:flex;flex-direction:column;gap:1.2vh;font-family:var(--menu-font);color:#fff;pointer-events:none;z-index:9997;border-radius:2vh;background:rgba(var(--mn-bg-rgb),0.96);border:0.12vh solid rgba(var(--mn-acc-rgb),0.5);box-shadow:0 1vh 3vh rgba(0,0,0,0.65)}
+.jul-pc-head{display:flex;align-items:center;gap:1.2vh}
+.jul-pc-av{flex:none;width:4.4vh;height:4.4vh;box-sizing:border-box;border-radius:1vh;border:0.12vh solid rgb(var(--mn-on-rgb));background:rgba(var(--mn-acc-rgb),0.14);display:grid;place-items:center;font-size:1.5vh;font-weight:700;color:rgb(var(--mn-on-rgb))}
+.jul-pc-who{flex:1;min-width:0}
+.jul-pc-name{font-size:1.7vh;font-weight:700;line-height:1.15;color:rgb(var(--mn-on-rgb));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jul-pc-sub{margin-top:0.25vh;font-size:1.05vh;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jul-pc-badge{flex:none;box-sizing:border-box;padding:0.5vh 1.1vh;border-radius:2vh;border:0.1vh solid rgba(255,255,255,0.18);font-family:var(--mono);font-size:1.1vh;font-weight:700}
+.jul-pc-stat{display:flex;flex-direction:column;gap:0.7vh}
+.jul-pc-line{display:flex;justify-content:space-between;align-items:baseline;font-size:1.15vh;color:rgba(255,255,255,0.6)}
+.jul-pc-line .vnum{font-family:var(--mono);font-weight:700;color:#fff}
+.jul-pc-bar{display:flex;gap:0.35vh}
+.jul-pc-seg{flex:1;height:0.85vh;border-radius:0.5vh;background:rgba(255,255,255,0.08)}
+.jul-pc-bar.hp .jul-pc-seg.on{background:#8fd18f}
+.jul-pc-bar.ap .jul-pc-seg.on{background:rgb(var(--mn-on-rgb))}
+.jul-pc-sec{display:flex;flex-direction:column;border-top:0.1vh solid rgba(255,255,255,0.08)}
+.jul-pc-row{display:flex;justify-content:space-between;align-items:center;gap:1vh;padding:0.95vh 0;font-size:1.15vh;border-bottom:0.1vh solid rgba(255,255,255,0.08)}
+.jul-pc-row:last-child{border-bottom:none}
+.jul-pc-row .k{color:rgba(255,255,255,0.6)}
+.jul-pc-row .v{font-family:var(--mono);font-weight:500;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:15vh}
+/* ---------- contour du menu : a droite (defaut), tout autour, ou aucun (setEdgeStyle) ---------- */
+[data-edge="all"] .menu-root{border-color:rgb(var(--mn-acc-rgb));border-width:0.3vh;box-shadow:0 0 1.1vh rgba(var(--mn-acc-rgb),0.55),0 1vh 3vh rgba(0,0,0,0.6)}
+[data-edge="off"] .menu-root{border-right:0.1vh solid rgba(255,255,255,0.08);box-shadow:0 1vh 3vh rgba(0,0,0,0.6)}
+/* ===== Ecarts avec les captures du menu a 4 couleurs ===== */
+/* valeurs "< x >" pour les listes : item.arrows = true (sinon "- x -") */
+.scroll-value.arrows .arrow{font-size:0;opacity:1}
+.scroll-value.arrows .arrow::before{font-size:1.15vh;font-weight:700;line-height:1}
+.scroll-value.arrows .arrow:first-child::before{content:"<"}
+.scroll-value.arrows .arrow:last-child::before{content:">"}
+/* titre de page (setTitleStyle {style:'on'}) : barre noire, titre centre en gras */
+[data-title="on"] .menu-crumb{display:flex;align-items:center;justify-content:center;height:3vh;box-sizing:border-box;background:#000}
+[data-title="on"] .crumb-title{font-size:1.3vh;font-weight:700;color:#fff}
+/* ancien fond noir (setBgStyle {style:'black'}) */
+[data-bg="black"] .menu-body{background:rgba(var(--mn-bg-rgb),0.93)}
+[data-bg="black"] .menu-tabs{background:#0b0b0d}
 
-  .toast { margin-top: 10px; padding: 9px 14px; font-size: 12.5px; border-radius: 10px; background: var(--bg); border: 1px solid rgba(var(--accent-rgb), .55); color: var(--text); opacity: 0; transform: translateY(-4px); transition: .2s; pointer-events: none; }
-  .toast.show { opacity: 1; transform: none; }
+/* ---------- panneau Keybinds (action setKeybinds) ----------
+   menu.lua envoie rows = { {label, key, state} } a chaque ouverture et a
+   chaque bascule. state vaut 'on'/'off' pour les options a etat, 'none'
+   pour un simple raccourci (pas de voyant invente). */
+.kb-hud{position:fixed;top:24px;right:24px;z-index:9996;box-sizing:border-box;min-width:20vh;max-width:30vh;padding:1.1vh 1.3vh;display:flex;flex-direction:column;gap:0.45vh;background:rgba(var(--mn-bg-rgb),0.94);border:0.12vh solid rgba(var(--mn-acc-rgb),0.45);border-radius:0.9vh;box-shadow:0 0.8vh 2.4vh rgba(0,0,0,0.6);font-family:var(--menu-font);color:#fff;pointer-events:none}
+.kb-hud-head{display:flex;align-items:center;justify-content:space-between;gap:1vh;padding-bottom:0.55vh;margin-bottom:0.15vh;border-bottom:0.1vh solid rgba(255,255,255,0.08)}
+.kb-hud-title{font-size:0.95vh;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+.kb-hud-count{font-family:var(--mono);font-size:0.9vh;color:rgb(var(--mn-on-rgb))}
+.kb-hud-row{display:flex;align-items:center;justify-content:space-between;gap:1.2vh;min-width:0}
+.kb-hud-label{font-size:1.05vh;font-weight:500;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-hud-right{display:flex;align-items:center;gap:0.6vh;flex:none}
+.kb-hud-key{font-family:var(--mono);font-size:0.9vh;font-weight:700;letter-spacing:0.03em;padding:0.28vh 0.7vh;border-radius:0.4vh;background:rgba(var(--mn-acc-rgb),0.18);border:0.1vh solid rgba(var(--mn-acc-rgb),0.5);color:rgb(var(--mn-on-rgb))}
+.kb-hud-dot{width:0.7vh;height:0.7vh;border-radius:50%;background:rgba(255,255,255,0.18);box-shadow:inset 0 0 0 0.08vh rgba(255,255,255,0.25)}
+.kb-hud-row[data-state="on"] .kb-hud-dot{background:#8fd18f;box-shadow:0 0 0.6vh rgba(143,209,143,0.8)}
+.kb-hud-row[data-state="off"] .kb-hud-dot{background:#e0716b;box-shadow:0 0 0.6vh rgba(224,113,107,0.7)}
+.kb-hud-row[data-state="none"] .kb-hud-dot{display:none}
 
-
-  /* =====================================================================
-     STYLE SYNAPS
-     ===================================================================== */
-
-
-  /* ---------- SYNAPS : chrome, lignes détaillées, sélection lumineuse ---------- */
-  #root[data-style="synaps"] { gap: 0; }
-  #root[data-style="synaps"] .c1 { border-radius: 12px 12px 0 0; border-bottom: 0; }
-  #root[data-style="synaps"] .c2 { border-radius: 0 0 12px 12px; border-top: 0; }
-  #root[data-style="synaps"] .tabs, #root[data-style="synaps"] .list { border-radius: 0; }
-  #root[data-style="synaps"] .tabs { border-bottom: 1px solid rgba(255,255,255,.12); }
-  #root[data-style="synaps"] .card { background: rgba(0,0,0,.78); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); border-color: rgba(255,255,255,.12); }
-  #root[data-style="synaps"] .c2 { background: rgba(0,0,0,.72); }
-  #root[data-style="synaps"] .banner { height: 118px; }
-  #root[data-style="synaps"] .brand b { font-size: 40px; }
-  #root[data-style="synaps"] .brand svg { width: 46px; height: 46px; }
-  #root[data-style="synaps"] .crumb { background: rgba(0,0,0,.85); color: #fff; font-size: 11px; letter-spacing: .1em; border-color: rgba(255,255,255,.55); }
-  #root[data-style="synaps"] .crumb i::before { content: ">"; }
-  #root[data-style="synaps"] .tabs { background: rgba(255,255,255,.04); }
-  #root[data-style="synaps"] .tab { color: #5d6070; font-size: 11.5px; padding: 13px 2px; border-bottom: 0; }
-  #root[data-style="synaps"] .tab.active { color: #fff; background: linear-gradient(180deg, #4a4b52, #2a2b30); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 10px rgba(255,255,255,.12); }
-  #root[data-style="synaps"] .list { padding: 4px 0; }
-  #root[data-style="synaps"] .row { height: 36px; margin: 0 7px; border-bottom-color: rgba(255,255,255,.1); }
-  #root[data-style="synaps"] .row.sel {
-    border-color: transparent;
-    background: linear-gradient(90deg, #6c6d75 0%, #46474d 42%, #2a2b30 100%);
-    box-shadow: 0 0 6px rgba(255,255,255,.16), inset 0 0 12px rgba(255,255,255,.07);
-    --ring: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0) 55%),
-            linear-gradient(100deg, rgba(255,255,255,.9), rgba(255,255,255,.28) 38%, rgba(255,255,255,.28) 64%, rgba(255,255,255,.85));
-  }
-  #root[data-style="synaps"] .row .lbl { font-weight: 500; }
-  #root[data-style="synaps"] .section { height: 30px; color: #fff; font-size: 11px; }
-  #root[data-style="synaps"] .section::before, #root[data-style="synaps"] .section::after { background: rgba(255,255,255,.7); }
-  #root[data-style="synaps"] .sw { background: #3a3b41; }
-  #root[data-style="synaps"] .sw::after { background: #f2f3f6; }
-  #root[data-style="synaps"] .sw.on { background: #c9cacf; box-shadow: none; }
-  #root[data-style="synaps"] .slider { background: rgba(255,255,255,.16); }
-  #root[data-style="synaps"] .slider i { background: rgba(255,255,255,.75); }
-  #root[data-style="synaps"] .pick::before, #root[data-style="synaps"] .pick::after { width: 8px; }
-  #root[data-style="synaps"] .foot { background: rgba(0,0,0,.6); }
-  #root[data-style="synaps"] .avatar { display: none; }
-  #root[data-style="synaps"] .who b { font-size: 12.5px; font-weight: 600; }
-  #root[data-style="synaps"] .hints { display: none; }
-  #root[data-style="synaps"] .foot { border-radius: 0 0 11px 11px; }
-
-  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+/* ---------- ecran de chargement (showLoading / loadingProgress / hideLoading) ---------- */
+.loading-overlay{position:fixed;inset:0;z-index:999998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;padding:4vh;box-sizing:border-box;font-family:var(--menu-font);color:#fff;background:radial-gradient(120% 80% at 50% 0%,rgba(var(--mn-acc-rgb),0.22),rgba(0,0,0,0.98) 62%);transition:opacity 0.45s ease}
+.loading-overlay.leaving{opacity:0;pointer-events:none}
+.loading-banner{width:min(64vh,78vw);max-height:24vh;object-fit:cover;border-radius:1vh;border:0.1vh solid rgba(var(--mn-acc-rgb),0.5);box-shadow:0 1.4vh 4vh rgba(0,0,0,0.7);background:#000}
+.loading-banner[hidden]{display:none}
+.loading-title{font-size:2.4vh;font-weight:700;letter-spacing:0.02em;text-align:center}
+.loading-title span{color:rgb(var(--mn-on-rgb))}
+.loading-status{min-height:1.8vh;font-size:1.1vh;font-weight:500;letter-spacing:0.02em;color:rgba(255,255,255,0.62);text-align:center}
+.loading-bar{width:min(48vh,72vw);height:0.65vh;border-radius:1vh;background:rgba(255,255,255,0.1);overflow:hidden}
+.loading-fill{height:100%;width:0%;border-radius:1vh;background:linear-gradient(90deg,rgb(var(--mn-acc-rgb)),rgb(var(--mn-on-rgb)));transition:width 0.35s ease}
+.loading-pct{font-family:var(--mono);font-size:1vh;font-weight:700;color:rgb(var(--mn-on-rgb))}
 </style>
 </head>
 <body>
-
-<div id="root" class="hidden" data-style="synaps">
-  <div class="card c1">
-    <div class="banner">
-      <div class="b-chrome">
-        <div class="brand">
-          <div class="row1">
-            <svg viewBox="0 0 40 40" fill="none">
-              <path d="M14 6h20v18c0 6.6-5.4 12-12 12h-2C13.4 36 8 30.6 8 24v-2h10v2c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V12H14z" fill="url(#gm)"/>
-              <defs><linearGradient id="gm" x1="6" y1="6" x2="34" y2="34"><stop stop-color="#fff"/><stop offset=".55" stop-color="#8a8e9a"/><stop offset="1" stop-color="#e6e8ee"/></linearGradient></defs>
-            </svg>
-            <b>JUL</b>
-          </div>
-          <small>MENU</small>
-        </div>
-      </div>
-    </div>
-    <div class="tabs" id="tabs"></div>
-  </div>
-
-  <div class="card c2">
-    <div class="sb" id="sb"><i></i></div>
-    <div class="list" id="list"></div>
-    <div class="foot">
-      <div class="who"><div class="avatar" id="avatar">N</div><b id="who">JUL</b></div>
-      <div class="mid"><svg class="mark" viewBox="0 0 40 40" fill="#e3e5ec"><path d="M14 6h20v18c0 6.6-5.4 12-12 12h-2C13.4 36 8 30.6 8 24v-2h10v2c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V12H14z"/></svg></div>
-      <div id="count">1 / 1</div>
-    </div>
-    <div class="hints" id="hints">
-      <span><b>↑↓</b>naviguer</span><span><b>←→</b>valeur</span><span><b>Entrée</b>valider</span><span><b>Retour</b>revenir</span>
-    </div>
-  </div>
-  <div class="toast" id="toast"></div>
-</div>
-
+<div id="app"></div>
 <script>
-/* =====================================================================
-   JUL UI — interface NUI
-   - En jeu : le script Lua pilote le menu avec SendNUIMessage
-   - Dans un navigateur : mode démo automatique (clavier + souris)
-   ===================================================================== */
+(()=>{
+console.log('[JuL menu] version v15 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
+const app=document.getElementById('app');
+const $=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
+const E_OUT='cubic-bezier(.33,1,.68,1)',E_IN='cubic-bezier(.32,0,.67,0)';
 
-const IN_GAME = typeof GetParentResourceName === 'function';
-const DEMO = !IN_GAME || new URLSearchParams(location.search).has('demo');
-
-/* ---------- Icônes (SVG en trait) ---------- */
-const P = {
-  user:   '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
-  users:  '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.6 3-6 7-6s7 2.4 7 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.5c2.4.6 4 2.4 4 5.5"/>',
-  eye:    '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
-  sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
-  bell:   '<path d="M6 16V11a6 6 0 1112 0v5l2 2H4z"/><path d="M10 21h4"/>',
-  globe:  '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
-  keys:   '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h0M10 10h0M14 10h0M18 10h0M7 14h10"/>',
-  palette:'<path d="M12 3a9 9 0 100 18c1.5 0 2-1 1.5-2.2-.5-1.3.3-2.3 1.7-2.3H18a3 3 0 003-3c0-5-4-10.5-9-10.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
-  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
-  gear:   '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>',
-  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
-  car:    '<path d="M4 16V12l2-5h12l2 5v4"/><path d="M3 16h18v3H3z"/>',
-  crown:  '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
-  list:   '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/>',
-  chevR:  '<path d="M9 6l6 6-6 6"/>',
-  dbl:    '<path d="M6 6l6 6-6 6M13 6l6 6-6 6"/>',
-  plus:   '<path d="M12 5v14M5 12h14"/>'
-};
-const svg = (n, c = '') => `<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[n] || ''}</svg>`;
-
-/* ---------- Thèmes ---------- */
-const THEMES = {
-  'Argent':   ['#b9bdc9', '185, 189, 201'],
-  'Indigo':   ['#7c6cff', '124, 108, 255'],
-  'Cyan':     ['#2fc4ff', '47, 196, 255'],
-  'Émeraude': ['#2fd08a', '47, 208, 138'],
-  'Rose':     ['#ff5c8a', '255, 92, 138'],
-  'Ambre':    ['#ffb02e', '255, 176, 46'],
-  'Rouge':    ['#ff2a2a', '255, 42, 42'],
-  'Bleu':     ['#1ea7e8', '30, 167, 232']
-};
-function applyTheme(name) {
-  const t = THEMES[name]; if (!t) return;
-  const r = document.documentElement.style;
-  r.setProperty('--accent', t[0]); r.setProperty('--accent-rgb', t[1]);
+/* ---------- transitions (équivalent de svelte/transition) ---------- */
+function tr(el,{kind,dur,start=.94,x=0,y=0,base=''},out){
+  const hid={opacity:0},shown={opacity:1};
+  if(kind==='scale'){hid.transform=`${base} scale(${start})`;shown.transform=`${base} scale(1)`}
+  if(kind==='fly'){hid.transform=`${base} translate(${x}px,${y}px)`;shown.transform=`${base} translate(0px,0px)`}
+  return el.animate(out?[shown,hid]:[hid,shown],{duration:dur,easing:kind==='fade'?'linear':out?E_IN:E_OUT,fill:out?'forwards':'none'});
 }
-
-/* ---------- Données du menu (remplaçables par Lua via 'setData') ----------
-   Types : menu (avec items OU tabs) | toggle | slider (+ enabled optionnel) | select | button | section
-   Un menu peut avoir ses propres onglets : { type = 'menu', label = '…', tabs = { { label = '…', items = { … } }, … } }
-   Champs optionnels : icon, count
-   --------------------------------------------------------------------- */
-let DATA = {
-  title: 'JUL',
-  user: 'Joueur',
-  tabs: [
-    { label: 'Principal', items: [
-      { type: 'menu', id: 'profil', label: 'Profil', icon: 'user', tabs: [
-        { label: 'Identité', items: [
-          { type: 'section', label: 'Compte' },
-          { type: 'button', id: 'pseudo', label: 'Modifier le pseudo', count: 1 },
-          { type: 'toggle', id: 'prive', label: 'Profil privé', value: false },
-          { type: 'select', id: 'langue', label: 'Langue', options: ['Français', 'English', 'Español', 'Deutsch'], index: 0 }
-        ]},
-        { label: 'Sons', items: [
-          { type: 'section', label: 'Volumes' },
-          { type: 'slider', id: 'volume', label: 'Volume des sons', min: 0, max: 100, step: 5, value: 60, enabled: true },
-          { type: 'slider', id: 'musique', label: 'Musique', min: 0, max: 100, step: 5, value: 35, enabled: false }
-        ]},
-        { label: 'Avancé', items: [
-          { type: 'toggle', id: 'p_stats', label: 'Afficher les statistiques', value: false },
-          { type: 'button', id: 'p_reset', label: 'Réinitialiser le profil' }
-        ]}
-      ]},
-      { type: 'menu', id: 'affichage', label: 'Affichage', icon: 'eye', tabs: [
-        { label: 'Écran', items: [
-          { type: 'toggle', id: 'minimap', label: 'Mini-carte', value: true },
-          { type: 'toggle', id: 'horloge', label: 'Horloge', value: true }
-        ]},
-        { label: 'Caméra', items: [
-          { type: 'slider', id: 'fov', label: 'Champ de vision', min: 40, max: 110, step: 1, value: 75, enabled: true },
-          { type: 'slider', id: 'flou', label: 'Flou de mouvement', min: 0, max: 10, step: 1, value: 0, enabled: false }
-        ]}
-      ]},
-      { type: 'menu', id: 'notifs', label: 'Notifications', icon: 'bell', items: [
-        { type: 'toggle', id: 'n_son', label: 'Son', value: true },
-        { type: 'select', id: 'n_pos', label: 'Position', options: ['Haut droite', 'Haut gauche', 'Bas droite'], index: 0 },
-        { type: 'slider', id: 'n_dur', label: 'Durée (s)', min: 1, max: 10, step: 1, value: 4 }
-      ]},
-      { type: 'menu', id: 'raccourcis', label: 'Raccourcis', icon: 'keys', items: [
-        { type: 'button', id: 'k1', label: 'Ouvrir le menu : F5' },
-        { type: 'button', id: 'k2', label: 'Fermer le menu : Retour' }
-      ]},
-      { type: 'menu', id: 'vehicules', label: 'Véhicules', icon: 'car', items: [
-        { type: 'toggle', id: 'v_ceinture', label: 'Rappel de ceinture', value: true },
-        { type: 'select', id: 'v_unite', label: 'Unité de vitesse', options: ['km/h', 'mph'], index: 0 }
-      ]},
-      { type: 'menu', id: 'securite', label: 'Sécurité', icon: 'shield', items: [
-        { type: 'toggle', id: 's_conf', label: 'Confirmer les actions', value: true }
-      ]},
-      { type: 'menu', id: 'journal', label: 'Journal', icon: 'list', items: [
-        { type: 'button', id: 'j1', label: 'Exporter' }
-      ]}
-    ]},
-    { label: 'Interface', items: [
-      { type: 'section', label: 'Fenêtre' },
-      { type: 'toggle', id: 'o_anim', label: 'Animations', value: true },
-      { type: 'slider', id: 'o_vit', label: 'Vitesse d’animation', min: 0, max: 5, step: 0.5, value: 1.5, enabled: true },
-      { type: 'select', id: 'o_trans', label: 'Transition', options: ['Douce', 'Rapide', 'Aucune'], index: 0 },
-      { type: 'section', label: 'Contenu' },
-      { type: 'button', id: 'o_reset', label: 'Réinitialiser la liste', count: 3 },
-      { type: 'toggle', id: 'o_astuces', label: 'Afficher les astuces', value: false },
-      { type: 'slider', id: 'o_txt', label: 'Taille du texte', min: 10, max: 20, step: 1, value: 14 },
-      { type: 'toggle', id: 'o_compact', label: 'Lignes compactes', value: false }
-    ]},
-    { label: 'Audio', items: [
-      { type: 'section', label: 'Volumes' },
-      { type: 'slider', id: 'a_gen', label: 'Général', min: 0, max: 100, step: 5, value: 80, enabled: true },
-      { type: 'slider', id: 'a_mus', label: 'Musique', min: 0, max: 100, step: 5, value: 40, enabled: true },
-      { type: 'slider', id: 'a_fx', label: 'Effets', min: 0, max: 100, step: 5, value: 65, enabled: true },
-      { type: 'section', label: 'Sortie' },
-      { type: 'select', id: 'a_mode', label: 'Mode', options: ['Stéréo', 'Mono', 'Casque'], index: 0 }
-    ]},
-    { label: 'Thème', items: [
-      { type: 'section', label: 'Couleurs' },
-      { type: 'select', id: 'theme', label: 'Couleur d’accent', options: Object.keys(THEMES), index: 0 },
-      { type: 'section', label: 'Fenêtre' },
-      { type: 'slider', id: 'opacite', label: 'Opacité', min: 40, max: 100, step: 5, value: 100 },
-      { type: 'slider', id: 'echelle', label: 'Taille', min: 70, max: 130, step: 5, value: 100 },
-      { type: 'toggle', id: 'aide', label: 'Barre de raccourcis', value: true }
-    ]}
-  ]
-};
-
-/* ---------- État ---------- */
-const $ = id => document.getElementById(id);
-const S = { tab: 0, stack: [], open: false };
-
-const curTab = () => DATA.tabs[S.tab];
-/* Contexte d'onglets : ceux du menu principal, ou ceux d'un sous-menu qui en définit (menu.tabs) */
-function ctx() {
-  if (!S.stack.length) return { tabs: DATA.tabs, get i() { return S.tab; }, set i(v) { S.tab = v; } };
-  const top = S.stack[S.stack.length - 1];
-  return top.tabs ? { tabs: top.tabs, get i() { return top.tab; }, set i(v) { top.tab = v; } } : null;
-}
-function frame() {
-  const c = ctx();
-  if (c) {
-    const t = c.tabs[c.i];
-    return t._f || (t._f = { title: t.label, items: t.items, index: firstSel(t.items) });
+function present(s,show,build,plan){
+  if(show){
+    if(s.els){if(s.out){(s.anims||[]).forEach(a=>a&&a.reverse());s.out=false;s.g++}return}
+    s.els=(typeof build==='function')?build():s.els;
+    s.out=false;s.anims=(typeof plan==='function')?plan(s.els,false):[];
+  }else if(s.els&&!s.out){
+    const els=s.els,g=++s.g;s.out=true;
+    /* plan peut manquer (appel a 2 arguments) : on ne doit JAMAIS lever,
+       sinon s.out reste bloque true et le panneau n'est jamais retire. */
+    s.anims=(typeof plan==='function')?plan(els,true):[];
+    const done=()=>{if(s.g===g){els.forEach(e=>e.remove());s.els=null;s.out=false}};
+    /* .then(done,done) : nettoyage aussi si une animation est annulee
+       (avant : .catch(()=>{}) laissait l'etat bloque "out" a jamais). */
+    Promise.all(s.anims.map(a=>a&&a.finished)).then(done,done);
   }
-  return S.stack[S.stack.length - 1];
 }
-const selectable = items => items.filter(i => i.type !== 'section');
-function firstSel(items) { return Math.max(0, items.findIndex(i => i.type !== 'section')); }
-function step(dir) {
-  const f = frame(), n = f.items.length; let i = f.index;
-  for (let k = 0; k < n; k++) {
-    i = (i + dir + n) % n;
-    if (f.items[i].type !== 'section') { f.index = i; break; }
+
+/* ================= MENU PRINCIPAL (Base) ================= */
+const B={cur:0,menu:[],tabs:['Main Menu'],tab:0,crumb:[],top:'23vh',left:'6.25vh',
+  banner:'https://raw.githubusercontent.com/tony48121/Dragon-Ball-jul/refs/heads/main/jul_menu_v2.png',
+  trackH:0,thumbTop:0,thumbH:24,over:false,hlTop:0,lock:null,rows:[],slot:{g:0}};
+const live=()=>B.root&&B.root.isConnected;
+const types=o=>Array.isArray(o.type)?o.type:[o.type];
+const sig=o=>o.type=='divider'?'d':types(o).join(',')+(o.icon?'|i':'');
+
+/* Aucun contenu par defaut en bas a gauche. Un logo n'apparait que si une URL
+   est donnee (FOOTER_LOGO_URL dans menu.lua) : mix-blend-mode:screen est pose
+   en CSS et rend le noir du fichier transparent sur le pied. Si l'image ne
+   charge pas, on retombe sur le slot vide. */
+function applyFooterLogo(lg,url){
+  if(!lg||!url)return;
+  const im=$('img');im.alt='';
+  im.onerror=()=>{lg.replaceChildren();lg.classList.remove('has-img')};
+  im.src=url;
+  lg.replaceChildren(im);lg.classList.add('has-img');
+}
+function buildMenu(){
+  const r=$('div','menu-root');r.style.cssText=`top:${B.top};left:${B.left};transform-origin:top left`;
+  const ban=$('div','menu-banner'),img=$('img');img.alt='';img.src=B.banner;ban.append(img);
+  const crumb=$('div','menu-crumb'),tabs=$('div','menu-tabs');
+  const sb=$('div','menu-scrollbar'),trk=$('div','scrollbar-track'),thumb=$('div','scrollbar-thumb');trk.append(thumb);sb.append(trk);
+  const body=$('div','menu-body'),list=$('div','menu-items');list.onscroll=onScroll;
+  const hl=$('div','selection-highlight');hl.style.top=B.hlTop+'px';list.append(hl);body.append(list);
+  const foot=$('div','menu-footer'),cnt=$('span','footer-counter');const logo=$('span','footer-logo');
+  /* Slot bas gauche laissee vide par defaut. B.logoUrl est memorise : le pied
+     est reconstruit a chaque showMenu, donc la reapplication ici est ce qui
+     fait survivre un logo configure. */
+  if(B.logoUrl)applyFooterLogo(logo,B.logoUrl);
+  foot.append(logo,$('span','footer-brand','JuL - Menu'),cnt);
+  r.append(ban,crumb,tabs,sb,body,foot);app.append(r);
+  Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,rows:[]});
+  renderTabs();renderCrumb();applyBar();applyBannerOffset();
+  return [r];
+}
+const planMenu=(e,out)=>[];
+
+function renderTabs(){
+  if(!live())return;
+  B.tabsEl.replaceChildren(...B.tabs.map((t,i)=>{
+    const d=$('div','tab-item'+(i===B.tab?' active':''),t);
+    /* clic (utile en apercu / si le focus NUI est ouvert) : on change
+       d'onglet localement puis on previent menu.lua par le callback "tab". */
+    d.onclick=()=>{
+      if(i===B.tab)return;
+      B.tab=i;renderTabs();
+      postNui('tab',{index:i});
+    };
+    return d;
+  }));
+  renderCrumb();
+}
+function renderCrumb(){
+  if(!live())return;
+  const p=B.crumb,c=B.crumbEl;
+  /* la barre de titre est toujours la, comme sur les captures : sans fil d'Ariane
+     envoye par le Lua, elle reprend le nom de l'onglet actif */
+  const title=p.length?String(p[p.length-1]):String(B.tabs[B.tab]||'Main');
+  c.replaceChildren($('span','crumb-title',title));
+  B.root.style.setProperty('--crumb-h',document.documentElement.dataset.title==='on'?'3vh':'0vh');
+}
+const comp=h=>{const d=$('div','component');d.innerHTML=h;return d};
+function mkRow(o){
+  if(o.type=='divider'){const d=$('div','separator-container');d.append($('div','separator-bar'),$('div','separator-text'),$('div','separator-bar'));return d}
+  const r=$('div','menu-item'),lab=$('div','item-label'),cc=$('div','components-container');
+  lab.append($('span','name'));if(o.icon)lab.prepend($('i','ph '+o.icon+' row-icon'));
+  types(o).forEach(t=>{
+    if(t==='submenu')cc.append(comp('<span class="caret-icon" aria-hidden="true">&gt;</span>'));
+    else if(t==='action')cc.append(comp('<span class="caret-icon" aria-hidden="true">+</span>'));
+    else if(t==='color')cc.append(comp('<span class="swatch"></span>'));
+    else if(t==='checkbox'){const c=comp('<label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
+      c.querySelector('input').onchange=e=>{r._o.checked=e.target.checked;if(B.cur===r._i)postNui('change',{value:e.target.checked})};cc.append(c)}
+    else if(t==='slider'){const c=comp('<div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div>');
+      const rg=c.querySelector('input');
+      rg.oninput=e=>{r._o.value=+e.target.value;patchRow(r,r._o,r._i)};
+      /* change = relachement du curseur : on previent menu.lua une seule fois
+         par geste (et seulement si la ligne est bien la ligne active). */
+      rg.onchange=e=>{if(B.cur===r._i)postNui('change',{value:+e.target.value})};cc.append(c)}
+    else if(t==='scroll')cc.append(comp('<div class="scroll-value"><span class="arrow">-</span><span class="val"></span><span class="arrow">-</span></div>'));
+  });
+  r.append(lab,cc);return r;
+}
+function patchRow(r,o,i){
+  r._o=o;r._i=i;
+  if(o.type=='divider'){r.children[1].textContent=o.label??'';return}
+  r.classList.toggle('is-selected',B.cur===i);
+  const nm=r.querySelector('.name');nm.textContent=o.label??'';const ic=r.querySelector('.row-icon');if(ic&&o.icon)ic.className='ph '+o.icon+' row-icon';
+  if(types(o).includes('slider')&&B.cur===i)nm.append(' ',$('span','slider-val',': '+o.value));
+  const cb=r.querySelector('input[type=checkbox]');if(cb)cb.checked=!!o.checked;
+  const rg=r.querySelector('input[type=range]');
+  if(rg){
+    [['min',o.min],['max',o.max],['step',o.step]].forEach(([k,v])=>v==null?rg.removeAttribute(k):rg.setAttribute(k,v));
+    rg.value=o.value??'';
+    r.querySelector('.range-fill').style.width=o.max>o.min?((o.value-o.min)/(o.max-o.min))*100+'%':'0%';
   }
-  render();
+  const sc=r.querySelector('.scroll-value .val');
+  if(sc)sc.parentElement.classList.toggle('arrows',!!o.arrows);
+  if(sc)sc.textContent=o.options?.[o.selected-1]?.label||o.options?.[0]?.label||(!o.options||o.options.length===0?'Loading...':'None');
+  const sw=r.querySelector('.swatch');if(sw)sw.style.background=o.color||'#fff';
 }
-
-/* ---------- Rendu ---------- */
-function render() {
-  const f = frame(), c = ctx();
-
-  $('tabs').classList.toggle('off', !c);
-  $('tabs').innerHTML = c ? c.tabs.map((t, i) => `<div class="tab ${i === c.i ? 'active' : ''}" data-t="${i}">${t.label}</div>`).join('') : '';
-
-  const l = $('list'), st = l.scrollTop;
-  l.innerHTML = f.items.length ? f.items.map((it, i) => rowHTML(it, i === f.index, i)).join('') : '<div class="empty">Aucun élément</div>';
-  l.scrollTop = st;
-  const s = l.querySelector('.sel');
-  if (s) {
-    const t = s.offsetTop, b = t + s.offsetHeight;
-    if (t < l.scrollTop + 34) l.scrollTop = Math.max(0, t - 34);
-    else if (b > l.scrollTop + l.clientHeight - 8) l.scrollTop = b - l.clientHeight + 8;
-  }
-  updateSB();
-
-  const sels = selectable(f.items);
-  $('count').textContent = `${Math.max(1, sels.indexOf(f.items[f.index]) + 1)} / ${sels.length}`;
-  $('who').textContent = DATA.user || 'JUL';
-  $('avatar').textContent = (DATA.user || 'N')[0].toUpperCase();
+function renderItems(){
+  if(!Array.isArray(B.menu))B.menu=[];
+  B.menu.forEach((o,i)=>{
+    let row=B.rows[i];
+    if(!row||row._s!==sig(o)){const n=mkRow(o);n._s=sig(o);row?row.replaceWith(n):B.list.append(n);row=B.rows[i]=n}
+    patchRow(row,o,i);
+  });
+  while(B.rows.length>B.menu.length)B.rows.pop().remove();
 }
-
-function rowHTML(it, sel, i) {
-  if (it.type === 'section') return `<div class="section">${it.label}</div>`;
-  let right = '';
-  switch (it.type) {
-    case 'menu':   right = svg('chevR', 'chev'); break;
-    case 'button': right = svg('plus', 'plus'); break;
-    case 'toggle': right = `<div class="sw ${it.value ? 'on' : ''}"></div>`; break;
-    case 'slider': {
-      const pct = (it.value - it.min) / (it.max - it.min) * 100;
-      right = `<div class="slider"><i style="width:${pct}%"></i></div><div class="val">${it.value}</div>` +
-              (it.enabled !== undefined ? `<div class="sw ${it.enabled ? 'on' : ''}"></div>` : '');
-      break;
+/* Liste vide : on affiche une explication au lieu d'un panneau blanc avec un
+   compteur 0/0. Ce cas vient TOUJOURS du Lua (MenuConfig non charge, sanitize
+   ou json.encode en echec) : le message dit donc ou aller regarder. */
+function setEmptyState(on){
+  if(!live())return;
+  let e=B.list.querySelector('.menu-empty');
+  if(!on){if(e)e.remove();return}
+  if(e)return;
+  e=$('div','menu-empty');
+  e.append($('div','menu-empty-title','MENU VIDE (0/0)'),
+           $('div','menu-empty-sub',"Le script n'a envoye aucun element."));
+  e.append($('div','menu-empty-hint','Re-injecte menu.lua (voir F8).'));
+  B.list.append(e);
+}
+function updCounter(){
+  if(!Array.isArray(B.menu))B.menu=[];
+  const s=B.menu.reduce((a,o,i)=>(o&&o.type!=='divider'&&a.push(i),a),[]);
+  let n=0;
+  if(s.length){const p=s.indexOf(B.cur);n=p!==-1?p+1:s.reduce((b,x,k)=>Math.abs(x-B.cur)<Math.abs(s[b]-B.cur)?k:b,0)+1}
+  if(B.cnt)B.cnt.textContent=`${n} / ${s.length}`;
+}
+function applyBar(){
+  if(!B.thumb)return;
+  B.trackEl.style.height=B.trackH+'px';B.thumb.style.top=B.thumbTop+'px';B.thumb.style.height=B.thumbH+'px';
+}
+function bar(){
+  if(!live()||B.lock)return;
+  B.lock=requestAnimationFrame(()=>{
+    B.lock=null;const L=B.list;if(!live())return;
+    const cH=L.clientHeight,sH=L.scrollHeight,n=B.menu.length;
+    B.trackH=Math.round(cH);B.over=sH>cH+1;
+    if(B.over){
+      B.thumbH=Math.min(Math.max(100,Math.round(cH/sH*B.trackH)),B.trackH);
+      const mx=Math.max(0,sH-cH),ra=mx?clamp(L.scrollTop/mx,0,1):0,sc=Math.max(0,B.trackH-B.thumbH);
+      B.thumbTop=clamp(Math.round(sc*ra),0,sc);
+    }else{
+      B.thumbH=Math.min(n<=7?B.trackH:Math.max(100,Math.round(B.trackH*(7/n))),B.trackH);
+      const c=Math.max(1,n),ra=c>1?clamp(B.cur,0,c-1)/(c-1):0,sc=Math.max(0,B.trackH-B.thumbH);
+      B.thumbTop=clamp(Math.round(sc*ra),0,sc);
     }
-    case 'select': right = `<div class="pick">${it.options[it.index]}</div>`; break;
+    applyBar();
+  });
+}
+function onScroll(){
+  const L=B.list;if(!L||!B.over||B.lock)return;
+  B.lock=requestAnimationFrame(()=>{
+    B.lock=null;
+    const mx=Math.max(0,L.scrollHeight-L.clientHeight),ra=mx?clamp(L.scrollTop/mx,0,1):0,sc=Math.max(0,B.trackH-B.thumbH);
+    B.thumbTop=clamp(Math.round(sc*ra),0,sc);applyBar();
+  });
+}
+/* Le cadre de selection se deplace SANS animation. L'ancienne version faisait
+   un h.animate() de 220 ms avec fill:'forwards' : au rythme de reponse des
+   touches (85 ms) l'animation etait interrompue avant d'aller au bout, et le
+   cadre restait fige sur une ancienne position, en decalage avec la ligne
+   selectionnee. Le saut instantane est le seul etat toujours juste, meme en
+   maintenant la touche enfoncee. */
+function moveHl(t){
+  const h=B.hl;if(!h){B.hlTop=t;return}
+  h.getAnimations().forEach(a=>a.cancel());
+  B.hlTop=t;h.style.top=t+'px';
+}
+const curRow=()=>B.menu[B.cur]&&B.menu[B.cur].type!='divider'?B.rows[B.cur]:null;
+/* Garantit que la ligne selectionnee est TOUTE ENTIERE dans la zone visible.
+   L'ancien scrollIntoView({behavior:'smooth'}) est asynchrone : au rythme de
+   reponse des touches (85 ms), chaque nouvelle demande interrompt la
+   precedente et la liste ne rattrape jamais -> la selection sortait de l'ecran
+   et restait a moitie coupee. Ici le calcul est synchrone et deterministe. */
+function ensureVisible(el){
+  const L=B.list;if(!el||!L)return;
+  const cs=getComputedStyle(L);
+  const padT=parseFloat(cs.paddingTop)||0,padB=parseFloat(cs.paddingBottom)||0;
+  const t=el.offsetTop,b=t+el.offsetHeight,vt=L.scrollTop,vb=vt+L.clientHeight;
+  /* Le rembourrage de la liste (0.6vh en haut et en bas) DOIT rester visible :
+     sans lui, la barre de selection vient se coller a 0,3 px du bord et se
+     confondre avec le pied de page, comme si elle sortait du panneau. */
+  if(t-padT<vt)L.scrollTop=Math.max(0,t-padT);
+  else if(b+padB>vb)L.scrollTop=Math.max(0,b+padB-L.clientHeight);
+}
+function refresh(){
+  if(!live())return;
+  renderItems();updCounter();
+  setEmptyState(!Array.isArray(B.menu)||B.menu.length===0);
+  const el=curRow();if(el){moveHl(el.offsetTop);ensureVisible(el)}
+  bar();
+}
+const showMenu=()=>{present(B.slot,true,buildMenu,planMenu);refresh()};
+/* Fermeture DETERMINISTE : le panneau est retire immediatement, sans animation
+   ni etat "out" pouvant rester bloque. C'est ce qui garantit que le menu peut
+   se fermer pendant qu'une notification s'affiche a cote (la fenetre NUI
+   reste visible dans ce cas, donc la page doit masquer le panneau elle-meme). */
+function hideMenuNow(){
+  const s=B.slot;
+  s.g++;                 /* invalide la suppression en attente d'un hide precedent */
+  s.out=false;
+  s.anims=[];
+  if(s.els){s.els.forEach(e=>e.remove());s.els=null}
+}
+
+/* ================= PONT AVEC menu.lua (actions de l'interface) =================
+   menu.lua pilote le menu par messages : open / close / setData / setCurrent /
+   key / setKeybinds / showLoading... L'interface lui repond par les callbacks
+   enregistres cote Lua (enter, back, tab, change, select, close) via post().
+   Sans ce pont, les touches Entree / Retour / onglets ne faisaient rien et la
+   fermeture (action "close") laissait le panneau a l'ecran. */
+function postNui(name,data){
+  /* En apercu navigateur (file:// ou serveur local de dev) il n'y a pas de
+     ressource parente : on n'envoie rien pour ne pas polluer la console avec
+     des fetch en echec. */
+  if(location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')return;
+  try{
+    const res=(typeof GetParentResourceName==='function'&&GetParentResourceName())||'jul_menu';
+    fetch('https://'+res+'/'+name,{
+      method:'POST',
+      headers:{'Content-Type':'application/json; charset=UTF-8'},
+      body:JSON.stringify(data||{})
+    }).catch(()=>{});
+  }catch(_){/* environnement sans fetch : on ignore */ }
+}
+/* setData arrive avec { title, user, tabs = { { label, items } } }. Les items
+   sont encodes par julBuildFrame qui echange volontairement checked/value
+   (compatibilite de l'ancienne interface) : on les remet dans le format que
+   mkRow/patchRow attendent. setCurrent, envoye juste apres, reste la source
+   de verite pour le menu actif. */
+function normalizeFrameItem(o){
+  if(!o||typeof o!=='object')return null;
+  const c=Object.assign({},o);
+  if(c.checked===undefined&&typeof c.value==='boolean'){c.checked=c.value;delete c.value}
+  else if(c.value===undefined&&typeof c.checked==='number'){c.value=c.checked;delete c.checked}
+  return c;
+}
+function applyFrame(f){
+  if(!f||typeof f!=='object')return;
+  B.frameTitle=String(f.title||B.frameTitle||'');
+  B.frameUser=String(f.user||B.frameUser||'');
+  if(Array.isArray(f.tabs)&&f.tabs.length){
+    B.tabs=f.tabs.map((t,i)=>String((t&&t.label)||('Tab '+(i+1))));
+    if(Number.isFinite(Number(f.tabIndex)))B.tab=clamp(Math.round(Number(f.tabIndex)),0,B.tabs.length-1);
+    else B.tab=clamp(B.tab,0,B.tabs.length-1);
+    const tab=f.tabs[B.tab];
+    const items=tab&&Array.isArray(tab.items)?tab.items:[];
+    B.menu=items.map(normalizeFrameItem).filter(Boolean);
+    B.cur=clamp(B.cur,0,Math.max(0,B.menu.length-1));
   }
-  const cnt = it.count !== undefined ? `<em>(${it.count})</em>` : '';
-  return `<div class="row ${sel ? 'sel' : ''}" data-i="${i}">${it.icon ? svg(it.icon, 'ico') : ''}<div class="lbl">${it.label}${cnt}</div>${right}</div>`;
+  if(live()){renderTabs();refresh()}
+}
+/* Les fleches sont deja appliquees par menu.lua (il renvoie setCurrent avant
+   "key") : ici seuls les gestes qui reclament un callback sont traites.
+   tabNext/tabPrev n'ont pas de pendant cote Lua : l'interface change d'onglet
+   puis previent le script par le callback "tab". */
+function cycleTab(dir){
+  if(!Array.isArray(B.tabs)||!B.tabs.length)return;
+  const next=(B.tab+dir+B.tabs.length)%B.tabs.length;
+  B.tab=next;renderTabs();
+  postNui('tab',{index:next});
+}
+function onKey(k){
+  if(k==='tabNext')cycleTab(1);
+  else if(k==='tabPrev')cycleTab(-1);
+  else if(k==='enter')postNui('enter');
+  else if(k==='back')postNui('back');
 }
 
-function updateSB() {
-  const l = $('list'), sb = $('sb'), th = sb.firstElementChild;
-  /* la barre couvre la hauteur de la liste et son curseur suit l'élément sélectionné */
-  sb.style.top = (l.offsetTop + 6) + 'px';
-  sb.style.height = Math.max(20, l.clientHeight - 12) + 'px';
-  const f = frame(), sels = selectable(f.items), n = sels.length;
-  const k = Math.max(0, sels.indexOf(f.items[f.index])), track = sb.clientHeight;
-  if (n < 2) { th.style.top = '0px'; th.style.height = '100%'; return; }
-  const h = Math.max(26, track / n);
-  th.style.height = h + 'px';
-  th.style.top = (k / (n - 1)) * (track - h) + 'px';
+/* ---------- panneau Keybinds (setKeybinds) ---------- */
+const KH={el:null};
+function syncNotifyTop(){
+  const h=KH.el?Math.ceil(KH.el.getBoundingClientRect().height)+12:0;
+  document.documentElement.style.setProperty('--kb-hud-h',h?h+'px':'0px');
 }
-$('list').addEventListener('scroll', updateSB);
-
-/* ---------- Actions ---------- */
-function post(name, data = {}) {
-  if (!IN_GAME) return;
-  fetch(`https://${GetParentResourceName()}/${name}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: JSON.stringify(data)
-  }).catch(() => {});
-}
-let toastTimer;
-function toast(msg) {
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
-}
-function applyLocal(it) {
-  switch (it.id) {
-    case 'theme':   applyTheme(it.options[it.index]); break;
-    case 'opacite': document.documentElement.style.setProperty('--opacity', it.value / 100); break;
-    case 'echelle': document.documentElement.style.setProperty('--scale', it.value / 100); break;
-    case 'aide':    $('hints').classList.toggle('off', !it.value); break;
+function renderKeybinds(rows){
+  rows=Array.isArray(rows)?rows.filter(r=>r&&r.label!=null):[];
+  if(!rows.length){
+    if(KH.el){KH.el.remove();KH.el=null}
+    syncNotifyTop();
+    return;
   }
+  if(!KH.el){KH.el=$('div','kb-hud');app.append(KH.el)}
+  const head=$('div','kb-hud-head');
+  head.append($('span','kb-hud-title','Keybinds'),$('span','kb-hud-count',String(rows.length)));
+  KH.el.replaceChildren(head,...rows.map(r=>{
+    const row=$('div','kb-hud-row');
+    row.dataset.state=String(r.state||'none');
+    const right=$('div','kb-hud-right');
+    right.append($('span','kb-hud-dot'),$('span','kb-hud-key',String(r.key==null?'':r.key)));
+    row.append($('span','kb-hud-label',String(r.label)),right);
+    return row;
+  }));
+  syncNotifyTop();
 }
-function change(dir) {
-  const it = frame().items[frame().index]; if (!it) return;
-  if (it.type === 'toggle') it.value = !it.value;
-  else if (it.type === 'slider') it.value = Math.round(Math.min(it.max, Math.max(it.min, it.value + dir * it.step)) * 100) / 100;
-  else if (it.type === 'select') it.index = (it.index + dir + it.options.length) % it.options.length;
-  else return;
-  applyLocal(it); render();
-  post('change', { id: it.id, value: it.type === 'select' ? it.options[it.index] : it.value, index: it.index });
+
+/* ---------- ecran de chargement (showLoading / loadingProgress / hideLoading) ---------- */
+const LD={el:null,img:null,titleEl:null,fill:null,pctEl:null,statusEl:null,fallback:null,pct:0};
+function buildLoading(){
+  const ov=$('div','loading-overlay');
+  const img=$('img','loading-banner');img.alt='';img.hidden=true;
+  img.onerror=()=>{img.hidden=true};
+  const title=$('div','loading-title');
+  const status=$('div','loading-status');
+  const bar=$('div','loading-bar'),fill=$('div','loading-fill');
+  const pct=$('div','loading-pct','0%');
+  bar.append(fill);ov.append(img,title,status,bar,pct);app.append(ov);
+  Object.assign(LD,{el:ov,img,titleEl:title,fill,pctEl:pct,statusEl:status,pct:0});
 }
-function activate() {
-  const it = frame().items[frame().index]; if (!it) return;
-  if (it.type === 'menu') {
-    if (it.tabs) { it.tabs.forEach(t => delete t._f); S.stack.push({ title: it.label, tabs: it.tabs, tab: 0 }); }
-    else S.stack.push({ title: it.label, items: it.items, index: firstSel(it.items) });
-    render(); post('enter', { id: it.id });
+function setLoadingWelcome(name){
+  if(!LD.titleEl)return;
+  LD.titleEl.replaceChildren('Bienvenue, ',$('span','',name||'joueur'));
+}
+function armLoadingFallback(){
+  clearTimeout(LD.fallback);
+  /* Filet de securite : si hideLoading s'est perdu (page chargee apres la
+     sequence d'injection), l'ecran ne doit pas rester devant le jeu. */
+  LD.fallback=setTimeout(()=>hideLoading(),9000);
+}
+function showLoading(d){
+  d=d||{};
+  if(!LD.el)buildLoading();
+  LD.el.classList.remove('leaving');
+  setLoadingWelcome(d.welcome);
+  if(d.banner){LD.img.src=d.banner;LD.img.hidden=false}else{LD.img.hidden=true}
+  LD.pct=0;
+  LD.fill.style.width='0%';LD.pctEl.textContent='0%';
+  LD.statusEl.textContent=d.status||'Chargement de l’interface...';
+  armLoadingFallback();
+}
+function loadingProgress(d){
+  if(!LD.el)return;
+  const pct=clamp(Number(d&&d.percent)||0,0,100);
+  LD.pct=pct;
+  LD.fill.style.width=pct+'%';
+  LD.pctEl.textContent=Math.round(pct)+'%';
+  if(d&&d.status!=null)LD.statusEl.textContent=String(d.status);
+  armLoadingFallback();
+}
+function hideLoading(){
+  clearTimeout(LD.fallback);LD.fallback=null;
+  if(!LD.el)return;
+  const el=LD.el;
+  el.classList.add('leaving');
+  setTimeout(()=>{
+    /* showLoading a pu reprendre la main entre-temps : on ne retire pas
+       l'ecran qui vient d'etre reaffiche. */
+    if(LD.el!==el||!el.classList.contains('leaving'))return;
+    el.remove();
+    Object.assign(LD,{el:null,img:null,titleEl:null,fill:null,pctEl:null,statusEl:null,pct:0});
+  },460);
+}
+function applyBannerOffset(){
+  if(!live()||!B.img)return;
+  B.img.style.objectPosition=B.bannerOffset?`50% calc(50% + ${B.bannerOffset}vh)`:'';
+}
+
+/* ================= SAISIE (Input) ================= */
+const I={title:'Vehicle Model',value:'',blocking:false,slot:{g:0}};
+function buildInput(){
+  const ov=$('div','input-overlay'),box=$('div','input-box'),head=$('div','input-header'),inner=$('div','input-header-inner');
+  const inp=$('input');inp.type='text';inp.oninput=()=>{I.value=inp.value};
+  inner.append($('div','input-header-text'));head.append(inner);box.append(head,inp);ov.append(box);app.append(ov);
+  return [ov,box];
+}
+const planInput=(e,out)=>[tr(e[0],{kind:'fade',dur:400},out),tr(e[1],{kind:'scale',start:.94,dur:480,base:'translateX(-50%)'},out)];
+function inputUI(show){
+  present(I.slot,show,buildInput,planInput);
+  const e=I.slot.els;if(!e)return;
+  e[1].querySelector('.input-header-text').textContent='JuL Menu - '+(I.title??'');
+  e[1].querySelector('input').value=I.value??'';
+}
+const unblock=()=>setTimeout(()=>{I.blocking=false},350);
+
+/* ===== "Choose Menu Key" : panneau de saisie et de capture de touche =====
+   Etat dedie, dans son propre slot, exactement comme la reticule : le panneau
+   ne peut pas se reconstruire par accident (present() ne reverifie pas le
+   builder). Il sert desormais a TOUTES les prompts, texte compris. */
+const K={title:'',value:'',hint:'',mode:'typeable',cursor:0,slot:{g:0}};
+const kbMix=(a,b,t)=>a.map((v,i)=>Math.round(v*(1-t)+b[i]*t));
+const kbRgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a===undefined?1:a})`;
+function kbApplyColor(r,g,b){
+  const main=[r,g,b],black=[0,0,0],white=[255,255,255],panel=kbMix(main,black,0.35);
+  const lum=c=>{const a=c.map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+                return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2]};
+  /* texte blanc ou fonce selon le meilleur contraste avec le fond du panneau */
+  const L=lum(panel),text=(1.05/(L+0.05))>=((L+0.05)/0.057)?[255,255,255]:[16,21,16];
+  const s=document.documentElement.style;
+  s.setProperty('--kb-panel',kbRgba(panel,0.82));
+  s.setProperty('--kb-head',kbRgba(kbMix(main,black,0.62),0.92));
+  s.setProperty('--kb-border',kbRgba(kbMix(main,white,0.55),0.35));
+  s.setProperty('--kb-icon',kbRgba(kbMix(main,white,0.75)));
+  s.setProperty('--kb-rule',kbRgba(kbMix(main,white,0.7),0.7));
+  s.setProperty('--kb-text',kbRgba(text));
+  s.setProperty('--kb-text-off',kbRgba(text,0.72));
+  s.setProperty('--kb-line',kbRgba(text,0.14));
+}
+function kbFromAccent(){
+  const raw=(getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb')||'').trim();
+  const p=raw.split(/[,\s]+/).map(Number);
+  kbApplyColor(isFinite(p[0])?p[0]:150,isFinite(p[1])?p[1]:150,isFinite(p[2])?p[2]:150);
+}
+function buildKey(){
+  const ov=$('div','kb-overlay'),box=$('div','kb-panel'),head=$('div','kb-head');
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width','30');svg.setAttribute('height','21');
+  svg.setAttribute('viewBox','0 0 26 18');svg.setAttribute('fill','none');
+  svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.5');
+  svg.setAttribute('aria-hidden','true');
+  svg.innerHTML='<rect x="1" y="1" width="24" height="16" rx="3.5" fill="currentColor" fill-opacity="0.25"/>'+
+                '<path d="M5 6h2M9.5 6h2M14 6h2M18.5 6h2M5 9h2M9.5 9h2M14 9h2M18.5 9h2M8 13h10" stroke-linecap="round"/>';
+  const ttl=$('h1','kb-title');
+  head.append(svg,$('span','kb-divider'),ttl);
+  const val=$('div','kb-value');
+  /* .kb-key contient le texte AVANT le curseur, le curseur, puis le texte
+     APRES : le Lua envoie cursorPos, donc le curseur se place vraiment ou
+     l'utilisateur a bouge les fleches, pas toujours en fin de ligne. */
+  const key=$('span','kb-key');
+  key.append($('span','kb-b'),$('span','kb-caret'),$('span','kb-a'));
+  val.append(key,$('span','kb-hint'));
+  box.append(head,val);ov.append(box);app.append(ov);
+  kbFromAccent();                 /* la couleur du menu peut changer entre deux ouvertures */
+  return [ov,box];
+}
+/* pas de base translateX(-50%) : le panneau est centre par la grid de .kb-overlay */
+const planKey=(e,out)=>[tr(e[0],{kind:'fade',dur:400},out),tr(e[1],{kind:'scale',start:.94,dur:480},out)];
+function keyUI(show){
+  present(K.slot,show,buildKey,planKey);
+  const e=K.slot.els;if(!e)return;
+  const raw=String(K.value==null?'':K.value);
+  const isKey=K.mode==='keybind'||K.mode==='itemkeybind';
+  const key=e[1].querySelector('.kb-key');
+  const b=key.querySelector('.kb-b'),a=key.querySelector('.kb-a');
+  /* invite uniquement pour une capture de touche : sur une saisie texte le
+     champ vide + curseur clignotant est le comportement normal d'un champ. */
+  const ph=isKey&&!raw;
+  key.classList.toggle('placeholder',ph);
+  if(ph){
+    b.textContent='Appuie sur une touche';a.textContent='';
+    key.classList.add('kb-gap');
+  }else{
+    const cur=Math.max(0,Math.min(K.cursor==null?raw.length:K.cursor,raw.length));
+    b.textContent=raw.slice(0,cur);
+    a.textContent=raw.slice(cur);
+    key.classList.toggle('kb-gap',cur>=raw.length);
   }
-  else if (it.type === 'toggle' || it.type === 'select') change(1);
-  else if (it.type === 'slider' && it.enabled !== undefined) { it.enabled = !it.enabled; render(); post('change', { id: it.id, enabled: it.enabled, value: it.value }); }
-  else if (it.type === 'button') { post('select', { id: it.id }); if (DEMO) toast(`Action : ${it.label}`); }
+  e[1].querySelector('.kb-title').textContent=K.title||'Choose Menu Key';
+  e[1].querySelector('.kb-hint').textContent=K.hint||'';
 }
-function back() {
-  if (S.stack.length) { S.stack.pop(); render(); post('back'); }
-  else { closeMenu(); post('close'); }
-}
-function tab(dir) {
-  const c = ctx(); if (!c) return;
-  c.i = (c.i + dir + c.tabs.length) % c.tabs.length; render(); post('tab', { index: c.i, depth: S.stack.length });
-}
-function openMenu() { S.open = true; const r = $('root'); r.classList.remove('hidden', 'open'); void r.offsetWidth; r.classList.add('open'); render(); }
-function closeMenu() { S.open = false; $('root').classList.add('hidden'); }
 
-/* ---------- Entrées ---------- */
-const KEYS = {
-  ArrowUp: () => step(-1), ArrowDown: () => step(1),
-  ArrowLeft: () => change(-1), ArrowRight: () => change(1),
-  Enter: activate, Backspace: back, Escape: back,
-  KeyA: () => tab(-1), KeyQ: () => tab(-1), KeyE: () => tab(1)
-};
-document.addEventListener('keydown', e => { const fn = KEYS[e.code]; if (fn && S.open) { e.preventDefault(); fn(); } });
+/* ================= CIBLE (reticule overlay) ================= */
+/* Slot dediee : la cible n'est PAS dans le slot du menu, donc
+   showMenu{visible:false} ne la detruit pas. */
+const X={slot:{g:0}};
+function buildCross(){
+  const cr=$('div','jul-crosshair');
+  cr.append($('div','jul-cross-ring'),$('div','jul-cross-h'),$('div','jul-cross-v'));
+  app.append(cr);return [cr];
+}
+/* base obligatoire : .jul-crosshair est centre par translate(-50%,-50%),
+   sans quoi l'animation de scale le decocherait de l'ecran. */
+const planCross=(e,out)=>[tr(e[0],{kind:'scale',start:.7,dur:220,base:'translate(-50%,-50%)'},out)];
+function crossUI(show){present(X.slot,!!show,buildCross,planCross)}
 
-$('list').addEventListener('mousemove', e => {
-  const r = e.target.closest('.row'); if (!r) return;
-  const i = +r.dataset.i, f = frame(); if (f.index !== i) { f.index = i; render(); }
+/* ================= FREECAM ================= */
+const F={h:0,w:0,v:0,wl:['WEAPON_TRANQUILIZER'],vl:['Dump'],opts:[],slot:{g:0}};
+function buildFreecam(){
+  const wrap=$('div','hovering-text-wrap'),ul=$('ul','hovering-text-list');
+  ul.style.webkitMaskImage='linear-gradient(transparent 0%, black 0%, black 95%, transparent 100%)';wrap.append(ul);
+  const cr=$('div');cr.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:0.9259vh;height:0.9259vh;pointer-events:none;z-index:10000;display:block';
+  const h=$('div'),v=$('div');
+  h.style.cssText='position:absolute;top:50%;left:0;width:100%;height:0.185vh;background-color:white;transform:translateY(-50%)';
+  v.style.cssText='position:absolute;left:50%;top:0;width:0.185vh;height:100%;background-color:white;transform:translateX(-50%)';
+  cr.append(h,v);app.append(wrap,cr);return [wrap,cr];
+}
+const planFreecam=(e,out)=>[tr(e[0],{kind:'fly',y:8,dur:350,base:'translateX(-50%)'},out),tr(e[1],{kind:'fade',dur:350},out)];
+function renderFreecam(){
+  const e=F.slot.els;if(!e)return;
+  const ul=e[0].firstChild,W='#fff',R='var(--color-mainSolid)';
+  const sp=(t,c)=>{const s=$('span','',t);s.style.color=c;return s};
+  F.opts.forEach((o,i)=>{
+    let li=ul.children[i];if(!li){li=$('li');ul.append(li)}
+    const sel=i===F.h,lb=String(o.label??'');
+    li.className='hovering-text-item '+(sel?'hovering-text-selected':'hovering-text-inactive');
+    li.style.color='white';li.id='hovering-text-opt-'+i;
+    li.dataset.id=lb.toLowerCase().replace(/\s+/g,'_');li.dataset.data=lb;li.setAttribute('aria-current',sel?'true':'false');
+    const car=lb==='Spawn Car',gun=lb==='Shoot Weapon';
+    li.replaceChildren(...(!sel?[sp(lb,W)]:(car||gun)
+      ?[sp('-',W),` ${lb} (`,sp(car?F.vl[F.v]:F.wl[F.w],R),') ',sp('-',W)]
+      :[sp('-',W),' ',sp(lb,R),' ',sp('-',W)]));
+  });
+  while(ul.children.length>F.opts.length)ul.lastChild.remove();
+  const el=ul.children[F.h];if(!el)return;
+  if(ul.scrollHeight>ul.clientHeight){
+    const t=el.offsetTop,b=t+el.offsetHeight,vt=ul.scrollTop,vb=vt+ul.clientHeight;
+    if(t<vt)ul.scrollTo({top:t,behavior:'smooth'});
+    else if(b>vb)ul.scrollTo({top:b-ul.clientHeight,behavior:'smooth'});
+  }else el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ================= FICHE JOUEUR ================= */
+/* Carte d'infos affichee quand la selection du menu se pose sur un joueur
+   de la liste. Lua envoie un paquet complet a chaque rafraichissement :
+   ce bloc n'affiche, ne calcule et ne devine RIEN. */
+/* Elle se cale sur le MENU et non sur l'ecran : on lit le rectangle reel de
+   .menu-root a chaque affichage, pour que Menu Size et setMenuPos suivent
+   tout seuls, sans qu'aucune largeur ait besoin d'etre devinee.
+   B est declare plus bas : d'ou le typeof, un accours sans B ne doit pas
+   faire echouer l'affichage de la carte. */
+const PC_GAP=14, PC_M=8;
+function positionPlayerCard(el){
+  const c=el||(PC.slot.els&&PC.slot.els[0]);
+  if(!c)return;
+  const root=(typeof B!=='undefined')?B.root:null;
+  const b=(root&&root.isConnected)?root.getBoundingClientRect():null;
+  /* rect plutôt qu'offsetWidth : largeur fractionnaire, la cale anti-debordement
+     doit se fier a la meme valeur que celle rendue par le navigateur. */
+  const cr=c.getBoundingClientRect();
+  const w=cr.width||c.offsetWidth||0, h=cr.height||c.offsetHeight||0;
+  let x,y;
+  if(b&&b.width){
+    x=b.right+PC_GAP;
+    y=b.top+b.height/2;   /* le CSS recentre via translateY(-50%) */
+  }else{
+    /* menu absent : repli sur le bord droit de l'ecran */
+    x=window.innerWidth-w-PC_M;
+    y=window.innerHeight/2;
+  }
+  /* la fiche ne doit jamais deborder a droite ni sortir verticalement */
+  if(x+w>window.innerWidth-PC_M)x=Math.max(PC_M,window.innerWidth-w-PC_M);
+  if(y-h/2<PC_M)y=PC_M+h/2;
+  if(y+h/2>window.innerHeight-PC_M)y=Math.max(PC_M+h/2,window.innerHeight-PC_M-h/2);
+  c.style.left=Math.round(x)+'px';
+  c.style.right='auto';
+  c.style.top=Math.round(y)+'px';
+}
+const PC={d:null,slot:{g:0}};
+function buildPlayerCard(){
+  const c=$('div','jul-pcard');
+  const row=k=>`<div class="jul-pc-row"><span class="k">${k}</span><span class="v" data-k="${k}">-</span></div>`;
+  const segs=Array.from({length:10},()=>'<span class="jul-pc-seg"></span>').join('');
+  const stat=(f,k)=>`<div class="jul-pc-stat"><div class="jul-pc-line"><span class="k">${k}</span><span class="vnum" data-f="${f}">- / -</span></div><div class="jul-pc-bar ${f}" data-f="${f}f">${segs}</div></div>`;
+  /* en-tete : initiales | nom + vehicule/arme | numero ; puis vie et armure en
+     10 segments ; puis les lignes. Rien n'est devine : tout vient de Lua. */
+  c.innerHTML=`
+    <div class="jul-pc-head"><div class="jul-pc-av" data-k="Initials">-</div><div class="jul-pc-who"><div class="jul-pc-name" data-k="Name">-</div><div class="jul-pc-sub" data-k="Sub">-</div></div><div class="jul-pc-badge" data-k="Player ID">-</div></div>
+    ${stat('hp','Health')}${stat('ap','Armor')}
+    <div class="jul-pc-sec">${row('Distance')}${row('Heading')}${row('Phone')}${row('Coordinates')}</div>`;
+  app.append(c);positionPlayerCard(c);return [c];
+}
+/* base:'translateY(-50%)' : le plan de tr() ECRASE le transform du CSS
+   pendant l'entree. Sans ce base, la carte resterait 260ms avec son bord haut
+   au centre de l'ecran puis "sauterait" une fois l'animation rendue. */
+const planPlayerCard=(e,out)=>[tr(e[0],{kind:'fly',x:26,dur:260,base:'translateY(-50%)'},out)];
+function renderPlayerCard(){
+  const e=PC.slot.els,d=PC.d;if(!e)return;
+  /* recale a chaque rafraichissement : le menu bouge (setMenuPos, Menu Size,
+     ouverture d'un sous-menu qui change sa hauteur) */
+  positionPlayerCard(e[0]);
+  if(!d)return;
+  const q=s=>e[0].querySelector(s);
+  const set=(sel,val)=>{const n=q(sel);if(n)n.textContent=(val==null||val==='')?'-':String(val)};
+  /* initiales : deux premiers mots, sinon deux premieres lettres */
+  const w=String(d.name==null?'':d.name).split(/[^A-Za-z0-9\u00C0-\u024F]+/).filter(Boolean);
+  set('[data-k="Initials"]',w.length>1?w[0][0]+w[1][0]:(w[0]||'').slice(0,2));
+  q('[data-k="Initials"]').textContent=q('[data-k="Initials"]').textContent.toUpperCase();
+  set('[data-k="Player ID"]',(d.sid==null||d.sid==='')?null:'#'+d.sid);
+  set('[data-k="Name"]',d.name);
+  /* sous le nom : vehicule et arme, comme "A pied - Sans arme" sur la reference */
+  set('[data-k="Sub"]',[d.veh,d.wep].filter(x=>x!=null&&x!=='').join(' \u00b7 '));
+  set('[data-k="Distance"]',d.dist);
+  /* le degre est ecrit ICI, pas dans Lua : le fichier Lua reste en ASCII pur */
+  set('[data-k="Heading"]',(d.dir?((typeof d.hdg==='number'?Math.round(d.hdg):'-')+'\u00b0 '+d.dir):'-'));
+  set('[data-k="Coordinates"]',d.pos);
+  /* d.num peut etre nil : set() ecrit "-" dans ce cas, jamais undefined.
+     C'est le cas nominal tant que le serveur ne publie pas le numero. */
+  set('[data-k="Phone"]',d.num);
+  /* les barres se remplissent avec le POURCENTAGE (10 segments), l'etiquette
+     montre le brut : "62 / 100", et non un pourcentage invente */
+  const hpN=(typeof d.hpN==='number')?d.hpN:null;
+  const apN=(typeof d.apN==='number')?d.apN:null;
+  const hpMax=(typeof d.hpMax==='number'&&d.hpMax>0)?d.hpMax:100;
+  const hpPct=(hpN!=null)?clamp(hpN/hpMax*100,0,100):0;
+  const apPct=(apN!=null)?clamp(apN,0,100):0;
+  set('[data-f="hp"]',(hpN!=null)?hpN+' / '+hpMax:'- / -');
+  set('[data-f="ap"]',(apN!=null)?apN+' / 100':'- / -');
+  const fillSegs=(sel,pct)=>{
+    const bar=q(sel);if(!bar)return;
+    const n=pct>0?Math.max(1,Math.round(pct/10)):0;
+    Array.prototype.forEach.call(bar.children,(sg,i)=>sg.classList.toggle('on',i<n));
+  };
+  fillSegs('[data-f="hpf"]',hpPct);fillSegs('[data-f="apf"]',apPct);
+}
+function playerCardShow(d){
+  /* Le Lua envoie les donnees IMBRIQUEES : { action, visible, data:{...} }.
+     Sans cette extraction, PC.d pointe sur le conteneur et renderPlayerCard
+     lit d.name / d.sid / d.hpN qui n'existent pas a ce niveau : tous les
+     champs restent "-". On garde "visible" du message externe. */
+  const v=d&&d.visible;
+  const p=(d&&d.data)?d.data:d;
+  PC.d=v?p:null;
+  present(PC.slot,!!PC.d,buildPlayerCard,planPlayerCard);
+  renderPlayerCard();
+  if(!PC.d)return;
+  /* La largeur mesuree au moment du build ne vaut que si les polices sont
+     deja chargees : sinon la fiche est callee ~11px trop a droite, puis
+     "saute" au premier rafraichissement. On recalle une fois le rendu final
+     connu. requestAnimationFrame seuls ne suffit pas : c'est document.fonts
+     qui decide. */
+  requestAnimationFrame(()=>positionPlayerCard());
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>positionPlayerCard()).catch(()=>{});
+}
+
+/* ================= NOTIFICATIONS (maquette notifications.html) ================= */
+/* Couleurs derivees du menu : ntApplyColor(r,g,b) recalcule --nt-panel et
+   --nt-on a chaque setMenuColor. Defaut gris 150,150,150 comme le reste. */
+const ntStack=$('div','notify-stack');app.append(ntStack);
+const NT_LEVELS=['info','success','warning','error'];
+const NT_ICONS={
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  error:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>'};
+const ntToasts={};let ntNext=1;
+const NT_MAX=5,NT_DEFAULT=5000;
+function ntHsl(c){
+  const r=c[0]/255,g=c[1]/255,b=c[2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  let h=0,s=0;
+  if(d){s=d/(1-Math.abs(2*l-1));
+    if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}
+  return [h,s,l];
+}
+function ntHslRgb(h,s,l){
+  const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}
+  else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}
+  return [Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)];
+}
+function ntApplyColor(r,g,b){
+  const main=[r,g,b],black=[0,0,0],white=[255,255,255],panel=kbMix(main,black,0.35);
+  const hsl=ntHsl(main);
+  /* Gris (saturation ~0) : forcer une saturation 0.9 donnerait du rose.
+     On prend un gris clair neutre, comme l'icone du panneau de touche. */
+  const on=hsl[1]<0.15?kbMix(main,white,0.75):ntHslRgb(hsl[0],Math.min(1,Math.max(0.9,hsl[1])),0.78);
+  const a=panel.map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+  const L=0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+  const text=(1.05/(L+0.05))>=((L+0.05)/0.057)?[255,255,255]:[16,21,16];
+  const s=document.documentElement.style;
+  s.setProperty('--nt-panel',kbRgba(panel,0.88));
+  s.setProperty('--nt-border',kbRgba(kbMix(main,white,0.55),0.35));
+  s.setProperty('--nt-text',kbRgba(text));
+  s.setProperty('--nt-text-off',kbRgba(text,0.72));
+  s.setProperty('--nt-on',kbRgba(on));
+}
+/* Palette du MENU PRINCIPAL et de la fiche joueur : panneau noir + UNE couleur,
+   celle du menu. Memes bases que kbApplyColor / ntApplyColor, donc tout reste
+   assorti. Chaque variable est un triplet "r,g,b" ; l'opacite est reglee dans le CSS. */
+function mnApplyColor(r,g,b){
+  const main=[r,g,b],black=[0,0,0],white=[255,255,255];
+  const lum=c=>{const a=c.map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+                return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2]};
+  /* une couleur presque noire disparaitrait sur le fond noir : on l'eclaircit */
+  const acc=lum(main)<0.03?kbMix(main,white,0.35):main;
+  /* le texte reste BLANC sur l'accent (comme sur les captures) : si la couleur est
+     trop claire pour ca (jaune, blanc...), le remplissage est assombri jusqu'a ce
+     que le blanc ait au moins 3,2:1 de contraste, meme sur le haut du degrade */
+  let fill=acc,k=0;
+  while(1.05/(lum(kbMix(fill,white,0.18))+0.05)<3.2&&k++<14)fill=kbMix(fill,black,0.07);
+  /* accent tres lumineux (texte, barres) : teinte du menu. Gris -> gris clair
+     neutre (forcer la saturation donnerait du rose). */
+  const hsl=ntHsl(acc);
+  const on=hsl[1]<0.15?kbMix(acc,white,0.75):ntHslRgb(hsl[0],Math.min(1,Math.max(0.85,hsl[1])),0.72);
+  const t=c=>c.join(','),s=document.documentElement.style;
+  s.setProperty('--mn-bg-rgb',t(kbMix(acc,black,0.94)));
+  /* anthracite neutre, a peine teinte (liste et onglets) */
+  s.setProperty('--mn-char-rgb',t(kbMix(acc,[30,31,36],0.96)));
+  s.setProperty('--mn-acc-rgb',t(acc));
+  s.setProperty('--mn-fill-rgb',t(fill));
+  s.setProperty('--mn-hi-rgb',t(kbMix(fill,white,0.18)));
+  s.setProperty('--mn-lo-rgb',t(kbMix(fill,black,0.5)));
+  s.setProperty('--mn-on-rgb',t(on));
+}
+function ntSchedule(t){
+  if(!(t.remaining>0))return;
+  t.startedAt=Date.now();
+  t.timeout=setTimeout(()=>dismissNt(t.id),t.remaining);
+}
+function dismissNt(id){
+  const t=ntToasts[id];if(!t)return;
+  delete ntToasts[id];clearTimeout(t.timeout);
+  t.el.classList.add('leaving');
+  setTimeout(()=>{if(t.el.parentNode)t.el.parentNode.removeChild(t.el)},240);
+}
+/* Signature inchangee (header,message,duration,type) : le Lua n'a rien a changer. */
+function notify(header,message,duration,type){
+  const level=NT_LEVELS.indexOf(type)>=0?type:'info';
+  let dur=Number(duration);
+  if(duration===undefined||duration===null||!isFinite(dur))dur=NT_DEFAULT;
+  dur=dur<=0?0:Math.max(500,Math.min(60000,dur));
+  const title=String(header==null?'':header),msg=String(message==null?'':message);
+  if(!title&&!msg)return null;
+  const id=ntNext++,el=document.createElement('div');
+  el.className='nt-toast';el.setAttribute('data-level',level);
+  el.setAttribute('role',level==='error'?'alert':'status');
+  const icon=document.createElement('span');
+  icon.className='nt-icon';icon.setAttribute('aria-hidden','true');
+  icon.innerHTML=NT_ICONS[level];
+  const body=document.createElement('div');body.className='nt-body';
+  const tEl=document.createElement('p');tEl.className='nt-title';
+  tEl.textContent=title||msg;body.appendChild(tEl);
+  if(title&&msg){const mEl=document.createElement('p');mEl.className='nt-msg';mEl.textContent=msg;body.appendChild(mEl)}
+  const close=document.createElement('button');
+  close.type='button';close.className='nt-close';close.setAttribute('aria-label','Fermer');
+  close.textContent='×';close.addEventListener('click',()=>dismissNt(id));
+  el.append(icon,body,close);
+  if(dur>0){
+    const timer=document.createElement('span');
+    timer.className='nt-timer';timer.setAttribute('aria-hidden','true');
+    timer.style.animationDuration=dur+'ms';el.appendChild(timer);
+  }
+  const t={id,el,duration:dur,remaining:dur,startedAt:0,timeout:null};
+  ntToasts[id]=t;
+  el.addEventListener('mouseenter',()=>{
+    if(!t.timeout)return;
+    clearTimeout(t.timeout);t.timeout=null;t.remaining-=Date.now()-t.startedAt;
+  });
+  el.addEventListener('mouseleave',()=>{
+    if(t.duration>0&&!t.timeout&&!el.classList.contains('leaving'))ntSchedule(t);
+  });
+  ntStack.insertBefore(el,ntStack.firstChild);
+  ntSchedule(t);
+  const ids=Object.keys(ntToasts).map(Number).sort((a,b)=>a-b);
+  while(ids.length>NT_MAX)dismissNt(ids.shift());
+  return id;
+}
+/* defaut = le vert de reference ; le Lua le remplace via setMenuColor */
+ntApplyColor(84,150,96);mnApplyColor(84,150,96);
+
+/* ================= MESSAGES DU JEU ================= */
+addEventListener('message',e=>{
+  let d=e.data||{};
+  /* Lapsus.SendNuiMessage envoie une chaine JSON ; FiveM peut envoyer un
+     objet. On accepte les deux, sinon aucune action n'arrivait. */
+  if(typeof d==='string'){try{d=JSON.parse(d)}catch(_){return}}
+  if(!d||typeof d!=='object')return;
+  switch(d.action){
+    /* ---- actions envoyees par menu.lua (pont interface <-> menu) ---- */
+    case 'open':showMenu();break;
+    case 'close':hideMenuNow();break;
+    case 'setData':applyFrame(d.data);break;
+    case 'theme':B.theme=String(d.name||'');document.documentElement.dataset.theme=B.theme;break;
+    case 'key':onKey(d.key);break;
+    case 'setKeybinds':renderKeybinds(d.rows);break;
+    case 'showLoading':showLoading(d);break;
+    case 'loadingProgress':loadingProgress(d);break;
+    case 'hideLoading':hideLoading();break;
+    case 'setBannerOffset':B.bannerOffset=Number(d.v)||0;applyBannerOffset();break;
+    case 'designMode':document.documentElement.dataset.design=d.enabled?'on':'off';break;
+    /* setUiScale : menu.lua applique deja l'echelle via setMenuPos
+       (transform:scale glisse dans la valeur "y"). Zoome aussi ici
+       doublerait la taille du panneau : on memorise seulement. */
+    case 'setUiScale':B.uiScale=Number(d.scale)||1;break;
+    case 'setCurrent':
+      /* Lua encode un tableau Lua vide en {} (objet JS, pas tableau) : tel quel
+         B.menu.forEach levait "n'est pas une fonction", le rendu s'arretait
+         net et le compteur restait bloque sur 0/0. On normalise toujours. */
+      B.cur=(parseInt(d.current,10)||1)-1;
+      B.menu=(Array.isArray(d.menu)?d.menu:[]).filter(o=>o&&typeof o==='object');
+      showMenu();break;
+    case 'showMenu':d.visible?showMenu():hideMenuNow();break;
+    case 'setTabs':B.tabs=d.tabs||[];B.tab=d.index;renderTabs();break;
+    case 'setTabIndex':B.tab=d.index||0;renderTabs();break;
+    case 'resetTabs':B.tabs=['Main Menu'];B.tab=0;renderTabs();break;
+    case 'setMenuPos':
+      if(d.x!==undefined)B.left=d.x+'vh';
+      if(d.y!==undefined)B.top=d.y+'vh';
+      if(live()){B.root.style.left=B.left;B.root.style.top=B.top;positionPlayerCard()}break;
+    case 'setBanner':if(d.url){B.banner=d.url;if(live())B.img.src=d.url}break;
+    case 'setMenuColor':{
+      /* canal invalide ou absent -> 150 ; borne a 0..255 pour que toutes les nuances restent calculables */
+      const ch=v=>{const n=Math.round(Number(v));return isFinite(n)?clamp(n,0,255):150};
+      const r=ch(d.r),g=ch(d.g),b=ch(d.b),s=document.documentElement.style;
+      const lt=v=>Math.round(v+(255-v)*0.55);
+      s.setProperty('--accent-rgb',`${r},${g},${b}`);
+      s.setProperty('--accent-light',`${lt(r)},${lt(g)},${lt(b)}`);s.setProperty('--line-rgb',`${lt(r)},${lt(g)},${lt(b)}`);
+      kbApplyColor(r,g,b);ntApplyColor(r,g,b);mnApplyColor(r,g,b);break}
+    case 'setBreadcrumb':B.crumb=Array.isArray(d.parts)?d.parts:(d.path?String(d.path).split('>').map(s=>s.trim()):[]);renderCrumb();break;
+    case 'setTabStyle':document.documentElement.dataset.tabs=d.style||'';break;
+    case 'setSelectStyle':document.documentElement.dataset.select=d.style||'';break;
+    case 'setEdgeStyle':document.documentElement.dataset.edge=d.style||'';break;
+    case 'setTitleStyle':document.documentElement.dataset.title=d.style||'';renderCrumb();break;
+    case 'setBgStyle':document.documentElement.dataset.bg=d.style||'';break;
+    case 'showInputPrompt':{
+      I.title=d.title;I.value=d.showInput?d.value:'';
+      /* TOUTES les prompts passent par le panneau "Choose Menu Key" :
+         keybinds ET saisie texte (Spawn Vehicle, URL, plaque...). Aucun
+         <input> n'est nécessaire : c'est le Lua qui pousse le buffer et le
+         curseur via updateInputPrompt. */
+      const mode=d.mode||'typeable';
+      K.title=I.title;K.value=I.value;K.mode=mode;
+      K.cursor=d.cursor==null?String(I.value||'').length:d.cursor;
+      K.hint=mode==='itemkeybind'?'Touche pour lier  ·  Échap pour annuler'
+                                   :'Entrée pour valider  ·  Échap pour annuler';
+      keyUI(!!d.showInput);inputUI(false);
+      if(d.showInput)I.blocking=true;else unblock();break}
+    case 'hideInputPrompt':inputUI(false);keyUI(false);unblock();break;
+    case 'updateInputPrompt':{
+      I.title=d.title;I.value=d.value;
+      K.title=I.title;K.value=I.value;
+      K.cursor=d.cursor==null?String(I.value||'').length:d.cursor;
+      if(K.slot.els&&!K.slot.out)keyUI(true);
+      else inputUI(!!I.slot.els&&!I.slot.out);
+      break}
+    case 'displayFreecam':
+      /* d.options repart de zero quand une liste fraiche arrive : le Lua
+         reinitialise son index en parallele, sinon les deux se desynchronisent
+         des la deuxieme ouverture. */
+      F.opts=d.options||[];
+      if(d.options)F.h=0;
+      F.wl=d.weaponOptions||F.wl;F.vl=d.vehicleOptions||F.vl;
+      if(d.weaponIndex!==undefined)F.w=d.weaponIndex-1;
+      if(d.vehicleIndex!==undefined)F.v=d.vehicleIndex-1;
+      present(F.slot,!!d.visible,buildFreecam,planFreecam);renderFreecam();break;
+    case 'updateWeapon':F.w=d.index-1;renderFreecam();break;
+    case 'updateVehicle':F.v=d.index-1;renderFreecam();break;
+    case 'scroll':
+      if(F.opts.length){F.h=(F.h+(d.direction==='up'?-1:1)+F.opts.length)%F.opts.length;renderFreecam()}break;
+    case 'displayCrosshair':crossUI(!!d.visible);break;
+    case 'displayPlayerCard':playerCardShow(d);break;
+    case 'setFooterUser':
+      /* Le nom n'est plus affiche en bas a gauche : on ne fait que le
+         conserver, l'emplacement reste vide par defaut. */
+      B.userName=String(d.name).slice(0,32);break;
+    case 'setFooterLogo':{
+      if(!d.url)break;
+      B.logoUrl=String(d.url);
+      applyFooterLogo(B.logoEl,B.logoUrl);break}
+    case 'notify':notify(d.header||'Info',d.message,d.duration??4000,d.type||'info');break;
+  }
 });
-$('list').addEventListener('click', e => {
-  const r = e.target.closest('.row'); if (!r) return;
-  const it = frame().items[+r.dataset.i], box = r.getBoundingClientRect();
-  if (it.type === 'slider') {
-    if (it.enabled !== undefined && e.target.closest('.sw')) activate();
-    else change(e.clientX < box.left + box.width * .6 ? -1 : 1);
-  } else if (it.type === 'select') change(e.clientX < box.left + box.width * .75 ? -1 : 1);
-  else activate();
-});
-$('list').addEventListener('wheel', e => { e.preventDefault(); step(e.deltaY > 0 ? 1 : -1); }, { passive: false });
-$('tabs').addEventListener('click', e => { const t = e.target.closest('.tab'), c = ctx(); if (!t || !c) return; c.i = +t.dataset.t; render(); post('tab', { index: c.i, depth: S.stack.length }); });
-
-/* ---------- Messages Lua → NUI ----------
-   SendNUIMessage({ action = 'open' })
-   SendNUIMessage({ action = 'close' })
-   SendNUIMessage({ action = 'setData', data = { title = 'JUL', user = '…', tabs = { … } } })
-   SendNUIMessage({ action = 'key', key = 'up' })   -- up, down, left, right, enter, back, tabPrev, tabNext
-   SendNUIMessage({ action = 'theme', name = 'Cyan' })
-   --------------------------------------------------------------------- */
-window.addEventListener('message', ({ data: m }) => {
-  switch (m.action) {
-    case 'open': openMenu(); break;
-    case 'close': closeMenu(); break;
-    case 'setData': DATA = m.data; S.tab = 0; S.stack = []; render(); break;
-    case 'theme': applyTheme(m.name); break;
-    case 'notify': toast(String(m.message || '')); break;
-    case 'key': ({ up: () => step(-1), down: () => step(1), left: () => change(-1), right: () => change(1),
-                   enter: activate, back, tabPrev: () => tab(-1), tabNext: () => tab(1) })[m.key]?.(); break;
-  }
-});
-
-/* ---------- Démarrage ---------- */
-if (DEMO) { document.body.classList.add('demo'); openMenu(); toast('Mode démo : flèches, Entrée, Retour, A / E'); }
+/* Ecran de chargement au boot cote NUI : menu.lua envoie showLoading apres
+   ~2 s, mais la page peut se charger plus tard et rater le message. On affiche
+   donc l'ecran tout de suite ; hideLoading (ou le filet de securite de 9 s)
+   le retire. En apercu fichier on ne l'affiche pas pour voir le menu tout de suite. */
+if(location.protocol!=='file:')showLoading({status:'Chargement de l’interface...'});
+/* ================= APERCU HORS JEU (fichier ouvert dans un navigateur) ================= */
+if(location.protocol==='file:'){
+  const go=()=>{
+    postMessage({action:'setTabs',tabs:['Main','Bypasses','Settings'],index:0},'*');
+    postMessage({action:'setBreadcrumb',path:''},'*');
+    postMessage({action:'setCurrent',current:1,menu:[
+      {type:'submenu',label:'Self Options'},
+      {type:'submenu',label:'Visual Options'},
+      {type:'submenu',label:'Online Options'},
+      {type:'submenu',label:'Weapon Options'},
+      {type:'submenu',label:'Vehicle Options'},
+      {type:'checkbox',label:'Show Keybinds',checked:true},
+      {type:'checkbox',label:'Show Spectators',checked:false},
+      {type:'divider',label:'Other'},
+      {type:'slider',label:'Opacity',value:60,min:0,max:100,step:1},
+      {type:'scroll',label:'Theme',options:[{label:'Dark'},{label:'Light'},{label:'Auto'}],selected:1},
+      {type:'color',label:'Accent',color:'#549660'},
+      {type:'action',label:'Search'}
+    ]},'*');
+    postMessage({action:'displayPlayerCard',visible:true,data:{name:'Night-Raven',sid:204,dist:'312 m',hdg:128,dir:'SE',pos:'-1204, 86, 31',num:'5561234870',veh:'On foot',wep:'Unarmed',hpN:200,hpMax:200,apN:40}},'*');
+    postMessage({action:'notify',header:'Preview',message:'Browser preview mode',type:'info',duration:5000},'*');
+    postMessage({action:'setKeybinds',rows:[
+      {label:'Menu',key:'M',state:'none'},
+      {label:'Show Keybinds',key:'F5',state:'on'},
+      {label:'Show Spectators',key:'F6',state:'off'}
+    ]},'*');
+  };
+  setTimeout(go,50);
+}
+})();
 </script>
 </body>
 </html>

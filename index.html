@@ -577,6 +577,7 @@ window.addEventListener('message', ({ data: m }) => {
     case 'close': closeMenu(); break;
     case 'setData': DATA = m.data; S.tab = 0; S.stack = []; render(); break;
     case 'theme': applyTheme(m.name); break;
+    case 'notify': toast(String(m.message || '')); break;
     case 'key': ({ up: () => step(-1), down: () => step(1), left: () => change(-1), right: () => change(1),
                    enter: activate, back, tabPrev: () => tab(-1), tabNext: () => tab(1) })[m.key]?.(); break;
   }

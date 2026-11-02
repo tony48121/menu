@@ -92,9 +92,14 @@
 .tab-item.active{color:#fff;background:linear-gradient(180deg,#4a4b52,#2a2b30);box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(255,255,255,0.12)}
 
 /* ---------- barre de defilement (hors du panneau, a gauche) : son curseur suit la ligne selectionnee ---------- */
-.menu-scrollbar{position:absolute;left:-1.2vh;top:calc(var(--banner-height) + var(--crumb-h) + var(--tabs-height) + 1.65vh);width:0.37vh;height:27.8vh}
-.scrollbar-track{width:100%;height:100%;background:rgba(255,255,255,0.14);border-radius:0.2vh;position:relative}
-.scrollbar-thumb{position:absolute;top:0;left:0;width:100%;background:rgba(255,255,255,0.8);box-shadow:0 0 0.55vh rgba(255,255,255,0.35);border-radius:0.2vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
+.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) + var(--tabs-height));width:1vh;height:29.45vh}
+/* piste NOIRE pleine hauteur, avec une fleche en haut et une en bas (comme sur la capture) */
+.scrollbar-track{width:100%;height:100%;background:#000;border:0.1vh solid rgba(255,255,255,0.10);box-sizing:border-box;border-radius:0.3vh;position:relative}
+.scrollbar-track::before,.scrollbar-track::after{content:"";position:absolute;left:50%;width:0.34vh;height:0.34vh;box-sizing:border-box;border-style:solid;border-color:#e9ebf0;border-width:0.13vh 0 0 0.13vh;pointer-events:none}
+.scrollbar-track::before{top:0.42vh;transform:translateX(-50%) rotate(45deg)}
+.scrollbar-track::after{bottom:0.42vh;transform:translateX(-50%) rotate(225deg)}
+/* curseur BLEU (couleur du menu) : degrade horizontal, bords plus sombres, centre plus clair */
+.scrollbar-thumb{position:absolute;top:0;left:0.12vh;right:0.12vh;width:auto;background:linear-gradient(90deg,rgb(var(--mn-lo-rgb)) 0%,rgb(var(--mn-hi-rgb)) 50%,rgb(var(--mn-acc-rgb)) 100%);border-radius:0.25vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
 
 /* ---------- liste ---------- */
 .menu-body{background:transparent;overflow:hidden}
@@ -104,16 +109,12 @@
 .menu-empty{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.35vh;align-items:center;text-align:center;padding:1.1vh 1.6vh}
 .menu-empty-title{font-size:1.15vh;font-weight:700;letter-spacing:0.08em;color:rgb(var(--mn-on-rgb))}
 .menu-empty-sub,.menu-empty-hint{font-size:1vh;font-weight:500;line-height:1.5;color:rgba(255,255,255,0.8)}
-/* selection : bande en degrade gris + filet lumineux continu (dessine en masque) */
-.selection-highlight{position:absolute;left:0.65vh;right:0.65vh;height:var(--item-height);box-sizing:border-box;border-radius:0.83vh;
-  background:linear-gradient(90deg,#6c6d75 0%,#46474d 42%,#2a2b30 100%);
-  box-shadow:0 0 0.55vh rgba(255,255,255,0.16),inset 0 0 1.1vh rgba(255,255,255,0.07);
+/* selection : bande teintee de la couleur du menu, avec une BARRE A GAUCHE (ombre interne,
+   collee au bord du panneau). Plus de barres en haut ni en bas. */
+.selection-highlight{position:absolute;left:0;right:0.65vh;height:var(--item-height);box-sizing:border-box;border-radius:0 0.55vh 0.55vh 0;
+  background:linear-gradient(90deg,rgba(var(--mn-acc-rgb),0.30) 0%,rgba(var(--mn-acc-rgb),0.14) 55%,rgba(var(--mn-acc-rgb),0.07) 100%);
+  box-shadow:inset 0.3vh 0 0 rgb(var(--mn-acc-rgb)),0 0 0.9vh rgba(var(--mn-acc-rgb),0.22);
   z-index:0;pointer-events:none;will-change:top;transform:translateZ(0)}
-.selection-highlight::before{content:"";position:absolute;inset:-0.1vh;padding:0.1vh;border-radius:inherit;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 55%),linear-gradient(100deg,rgba(255,255,255,.9),rgba(255,255,255,.28) 38%,rgba(255,255,255,.28) 64%,rgba(255,255,255,.85));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-          mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .menu-item{display:flex;justify-content:space-between;align-items:center;gap:1vh;margin:0 0.65vh;padding:0 0.93vh;height:var(--item-height);box-sizing:border-box;position:relative;z-index:1;cursor:pointer;border:0.1vh solid transparent;border-bottom-color:rgba(255,255,255,0.1);border-radius:0.83vh}
 .menu-item.is-selected{border-bottom-color:transparent}
 .item-label{display:flex;align-items:center;gap:1vh;min-width:0;flex:1}
@@ -134,8 +135,8 @@
 .toggle-switch{position:relative;display:inline-flex;align-items:center;cursor:pointer}
 .toggle-switch input{position:absolute;opacity:0;width:0;height:0}
 .toggle-track{display:block;width:3.33vh;height:1.85vh;background:#3a3b41;border-radius:0.93vh;position:relative;transition:background 0.18s;box-sizing:border-box}
-.toggle-thumb{position:absolute;top:0.28vh;left:0.28vh;width:1.3vh;height:1.3vh;border-radius:50%;background:#f2f3f6;transition:transform 0.18s cubic-bezier(.3,.8,.3,1)}
-.toggle-switch input:checked ~ .toggle-track{background:#c9cacf}
+.toggle-thumb{position:absolute;top:0.28vh;left:0.28vh;width:1.3vh;height:1.3vh;border-radius:50%;background:#f2f3f6;box-shadow:0 0.1vh 0.3vh rgba(0,0,0,0.35);transition:transform 0.18s cubic-bezier(.3,.8,.3,1)}
+.toggle-switch input:checked ~ .toggle-track{background:rgb(var(--mn-acc-rgb))}
 .toggle-switch input:checked ~ .toggle-track .toggle-thumb{transform:translateX(1.48vh);background:#fff}
 
 /* ---------- curseur ---------- */
@@ -449,7 +450,7 @@ function buildMenu(){
   const head=$('div','menu-head');head.append(ban,crumb,tabs);
   const card=$('div','menu-card');card.append(body);
   r.append(head,card,sb,foot);app.append(r);
-  Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,brandEl:brand,rows:[]});
+  Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,brandEl:brand,rows:[],arrowPx:0});
   renderTabs();renderCrumb();applyBar();applyBannerOffset();
   return [r];
 }
@@ -550,21 +551,24 @@ function updCounter(){
 }
 function applyBar(){
   if(!B.thumb)return;
-  B.trackEl.style.height=B.trackH+'px';B.thumb.style.top=B.thumbTop+'px';B.thumb.style.height=B.thumbH+'px';
+  B.trackEl.style.height=B.trackH+'px';B.thumb.style.top=(B.thumbTop+B.arrowPx)+'px';B.thumb.style.height=B.thumbH+'px';
 }
 function bar(){
   if(!live()||B.lock)return;
   B.lock=requestAnimationFrame(()=>{
     B.lock=null;const L=B.list;if(!live())return;
     /* la barre couvre la hauteur de la liste ; son curseur suit la ligne SELECTIONNEE */
-    B.trackH=Math.max(20,Math.round(L.clientHeight-innerHeight*0.0111));
+    B.trackH=Math.max(20,Math.round(L.clientHeight+innerHeight*0.0054));
     B.over=L.scrollHeight>L.clientHeight+1;
     const sels=(Array.isArray(B.menu)?B.menu:[]).reduce((a,o,i)=>(o&&o.type!=='divider'&&a.push(i),a),[]),n=sels.length;
     const k=Math.max(0,sels.indexOf(B.cur)),minH=Math.round(innerHeight*0.024);
-    if(n<2){B.thumbH=B.trackH;B.thumbTop=0}
+    /* zone utile du curseur = piste moins les deux fleches (haut et bas) */
+    B.arrowPx=Math.round(innerHeight*0.011);
+    const U=Math.max(10,B.trackH-2*B.arrowPx);
+    if(n<2){B.thumbH=U;B.thumbTop=0}
     else{
-      B.thumbH=Math.min(B.trackH,Math.max(minH,Math.round(B.trackH/n)));
-      B.thumbTop=Math.round((k/(n-1))*(B.trackH-B.thumbH));
+      B.thumbH=Math.min(U,Math.max(minH,Math.round(U/n)));
+      B.thumbTop=Math.round((k/(n-1))*(U-B.thumbH));
     }
     applyBar();
   });

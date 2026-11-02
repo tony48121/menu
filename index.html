@@ -572,7 +572,12 @@ function refresh(){
   const el=curRow();if(el){moveHl(el.offsetTop);ensureVisible(el)}
   bar();
 }
-const showMenu=()=>{present(B.slot,true,buildMenu,planMenu);refresh()};
+/* Un menu qui s'affiche signifie que l'interface est prete : on retire
+   l'ecran de chargement au passage. Sans cela, si la page NUI se charge
+   APRES la sequence de chargement du script, son ecran de boot (9 s de
+   filet de securite) restait devant le menu : on appuyait sur la touche,
+   le panneau etait bien construit... mais cache par l'overlay. */
+const showMenu=()=>{hideLoading();present(B.slot,true,buildMenu,planMenu);refresh()};
 /* Fermeture DETERMINISTE : le panneau est retire immediatement, sans animation
    ni etat "out" pouvant rester bloque. C'est ce qui garantit que le menu peut
    se fermer pendant qu'une notification s'affiche a cote (la fenetre NUI

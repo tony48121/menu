@@ -55,7 +55,10 @@
 }
 
 /* ---------- conteneur : design JUL / Synaps (fichier index11111111.html) ---------- */
-.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;border-radius:1.1vh;background:rgba(0,0,0,0.75);-webkit-backdrop-filter:blur(0.3vh);backdrop-filter:blur(0.3vh);border:0.1vh solid rgba(255,255,255,0.12);box-shadow:0 1.7vh 4.6vh rgba(0,0,0,0.6)}
+/* FOND DU PANNEAU SUPPRIME : plus rien derriere le menu (pas de carré noir,
+   pas d'ombre portee, pas de flou de fond). Seuls les elements du menu
+   (banniere, liste, pied) gardent leur propre fond. */
+.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;border-radius:1.1vh;background:transparent;border:0.1vh solid rgba(255,255,255,0.12)}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
 .menu-banner{position:relative;height:var(--banner-height);overflow:hidden;border-radius:1vh 1vh 0 0;background:#050506}
@@ -290,9 +293,10 @@ ul{list-style-type:disc}
 .jul-pc-row:last-child{border-bottom:none}
 .jul-pc-row .k{color:rgba(255,255,255,0.6)}
 .jul-pc-row .v{font-family:var(--mono);font-weight:500;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:15vh}
-/* ---------- contour du menu : a droite (defaut), tout autour, ou aucun (setEdgeStyle) ---------- */
-[data-edge="all"] .menu-root{border-color:rgb(var(--mn-acc-rgb));border-width:0.3vh;box-shadow:0 0 1.1vh rgba(var(--mn-acc-rgb),0.55),0 1vh 3vh rgba(0,0,0,0.6)}
-[data-edge="off"] .menu-root{border-right:0.1vh solid rgba(255,255,255,0.08);box-shadow:0 1vh 3vh rgba(0,0,0,0.6)}
+/* ---------- contour du menu : a droite (defaut), tout autour, ou aucun (setEdgeStyle) ----------
+   Les ombres portees noires sont supprimees : rien ne doit apparaitre derriere le menu. */
+[data-edge="all"] .menu-root{border-color:rgb(var(--mn-acc-rgb));border-width:0.3vh}
+[data-edge="off"] .menu-root{border-right:0.1vh solid rgba(255,255,255,0.08)}
 /* ===== Ecarts avec les captures du menu a 4 couleurs ===== */
 /* valeurs "< x >" pour les listes : item.arrows = true (sinon "- x -") */
 .scroll-value.arrows .arrow{font-size:0;opacity:1}

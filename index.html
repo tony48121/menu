@@ -55,10 +55,10 @@
 }
 
 /* ---------- conteneur : design JUL / Synaps (fichier index11111111.html) ---------- */
-/* FOND DU PANNEAU SUPPRIME : plus rien derriere le menu (pas de carré noir,
-   pas d'ombre portee, pas de flou de fond). Seuls les elements du menu
-   (banniere, liste, pied) gardent leur propre fond. */
-.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;border-radius:1.1vh;background:transparent;border:0.1vh solid rgba(255,255,255,0.12)}
+/* Fond du panneau : NOIR TRANSLUCIDE (on voit legerement a travers).
+   L'ombre portee et le flou de fond sont supprimes : rien ne deborde derriere
+   le menu, seul le panneau lui-meme est teinte. */
+.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;border-radius:1.1vh;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
 .menu-banner{position:relative;height:var(--banner-height);overflow:hidden;border-radius:1vh 1vh 0 0;background:#050506}

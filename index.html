@@ -42,7 +42,7 @@
   --mn-lo-rgb:37,65,42;
   --mn-fill-rgb:73,130,83;
   --mn-on-rgb:123,244,145;
-  --item-height:3.33vh;
+  --item-height:3.05vh;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
@@ -63,7 +63,7 @@
      .menu-card   : la liste des categories (meme habillage)
      .menu-footer : barre noire du bas (JUL | logo | compteur)
    .menu-root ne dessine plus rien lui-meme : il ne fait que les empiler. */
-.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;display:flex;flex-direction:column;gap:0.8vh}
+.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;display:flex;flex-direction:column;gap:0.5vh}
 .menu-head,.menu-card{position:relative;overflow:hidden;border-radius:1.1vh;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
@@ -118,9 +118,9 @@
 .menu-item.is-selected{border-bottom-color:transparent}
 .item-label{display:flex;align-items:center;gap:1vh;min-width:0;flex:1}
 /* icones a gauche (le Lua envoie item.icon, ex. "ph-user") */
-.row-icon{display:inline-block;flex:none;width:1.6vh;font-size:1.6vh;line-height:1;text-align:center;color:#c9ccd6}
+.row-icon{display:inline-block;flex:none;width:1.45vh;font-size:1.45vh;line-height:1;text-align:center;color:#c9ccd6}
 .menu-item.is-selected .row-icon{color:#fff}
-.menu-item .name{font-size:1.25vh;color:#f1f2f6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-item .name{font-size:1.15vh;color:#f1f2f6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slider-val{flex:none;width:3.15vh;text-align:right;color:#6f7280;font-size:1.11vh;font-variant-numeric:tabular-nums}
 .components-container{display:flex;align-items:center;gap:1vh;flex-shrink:0}
 .component{display:flex;align-items:center;gap:1vh}
@@ -159,7 +159,7 @@
 
 /* ---------- pied : nom | logo | compteur ---------- */
 /* Barre detachee : presque pleine (noir), meme contour et meme rayon que la carte,
-   un espace de 0.8vh au-dessus (gap de .menu-root). Rien ne la relie a la liste. */
+   un espace de 0.5vh au-dessus (gap de .menu-root). Rien ne la relie a la liste. */
 .menu-footer{background:rgba(6,6,8,0.94);/* hauteur 3.4vh (avant 4.4vh) */display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:3.4vh;box-sizing:border-box;padding:0 1.3vh;border:0.1vh solid rgba(255,255,255,0.12);border-radius:1vh;overflow:hidden;box-shadow:0 0.4vh 1.2vh rgba(0,0,0,0.35)}
 .footer-who{display:flex;align-items:center;gap:0.9vh;min-width:0}
 /* Logo image optionnel (FOOTER_LOGO_URL / setFooterLogo) : "screen" rend le noir transparent. */
@@ -246,7 +246,7 @@ body,main{all:unset;display:block}
    barre laterale coloree, compte a rebours en haut a droite (4s 3s 2s 1s).
    3 styles : success (vert), error (rouge), warn (orange). "info" (type par defaut
    envoye par le Lua) prend la couleur du menu (--mn-on-rgb). */
-.notify-stack{position:fixed;top:calc(24px + var(--kb-hud-h,0px));right:24px;width:min(290px,calc(100vw - 32px));
+.notify-stack{position:fixed;top:calc(24px + var(--kb-hud-h,0px) + var(--sp-hud-h,0px));right:24px;width:min(290px,calc(100vw - 32px));
   display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;--slide:24px}
 .nt-toast{--c-rgb:var(--mn-on-rgb,123,244,145);position:relative;box-sizing:border-box;padding:11px 16px 11px 22px;border-radius:10px;
   background:linear-gradient(90deg,rgba(var(--c-rgb),0.12) 0%,rgba(var(--c-rgb),0) 60%),rgba(9,9,13,0.94);
@@ -286,29 +286,30 @@ li{display:list-item;text-align:-webkit-match-parent}
 ul{list-style-type:disc}
 
 /* ---------- fiche joueur ----------
-   Carte d'infos qui apparait quand la selection du menu se pose sur un
-   joueur de la liste. Tout le contenu vient de Lua : ce bloc ne fait que
-   le poser a l'ecran. pointer-events:none, elle ne doit jamais capter un
-   clic ni bloquer le menu. Fond noir, nom et barres a la couleur du menu. */
-.jul-pcard{position:fixed;right:1.6vh;top:50%;transform:translateY(-50%);width:29vh;box-sizing:border-box;padding:1.6vh;display:flex;flex-direction:column;gap:1.2vh;font-family:var(--menu-font);color:#fff;pointer-events:none;z-index:9997;border-radius:2vh;background:rgba(var(--mn-bg-rgb),0.96);border:0.12vh solid rgba(var(--mn-acc-rgb),0.5);box-shadow:0 1vh 3vh rgba(0,0,0,0.65)}
-.jul-pc-head{display:flex;align-items:center;gap:1.2vh}
-.jul-pc-av{flex:none;width:4.4vh;height:4.4vh;box-sizing:border-box;border-radius:1vh;border:0.12vh solid rgb(var(--mn-on-rgb));background:rgba(var(--mn-acc-rgb),0.14);display:grid;place-items:center;font-size:1.5vh;font-weight:700;color:rgb(var(--mn-on-rgb))}
-.jul-pc-who{flex:1;min-width:0}
-.jul-pc-name{font-size:1.7vh;font-weight:700;line-height:1.15;color:rgb(var(--mn-on-rgb));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jul-pc-sub{margin-top:0.25vh;font-size:1.05vh;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jul-pc-badge{flex:none;box-sizing:border-box;padding:0.5vh 1.1vh;border-radius:2vh;border:0.1vh solid rgba(255,255,255,0.18);font-family:var(--mono);font-size:1.1vh;font-weight:700}
-.jul-pc-stat{display:flex;flex-direction:column;gap:0.7vh}
-.jul-pc-line{display:flex;justify-content:space-between;align-items:baseline;font-size:1.15vh;color:rgba(255,255,255,0.6)}
-.jul-pc-line .vnum{font-family:var(--mono);font-weight:700;color:#fff}
-.jul-pc-bar{display:flex;gap:0.35vh}
-.jul-pc-seg{flex:1;height:0.85vh;border-radius:0.5vh;background:rgba(255,255,255,0.08)}
-.jul-pc-bar.hp .jul-pc-seg.on{background:#8fd18f}
-.jul-pc-bar.ap .jul-pc-seg.on{background:rgb(var(--mn-on-rgb))}
-.jul-pc-sec{display:flex;flex-direction:column;border-top:0.1vh solid rgba(255,255,255,0.08)}
-.jul-pc-row{display:flex;justify-content:space-between;align-items:center;gap:1vh;padding:0.95vh 0;font-size:1.15vh;border-bottom:0.1vh solid rgba(255,255,255,0.08)}
-.jul-pc-row:last-child{border-bottom:none}
-.jul-pc-row .k{color:rgba(255,255,255,0.6)}
-.jul-pc-row .v{font-family:var(--mono);font-weight:500;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:15vh}
+   Nouvelle fiche (player-info.html) : meme donnees qu'avant, nouveau rendu.
+   pointer-events:none, elle ne doit jamais capter un clic ni bloquer le menu.
+   Toutes les tailles sont en vh (comme le reste du menu). La couleur
+   principale suit la couleur du menu (--mn-acc-rgb). */
+.jul-pcard{position:fixed;right:1.6vh;top:50%;transform:translateY(-50%);width:26.9vh;box-sizing:border-box;padding:0.37vh 1.67vh 1.3vh;font-family:var(--menu-font);color:#f4f4f6;pointer-events:none;-webkit-user-select:none;user-select:none;cursor:default;z-index:9997;border-radius:1.48vh;background:rgba(10,10,12,0.94);border:0.1vh solid rgba(255,255,255,0.07);box-shadow:none;overflow:hidden}
+.jul-pcard::before{content:"";position:absolute;inset:0 0 auto 0;height:0.1vh;background:linear-gradient(90deg,transparent,rgb(var(--mn-acc-rgb)),transparent);opacity:.8}
+.jul-pc-head{display:flex;align-items:center;justify-content:space-between;gap:1.1vh;padding:1.3vh 0 1.1vh;border-bottom:0.1vh solid rgba(255,255,255,0.07);font-size:1.2vh;font-weight:600;letter-spacing:0.01em}
+.jul-pc-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jul-pc-id{flex:none;padding:0.2vh 0.83vh;border-radius:92vh;background:rgba(var(--mn-acc-rgb),0.35);color:#fff;font-size:1.1vh;font-variant-numeric:tabular-nums}
+.jul-pc-group{padding:0.93vh 0}
+.jul-pc-group+.jul-pc-group{border-top:0.1vh solid rgba(255,255,255,0.07)}
+.jul-pc-group:last-child{padding-bottom:0}
+.jul-pc-row{display:flex;align-items:center;height:2.78vh;font-size:1.2vh}
+.jul-pc-row svg{flex:none;width:1.57vh;height:1.57vh;margin-right:1vh;fill:rgba(255,255,255,0.55)}
+.jul-pc-row svg.stroke{fill:none;stroke:rgba(255,255,255,0.55);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.jul-pc-row .k{flex:none;color:rgba(255,255,255,0.62)}
+.jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.8vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jul-pc-row.vital .bar{position:relative;flex:none;width:0.37vh;height:1.67vh;margin-right:1vh;border-radius:0.28vh;background:rgba(255,255,255,0.1);overflow:hidden}
+.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.28vh;transition:height 0.3s ease}
+.jul-pc-row.vital svg{margin-right:0.65vh}
+.jul-pc-row.health svg{fill:#34d27b}
+.jul-pc-row.armor svg{fill:#4a8dff}
+.jul-pc-row.health .bar i{background:linear-gradient(to top,#1fa85d,#5df0a0)}
+.jul-pc-row.armor .bar i{background:linear-gradient(to top,#2f6fe0,#7fb0ff)}
 /* ---------- contour du menu : a droite (defaut), tout autour, ou aucun (setEdgeStyle) ----------
    Les ombres portees noires sont supprimees : rien ne doit apparaitre derriere le menu. */
 [data-edge="all"] .menu-head,[data-edge="all"] .menu-card,[data-edge="all"] .menu-footer{border-color:rgb(var(--mn-acc-rgb));border-width:0.3vh}
@@ -327,21 +328,36 @@ ul{list-style-type:disc}
 [data-bg="black"] .menu-tabs{background:#0b0b0d}
 
 /* ---------- panneau Keybinds (action setKeybinds) ----------
-   menu.lua envoie rows = { {label, key, state} } a chaque ouverture et a
-   chaque bascule. state vaut 'on'/'off' pour les options a etat, 'none'
-   pour un simple raccourci (pas de voyant invente). */
-.kb-hud{position:fixed;top:24px;right:24px;z-index:9996;box-sizing:border-box;min-width:20vh;max-width:30vh;padding:1.1vh 1.3vh;display:flex;flex-direction:column;gap:0.45vh;background:rgba(var(--mn-bg-rgb),0.94);border:0.12vh solid rgba(var(--mn-acc-rgb),0.45);border-radius:0.9vh;box-shadow:0 0.8vh 2.4vh rgba(0,0,0,0.6);font-family:var(--menu-font);color:#fff;pointer-events:none}
-.kb-hud-head{display:flex;align-items:center;justify-content:space-between;gap:1vh;padding-bottom:0.55vh;margin-bottom:0.15vh;border-bottom:0.1vh solid rgba(255,255,255,0.08)}
-.kb-hud-title{font-size:0.95vh;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
-.kb-hud-count{font-family:var(--mono);font-size:0.9vh;color:rgb(var(--mn-on-rgb))}
-.kb-hud-row{display:flex;align-items:center;justify-content:space-between;gap:1.2vh;min-width:0}
-.kb-hud-label{font-size:1.05vh;font-weight:500;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kb-hud-right{display:flex;align-items:center;gap:0.6vh;flex:none}
-.kb-hud-key{font-family:var(--mono);font-size:0.9vh;font-weight:700;letter-spacing:0.03em;padding:0.28vh 0.7vh;border-radius:0.4vh;background:rgba(var(--mn-acc-rgb),0.18);border:0.1vh solid rgba(var(--mn-acc-rgb),0.5);color:rgb(var(--mn-on-rgb))}
-.kb-hud-dot{width:0.7vh;height:0.7vh;border-radius:50%;background:rgba(255,255,255,0.18);box-shadow:inset 0 0 0 0.08vh rgba(255,255,255,0.25)}
-.kb-hud-row[data-state="on"] .kb-hud-dot{background:#8fd18f;box-shadow:0 0 0.6vh rgba(143,209,143,0.8)}
-.kb-hud-row[data-state="off"] .kb-hud-dot{background:#e0716b;box-shadow:0 0 0.6vh rgba(224,113,107,0.7)}
-.kb-hud-row[data-state="none"] .kb-hud-dot{display:none}
+   Nouvelle fiche (keybinds.html). menu.lua envoie rows = { {label, key, state} }
+   a chaque ouverture et a chaque bascule. state vaut 'on'/'off' pour les options
+   a etat, 'none' pour un simple raccourci (pas de voyant invente).
+   Tailles en vh, couleur principale = couleur du menu (--mn-acc-rgb). */
+.kb-hud{position:fixed;top:24px;right:24px;z-index:9996;box-sizing:border-box;min-width:23.1vh;max-width:30vh;display:flex;flex-direction:column;overflow:hidden;border:0.1vh solid rgba(255,255,255,0.14);border-radius:0.93vh;font-family:var(--menu-font);color:#fff;pointer-events:none;-webkit-user-select:none;user-select:none}
+.kb-hud-head{position:relative;z-index:1;display:flex;align-items:center;gap:0.65vh;padding:0.65vh 1.1vh 0.55vh;background:rgba(var(--mn-bg-rgb),0.93);font-size:1.2vh;font-weight:700}
+.kb-hud-ring{flex:none;width:0.65vh;height:0.65vh;box-sizing:border-box;border-radius:50%;border:0.14vh solid rgb(var(--mn-acc-rgb))}
+.kb-hud-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:0.19vh;background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.55vh 0.1vh rgba(var(--mn-acc-rgb),0.8),0 0 1.3vh 0.28vh rgba(var(--mn-acc-rgb),0.35)}
+.kb-hud-list{background:rgba(0,0,0,0.55);padding:0.37vh 0 0.55vh}
+.kb-hud-row{display:flex;align-items:center;justify-content:space-between;gap:1.2vh;min-width:0;padding:0.65vh 1.3vh;font-size:1.25vh;font-weight:700}
+.kb-hud-label{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-hud-right{display:inline-flex;align-items:center;flex:none;gap:0.74vh;font-size:1.11vh;letter-spacing:0.02em;white-space:nowrap}
+.kb-hud-key{font-size:1.39vh;font-weight:700}
+.kb-hud-led{flex:none;width:0.93vh;height:0.93vh;border-radius:50%;background:#3a4352;box-shadow:inset 0 0.09vh 0.19vh rgba(0,0,0,0.6)}
+.kb-hud-row[data-state="on"] .kb-hud-led{background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.55vh 0.19vh rgba(var(--mn-acc-rgb),0.75),0 0 1.3vh 0.37vh rgba(var(--mn-acc-rgb),0.35)}
+.kb-hud-row[data-state="none"] .kb-hud-led{display:none}
+
+/* ---------- panneau Spectators (action setSpectators) ----------
+   Meme famille visuelle que Keybinds, empile juste en dessous (--kb-hud-h).
+   rows = { {name, distance} } ; liste vide = panneau masque. */
+.sp-hud{position:fixed;top:calc(24px + var(--kb-hud-h,0px));right:24px;z-index:9996;box-sizing:border-box;min-width:23.1vh;max-width:30vh;display:flex;flex-direction:column;overflow:hidden;border:0.1vh solid rgba(255,255,255,0.14);border-radius:0.93vh;font-family:var(--menu-font);color:#fff;pointer-events:none;-webkit-user-select:none;user-select:none}
+.sp-hud-head{position:relative;z-index:1;display:flex;align-items:center;gap:0.65vh;padding:0.65vh 1.1vh 0.55vh;background:rgba(var(--mn-bg-rgb),0.93);font-size:1.2vh;font-weight:700}
+.sp-hud-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:0.19vh;background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.55vh 0.1vh rgba(var(--mn-acc-rgb),0.8),0 0 1.3vh 0.28vh rgba(var(--mn-acc-rgb),0.35)}
+.sp-hud-eye{flex:none;width:1.39vh;height:1.39vh;fill:none;stroke:rgb(var(--mn-acc-rgb));stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sp-hud-list{background:rgba(0,0,0,0.55);padding:0.37vh 0 0.55vh}
+.sp-hud-row{display:flex;align-items:center;justify-content:space-between;gap:0.93vh;min-width:0;padding:0.65vh 1.3vh;font-size:1.25vh;font-weight:700}
+.sp-hud-who{display:flex;align-items:center;gap:0.74vh;min-width:0}
+.sp-hud-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-hud-arrow{flex:none;width:1.11vh;height:1.11vh;fill:#f5c542}
+.sp-hud-dist{flex:none;font-size:1.11vh;font-weight:400;color:#aeb6c4;white-space:nowrap}
 
 /* ---------- ecran de chargement (showLoading / loadingProgress / hideLoading) ---------- */
 .loading-overlay{position:fixed;inset:0;z-index:999998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;padding:4vh;box-sizing:border-box;font-family:var(--menu-font);color:#fff;background:radial-gradient(120% 80% at 50% 0%,rgba(var(--mn-acc-rgb),0.22),rgba(0,0,0,0.98) 62%);transition:opacity 0.45s ease}
@@ -674,9 +690,13 @@ function onKey(k){
 
 /* ---------- panneau Keybinds (setKeybinds) ---------- */
 const KH={el:null};
+const SP={el:null};
 function syncNotifyTop(){
+  const st=document.documentElement.style;
   const h=KH.el?Math.ceil(KH.el.getBoundingClientRect().height)+12:0;
-  document.documentElement.style.setProperty('--kb-hud-h',h?h+'px':'0px');
+  const sh=SP.el?Math.ceil(SP.el.getBoundingClientRect().height)+12:0;
+  st.setProperty('--kb-hud-h',h?h+'px':'0px');
+  st.setProperty('--sp-hud-h',sh?sh+'px':'0px');
 }
 function renderKeybinds(rows){
   rows=Array.isArray(rows)?rows.filter(r=>r&&r.label!=null):[];
@@ -687,15 +707,44 @@ function renderKeybinds(rows){
   }
   if(!KH.el){KH.el=$('div','kb-hud');app.append(KH.el)}
   const head=$('div','kb-hud-head');
-  head.append($('span','kb-hud-title','Keybinds'),$('span','kb-hud-count',String(rows.length)));
-  KH.el.replaceChildren(head,...rows.map(r=>{
+  head.append($('span','kb-hud-ring'),$('span','kb-hud-title','Keybinds'));
+  const list=$('div','kb-hud-list');
+  list.append(...rows.map(r=>{
     const row=$('div','kb-hud-row');
     row.dataset.state=String(r.state||'none');
-    const right=$('div','kb-hud-right');
-    right.append($('span','kb-hud-dot'),$('span','kb-hud-key',String(r.key==null?'':r.key)));
+    const right=$('span','kb-hud-right');
+    right.append($('span','kb-hud-led'),$('b','kb-hud-key',String(r.key==null?'':r.key)));
     row.append($('span','kb-hud-label',String(r.label)),right);
     return row;
   }));
+  KH.el.replaceChildren(head,list);
+  syncNotifyTop();
+}
+
+/* ---------- panneau Spectators (setSpectators) ----------
+   rows = { {name, distance} } ; distance : texte ("215m") ou nombre (metres). */
+function renderSpectators(rows){
+  rows=Array.isArray(rows)?rows.filter(r=>r&&r.name!=null):[];
+  if(!rows.length){
+    if(SP.el){SP.el.remove();SP.el=null}
+    syncNotifyTop();
+    return;
+  }
+  if(!SP.el){SP.el=$('div','sp-hud');app.append(SP.el)}
+  const head=$('div','sp-hud-head');
+  head.innerHTML='<svg class="sp-hud-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  head.append($('span','sp-hud-title','Spectators'));
+  const list=$('div','sp-hud-list');
+  list.append(...rows.map(r=>{
+    const row=$('div','sp-hud-row');
+    const who=$('div','sp-hud-who');
+    who.innerHTML='<svg class="sp-hud-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 13h6v9h6v-9h6z"/></svg>';
+    who.append($('span','sp-hud-name',String(r.name)));
+    const dist=(typeof r.distance==='number')?Math.round(r.distance)+'m':(r.distance==null?'':String(r.distance));
+    row.append(who,$('span','sp-hud-dist',dist));
+    return row;
+  }));
+  SP.el.replaceChildren(head,list);
   syncNotifyTop();
 }
 
@@ -942,17 +991,28 @@ function positionPlayerCard(el){
   c.style.top=Math.round(y)+'px';
 }
 const PC={d:null,slot:{g:0}};
+const PC_ICON={
+  user:'<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>',
+  phone:'<svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>',
+  radio:'<svg class="stroke" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 5.4a9.4 9.4 0 0 0 0 13.2M18.6 5.4a9.4 9.4 0 0 1 0 13.2"/></svg>',
+  job:'<svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>',
+  group:'<svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
+  shield:'<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>',
+  target:'<svg class="stroke" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>',
+  car:'<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>',
+  gun:'<svg viewBox="0 0 24 24"><path d="M2 7h16.5A1.5 1.5 0 0 1 20 8.5V12h-6.2l-1 2.2H10l-.7 5.3H5.6l.9-5.3H2V7z"/></svg>',
+  bolt:'<svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>'
+};
 function buildPlayerCard(){
   const c=$('div','jul-pcard');
-  const row=k=>`<div class="jul-pc-row"><span class="k">${k}</span><span class="v" data-k="${k}">-</span></div>`;
-  const segs=Array.from({length:10},()=>'<span class="jul-pc-seg"></span>').join('');
-  const stat=(f,k)=>`<div class="jul-pc-stat"><div class="jul-pc-line"><span class="k">${k}</span><span class="vnum" data-f="${f}">- / -</span></div><div class="jul-pc-bar ${f}" data-f="${f}f">${segs}</div></div>`;
-  /* en-tete : initiales | nom + vehicule/arme | numero ; puis vie et armure en
-     10 segments ; puis les lignes. Rien n'est devine : tout vient de Lua. */
+  const row=(k,label,icon)=>`<div class="jul-pc-row">${PC_ICON[icon]}<span class="k">${label}</span><span class="v" data-k="${k}">-</span></div>`;
+  const vital=(f,k,label,icon)=>`<div class="jul-pc-row vital ${f}">${PC_ICON[icon]}<span class="bar"><i data-f="${f}f"></i></span><span class="k">${label}</span><span class="v" data-k="${k}">-</span></div>`;
   c.innerHTML=`
-    <div class="jul-pc-head"><div class="jul-pc-av" data-k="Initials">-</div><div class="jul-pc-who"><div class="jul-pc-name" data-k="Name">-</div><div class="jul-pc-sub" data-k="Sub">-</div></div><div class="jul-pc-badge" data-k="Player ID">-</div></div>
-    ${stat('hp','Health')}${stat('ap','Armor')}
-    <div class="jul-pc-sec">${row('Distance')}${row('Heading')}${row('Phone')}${row('Coordinates')}</div>`;
+    <div class="jul-pc-head"><span class="jul-pc-title" data-k="Title">-</span><span class="jul-pc-id" data-k="Player ID">-</span></div>
+    <div class="jul-pc-group">${row('Character','Character','user')}${row('Phone','Phone','phone')}${row('Radio','Radio','radio')}${row('Job','Job','job')}${row('Group','Group','group')}</div>
+    <div class="jul-pc-group">${vital('health','Health','Health','heart')}${vital('armor','Armor','Armor','shield')}</div>
+    <div class="jul-pc-group">${row('Distance','Distance','target')}${row('Vehicle','Vehicle','car')}${row('Weapon','Weapon','gun')}${row('Speed','Speed','bolt')}</div>`;
   app.append(c);positionPlayerCard(c);return [c];
 }
 /* base:'translateY(-50%)' : le plan de tr() ECRASE le transform du CSS
@@ -966,37 +1026,32 @@ function renderPlayerCard(){
   positionPlayerCard(e[0]);
   if(!d)return;
   const q=s=>e[0].querySelector(s);
-  const set=(sel,val)=>{const n=q(sel);if(n)n.textContent=(val==null||val==='')?'-':String(val)};
-  /* initiales : deux premiers mots, sinon deux premieres lettres */
-  const w=String(d.name==null?'':d.name).split(/[^A-Za-z0-9\u00C0-\u024F]+/).filter(Boolean);
-  set('[data-k="Initials"]',w.length>1?w[0][0]+w[1][0]:(w[0]||'').slice(0,2));
-  q('[data-k="Initials"]').textContent=q('[data-k="Initials"]').textContent.toUpperCase();
-  set('[data-k="Player ID"]',(d.sid==null||d.sid==='')?null:'#'+d.sid);
-  set('[data-k="Name"]',d.name);
-  /* sous le nom : vehicule et arme, comme "A pied - Sans arme" sur la reference */
-  set('[data-k="Sub"]',[d.veh,d.wep].filter(x=>x!=null&&x!=='').join(' \u00b7 '));
-  set('[data-k="Distance"]',d.dist);
-  /* le degre est ecrit ICI, pas dans Lua : le fichier Lua reste en ASCII pur */
-  set('[data-k="Heading"]',(d.dir?((typeof d.hdg==='number'?Math.round(d.hdg):'-')+'\u00b0 '+d.dir):'-'));
-  set('[data-k="Coordinates"]',d.pos);
-  /* d.num peut etre nil : set() ecrit "-" dans ce cas, jamais undefined.
-     C'est le cas nominal tant que le serveur ne publie pas le numero. */
-  set('[data-k="Phone"]',d.num);
-  /* les barres se remplissent avec le POURCENTAGE (10 segments), l'etiquette
-     montre le brut : "62 / 100", et non un pourcentage invente */
+  const has=x=>x!=null&&x!=='';
+  const set=(k,val)=>{const n=q('[data-k="'+k+'"]');if(n)n.textContent=has(val)?String(val):'-'};
+  /* Champs lus dans le paquet Lua :
+       name, sid, num, dist, veh, wep, hpN, hpMax, apN   (deja envoyes)
+       character, radio, job, group, speed, title         (optionnels, '-' si absents) */
+  const title=has(d.title)?d.title:((has(d.name)&&has(d.character))?d.name+' x '+d.character:d.name);
+  set('Title',title);
+  set('Player ID',d.sid);
+  set('Character',has(d.character)?d.character:d.name);
+  set('Phone',d.num);
+  set('Radio',d.radio);
+  set('Job',d.job);
+  set('Group',d.group);
+  set('Distance',(typeof d.dist==='number')?d.dist.toFixed(1)+'m':d.dist);
+  set('Vehicle',has(d.veh)?d.veh:'On Foot');
+  set('Weapon',has(d.wep)?d.wep:'Unarmed');
+  set('Speed',(typeof d.speed==='number')?d.speed.toFixed(1)+' km/h':d.speed);
+  /* la barre se remplit avec le pourcentage, le chiffre affiche est le brut */
   const hpN=(typeof d.hpN==='number')?d.hpN:null;
   const apN=(typeof d.apN==='number')?d.apN:null;
   const hpMax=(typeof d.hpMax==='number'&&d.hpMax>0)?d.hpMax:100;
-  const hpPct=(hpN!=null)?clamp(hpN/hpMax*100,0,100):0;
-  const apPct=(apN!=null)?clamp(apN,0,100):0;
-  set('[data-f="hp"]',(hpN!=null)?hpN+' / '+hpMax:'- / -');
-  set('[data-f="ap"]',(apN!=null)?apN+' / 100':'- / -');
-  const fillSegs=(sel,pct)=>{
-    const bar=q(sel);if(!bar)return;
-    const n=pct>0?Math.max(1,Math.round(pct/10)):0;
-    Array.prototype.forEach.call(bar.children,(sg,i)=>sg.classList.toggle('on',i<n));
-  };
-  fillSegs('[data-f="hpf"]',hpPct);fillSegs('[data-f="apf"]',apPct);
+  set('Health',hpN!=null?Math.round(hpN):null);
+  set('Armor',apN!=null?Math.round(apN):null);
+  const fill=(f,pct)=>{const i=q('[data-f="'+f+'f"]');if(i)i.style.setProperty('--v',pct+'%')};
+  fill('health',hpN!=null?clamp(hpN/hpMax*100,0,100):0);
+  fill('armor',apN!=null?clamp(apN,0,100):0);
 }
 function playerCardShow(d){
   /* Le Lua envoie les donnees IMBRIQUEES : { action, visible, data:{...} }.
@@ -1116,6 +1171,7 @@ addEventListener('message',e=>{
     case 'theme':B.theme=String(d.name||'');document.documentElement.dataset.theme=B.theme;break;
     case 'key':onKey(d.key);break;
     case 'setKeybinds':renderKeybinds(d.rows);break;
+    case 'setSpectators':renderSpectators(d.rows||d.spectators);break;
     case 'showLoading':showLoading(d);break;
     case 'loadingProgress':loadingProgress(d);break;
     case 'hideLoading':hideLoading();break;
@@ -1226,13 +1282,14 @@ if(location.protocol==='file:'){
       {type:'color',label:'Accent',color:'#549660'},
       {type:'action',label:'Search'}
     ]},'*');
-    postMessage({action:'displayPlayerCard',visible:true,data:{name:'Night-Raven',sid:204,dist:'312 m',hdg:128,dir:'SE',pos:'-1204, 86, 31',num:'5561234870',veh:'On foot',wep:'Unarmed',hpN:200,hpMax:200,apN:40}},'*');
+    postMessage({action:'displayPlayerCard',visible:true,data:{name:'zivi',character:'Martin Cologne',sid:641,dist:'147.9m',num:'5206972417',radio:'70.75',job:'-',group:'user',veh:'On Foot',wep:'Unarmed',speed:29,hpN:50,hpMax:100,apN:50}},'*');
     postMessage({action:'notify',header:'Preview',message:'Browser preview mode',type:'info',duration:5000},'*');
     postMessage({action:'setKeybinds',rows:[
       {label:'Menu',key:'M',state:'none'},
       {label:'Show Keybinds',key:'F5',state:'on'},
       {label:'Show Spectators',key:'F6',state:'off'}
     ]},'*');
+    postMessage({action:'setSpectators',rows:[{name:'Boris Soule',distance:'215m'}]},'*');
   };
   setTimeout(go,50);
 }

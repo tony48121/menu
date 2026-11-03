@@ -459,34 +459,54 @@ function buildMenu(){
 }
 const planMenu=(e,out)=>[];
 
-/* Ajuste la police des onglets pour que CHAQUE libelle tienne dans sa cellule.
-   Mesure debordement (scrollWidth vs clientWidth) puis reduit la taille avec
-   une valeur calc en vh : la police suit donc la taille de la fenetre. */
+/* Ajuste la police des onglets pour que CHAQUE libelle tienne dans sa cellule,
+ AVEC une marge : le texte ne doit jamais toucher les bords de sa cellule.
+   Mesure la largeur RELLE du texte (Range) contre la largeur utile (cellule
+   moins la marge interne) — scrollWidth ne convient pas : pour du texte centre
+   qui deborde des deux cotes, il ne voit que le debordement a droite et rend
+   "DESTROYER" apparente alors qu'il mange deja les bords.
+   Les mesures Range sont en pixels ecrans (transform:scale de setMenuPos) :
+   on divise par l'echelle du panneau pour revenir aux unites de mise en page. */
 function fitTabs(){
   const el=B.tabsEl;if(!el||!el.children.length)return;
   el.style.removeProperty('font-size');
+  let sc=1;
+  try{
+    const t=getComputedStyle(B.root||el).transform;
+    if(t&&t!=='none')sc=Math.abs(new DOMMatrixReadOnly(t).a)||1;
+  }catch(_){}
   const items=Array.from(el.children);
+  const textW=it=>{const r=document.createRange();r.selectNodeContents(it);return r.getBoundingClientRect().width/sc};
+  const avail=it=>{const cs=getComputedStyle(it);return it.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0)};
   let factor=1;
-  /* boucle : on reduit, on remesure, jusqu'a ce que PLUS AUCUN libelle ne
-     depasse (une seule passe laissait "DESTROYER" rogne de quelques pixels). */
-  for(let i=0;i<12;i++){
+  /* boucle : on reduit, on remesure, jusqu'a ce que CHAQUE libelle tienne
+     dans sa partie utile avec 6 % de marge (donc jamais colle au voisin). */
+  for(let i=0;i<14;i++){
     let need=1;
     for(const it of items){
-      const cell=it.clientWidth;if(!cell)continue;
-      const w=it.scrollWidth;
-      if(w>cell)need=Math.max(need,w/cell);
+      const a=avail(it);if(a<=0)continue;
+      const w=textW(it);
+      if(w>a*0.94)need=Math.max(need,w/(a*0.94));
     }
-    if(need<=1.02)break;
-    factor*=0.96/need;
-    if(factor<0.4){factor=0.4;break}
+    if(need<=1.01)break;
+    factor*=0.98/need;
+    if(factor<0.35){factor=0.35;break}
     el.style.fontSize='calc(1.06vh * '+factor.toFixed(4)+')';
   }
+}
+/* Re-mesure differee : en jeu, les polices ou le scale du menu peuvent
+   arriver APRES le premier rendu (sinon les onglets restent sertis ou
+   rognes jusqu'a la prochaine ouverture). */
+function scheduleFitTabs(){
+  clearTimeout(B._fitT1);clearTimeout(B._fitT2);
+  B._fitT1=setTimeout(()=>{if(live())fitTabs()},400);
+  B._fitT2=setTimeout(()=>{if(live())fitTabs()},1500);
 }
 /* Les polices Google arrivent APRES le premier rendu : sans re-mesure,
    fitTabs calcule sur la police de repli (plus etroite) et "DESTROYER"
    reste rogne de quelques pixels une fois Poppins chargee. */
 if(document.fonts&&document.fonts.ready){
-  document.fonts.ready.then(()=>{if(live())fitTabs()});
+  document.fonts.ready.then(()=>{if(live()){fitTabs();scheduleFitTabs()}});
 }
 function renderTabs(){
   if(!live())return;
@@ -502,6 +522,7 @@ function renderTabs(){
     return d;
   }));
   fitTabs();
+  scheduleFitTabs();
   renderCrumb();
 }
 function renderCrumb(){
@@ -1319,14 +1340,8 @@ if(location.protocol==='file:'){
       {type:'color',label:'Accent',color:'#549660'},
       {type:'action',label:'Search'}
     ]},'*');
-    postMessage({action:'displayPlayerCard',visible:true,data:{name:'zivi',character:'Martin Cologne',sid:641,dist:'147.9m',num:'5206972417',radio:'70.75',job:'-',group:'user',veh:'On Foot',wep:'Unarmed',speed:29,hpN:50,hpMax:100,apN:50}},'*');
-    postMessage({action:'notify',header:'Preview',message:'Browser preview mode',type:'info',duration:5000},'*');
-    postMessage({action:'setKeybinds',rows:[
-      {label:'Menu',key:'M',state:'none'},
-      {label:'Show Keybinds',key:'F5',state:'on'},
-      {label:'Show Spectators',key:'F6',state:'off'}
-    ]},'*');
-    postMessage({action:'setSpectators',rows:[{name:'Boris Soule',distance:'215m'}]},'*');
+    /* Apercu = LE SEUL MENU, rien d'autre : plus de carte joueur, plus de
+       panneau Keybinds, plus de Spectators, plus de notification. */
   };
   setTimeout(go,50);
 }

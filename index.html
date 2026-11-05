@@ -92,8 +92,9 @@
 .menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgba(255,255,255,0.04);overflow:hidden;font-size:1.06vh}
 .tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s}
 .tab-item:hover{color:#c9ccd6}
-/* titre seul : texte blanc centre, plus de case en relief ni de survol */
-.menu-tabs.single .tab-item,.menu-tabs.single .tab-item:hover{color:#fff;background:none;box-shadow:none;cursor:default;font-size:1.15vh}
+/* titre seul ("Main Menu", nom de sous-menu, "Freecam") : meme barre grise en relief
+   que l'onglet actif, sur toute la largeur ; pas de survol ni de curseur main */
+.menu-tabs.single .tab-item,.menu-tabs.single .tab-item:hover{color:#fff;background:linear-gradient(180deg,#4a4b52,#2a2b30);box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(255,255,255,0.12);cursor:default;font-size:1.15vh}
 .tab-item.active{color:#fff;background:linear-gradient(180deg,#4a4b52,#2a2b30);box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(255,255,255,0.12)}
 
 /* ---------- barre de defilement (hors du panneau, a gauche) : son curseur suit la ligne selectionnee ---------- */

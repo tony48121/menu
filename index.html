@@ -44,7 +44,7 @@
   --mn-on-rgb:123,244,145;
   --item-height:3.05vh;
   /* lignes visibles en meme temps : valeur par defaut, ecrasee par menu.lua (MENU_VISIBLE_ROWS) via l'action setVisibleRows */
-  --visible-rows:12;
+  --visible-rows:11;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
@@ -117,8 +117,8 @@
 .scrollbar-thumb{position:absolute;top:0;left:0.12vh;right:0.12vh;width:auto;background:linear-gradient(90deg,rgb(var(--mn-lo-rgb)) 0%,rgb(var(--mn-hi-rgb)) 50%,rgb(var(--mn-acc-rgb)) 100%);border-radius:0.25vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
 
 /* ---------- liste ---------- */
-/* Nombre de lignes visibles en meme temps : pilote par menu.lua (MENU_VISIBLE_ROWS = 12,
-   avant 10 soit 31.5vh) via l'action setVisibleRows -> --visible-rows (12 par defaut).
+/* Nombre de lignes visibles en meme temps : pilote par menu.lua (MENU_VISIBLE_ROWS = 11,
+   avant 10 soit 31.5vh) via l'action setVisibleRows -> --visible-rows (11 par defaut).
    Hauteur = N lignes (--item-height) + 1vh de marge, comme avant (10 lignes + 1vh). */
 .menu-body{background:transparent;overflow:hidden}
 .menu-items{position:relative;max-height:calc(var(--item-height) * var(--visible-rows) + 1vh);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
@@ -1259,7 +1259,7 @@ addEventListener('message',e=>{
     case 'setBannerOffset':B.bannerOffset=Number(d.v)||0;applyBannerOffset();break;
     /* nombre de lignes visibles en meme temps (menu.lua : MENU_VISIBLE_ROWS) */
     case 'setVisibleRows':{
-      const n=clamp(Math.round(Number(d.rows)||12),3,30);
+      const n=clamp(Math.round(Number(d.rows)||11),3,30);
       document.documentElement.style.setProperty('--visible-rows',String(n));
       if(live()){const el=curRow();if(el)ensureVisible(el);bar()}
       break}

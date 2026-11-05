@@ -92,6 +92,8 @@
 .menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgba(255,255,255,0.04);overflow:hidden;font-size:1.06vh}
 .tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s}
 .tab-item:hover{color:#c9ccd6}
+/* titre seul : texte blanc centre, plus de case en relief ni de survol */
+.menu-tabs.single .tab-item,.menu-tabs.single .tab-item:hover{color:#fff;background:none;box-shadow:none;cursor:default;font-size:1.15vh}
 .tab-item.active{color:#fff;background:linear-gradient(180deg,#4a4b52,#2a2b30);box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(255,255,255,0.12)}
 
 /* ---------- barre de defilement (hors du panneau, a gauche) : son curseur suit la ligne selectionnee ---------- */
@@ -510,6 +512,8 @@ if(document.fonts&&document.fonts.ready){
 }
 function renderTabs(){
   if(!live())return;
+  /* un seul libelle ("Main Menu", nom d'un sous-menu) = un TITRE, pas un onglet */
+  B.tabsEl.classList.toggle('single',!Array.isArray(B.tabs)||B.tabs.length<2);
   B.tabsEl.replaceChildren(...B.tabs.map((t,i)=>{
     const d=$('div','tab-item'+(i===B.tab?' active':''),t);
     /* clic (utile en apercu / si le focus NUI est ouvert) : on change
@@ -726,23 +730,19 @@ function applyFrame(f){
   if(!f||typeof f!=='object')return;
   B.frameTitle=String(f.title||B.frameTitle||'');
   B.frameUser=String(f.user||B.frameUser||'');
-  if(Array.isArray(f.tabs)&&f.tabs.length){
-    B.tabs=f.tabs.map((t,i)=>String((t&&t.label)||('Tab '+(i+1))));
-    if(Number.isFinite(Number(f.tabIndex)))B.tab=clamp(Math.round(Number(f.tabIndex)),0,B.tabs.length-1);
-    else B.tab=clamp(B.tab,0,B.tabs.length-1);
-    const tab=f.tabs[B.tab];
-    const items=tab&&Array.isArray(tab.items)?tab.items:[];
-    B.menu=items.map(normalizeFrameItem).filter(Boolean);
-    B.cur=clamp(B.cur,0,Math.max(0,B.menu.length-1));
-  }
-  if(live()){renderTabs();refresh()}
+  /* ONGLETS ET LISTE : volontairement ignores ici. julBuildFrame invente des
+     "onglets" a partir des categories du menu principal (Player, Online,
+     Weapon...) quand aucun onglet reel n'existe : les afficher ecrasait le
+     titre "Main Menu" a chaque ouverture (et a chaque renvoi de securite a
+     1,5 s). Les vrais onglets arrivent par setTabs / setTabIndex / resetTabs,
+     et la liste par setCurrent : ce sont eux la source de verite. */
 }
 /* Les fleches sont deja appliquees par menu.lua (il renvoie setCurrent avant
    "key") : ici seuls les gestes qui reclament un callback sont traites.
    tabNext/tabPrev n'ont pas de pendant cote Lua : l'interface change d'onglet
    puis previent le script par le callback "tab". */
 function cycleTab(dir){
-  if(!Array.isArray(B.tabs)||!B.tabs.length)return;
+  if(!Array.isArray(B.tabs)||B.tabs.length<2)return;
   const next=(B.tab+dir+B.tabs.length)%B.tabs.length;
   B.tab=next;renderTabs();
   postNui('tab',{index:next});

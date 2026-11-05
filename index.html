@@ -43,6 +43,8 @@
   --mn-fill-rgb:73,130,83;
   --mn-on-rgb:123,244,145;
   --item-height:3.05vh;
+  /* lignes visibles en meme temps : valeur par defaut, ecrasee par menu.lua (MENU_VISIBLE_ROWS) via l'action setVisibleRows */
+  --visible-rows:12;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
@@ -115,10 +117,11 @@
 .scrollbar-thumb{position:absolute;top:0;left:0.12vh;right:0.12vh;width:auto;background:linear-gradient(90deg,rgb(var(--mn-lo-rgb)) 0%,rgb(var(--mn-hi-rgb)) 50%,rgb(var(--mn-acc-rgb)) 100%);border-radius:0.25vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
 
 /* ---------- liste ---------- */
-/* Nombre de lignes visibles en meme temps : 12 (avant 10, soit 31.5vh).
-   Hauteur = 12 lignes (--item-height) + 1vh de marge, comme avant (10 lignes + 1vh). */
+/* Nombre de lignes visibles en meme temps : pilote par menu.lua (MENU_VISIBLE_ROWS = 12,
+   avant 10 soit 31.5vh) via l'action setVisibleRows -> --visible-rows (12 par defaut).
+   Hauteur = N lignes (--item-height) + 1vh de marge, comme avant (10 lignes + 1vh). */
 .menu-body{background:transparent;overflow:hidden}
-.menu-items{position:relative;max-height:calc(var(--item-height) * 12 + 1vh);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
+.menu-items{position:relative;max-height:calc(var(--item-height) * var(--visible-rows) + 1vh);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
 .menu-items::-webkit-scrollbar{display:none}
 /* etat "liste vide" : on livre l'explication plutot qu'un panneau avec 0/0. */
 .menu-empty{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.35vh;align-items:center;text-align:center;padding:1.1vh 1.6vh}
@@ -392,7 +395,7 @@ ul{list-style-type:disc}
 <div id="app"></div>
 <script>
 (()=>{
-console.log('[JuL menu] version v15 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
+console.log('[JuL menu] version v16 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
 const app=document.getElementById('app');
 const $=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
@@ -1254,6 +1257,12 @@ addEventListener('message',e=>{
     case 'loadingProgress':loadingProgress(d);break;
     case 'hideLoading':hideLoading();break;
     case 'setBannerOffset':B.bannerOffset=Number(d.v)||0;applyBannerOffset();break;
+    /* nombre de lignes visibles en meme temps (menu.lua : MENU_VISIBLE_ROWS) */
+    case 'setVisibleRows':{
+      const n=clamp(Math.round(Number(d.rows)||12),3,30);
+      document.documentElement.style.setProperty('--visible-rows',String(n));
+      if(live()){const el=curRow();if(el)ensureVisible(el);bar()}
+      break}
     case 'designMode':document.documentElement.dataset.design=d.enabled?'on':'off';break;
     /* setUiScale : menu.lua applique deja l'echelle via setMenuPos
        (transform:scale glisse dans la valeur "y"). Zoome aussi ici

@@ -430,7 +430,7 @@ function applyFooterLogo(lg,url){
   lg.replaceChildren(im);lg.classList.add('has-img');
 }
 function buildMenu(){
-  const r=$('div','menu-root');r.style.cssText=`top:${B.top};left:${B.left};transform-origin:top left`;
+  const r=$('div','menu-root');r.style.cssText=`top:${B.top};left:${B.left};transform-origin:top left`+(B.uiScale&&B.uiScale!==1?`;transform:scale(${B.uiScale})`:'');
   const ban=$('div','menu-banner'),img=$('img');img.alt='';
   /* banniere chromee JUL par defaut ; une image (setBanner) se pose par-dessus */
   const chrome=$('div','b-chrome');
@@ -1246,7 +1246,10 @@ addEventListener('message',e=>{
     /* setUiScale : menu.lua applique deja l'echelle via setMenuPos
        (transform:scale glisse dans la valeur "y"). Zoome aussi ici
        doublerait la taille du panneau : on memorise seulement. */
-    case 'setUiScale':B.uiScale=Number(d.scale)||1;break;
+    case 'setUiScale':
+      B.uiScale=clamp(Number(d.scale)||1,0.3,3);
+      if(live()){B.root.style.transform=B.uiScale!==1?`scale(${B.uiScale})`:'';positionPlayerCard();fitTabs()}
+      break;
     case 'setCurrent':
       /* Lua encode un tableau Lua vide en {} (objet JS, pas tableau) : tel quel
          B.menu.forEach levait "n'est pas une fonction", le rendu s'arretait
@@ -1264,7 +1267,15 @@ addEventListener('message',e=>{
     case 'resetTabs':B.tabs=['Main Menu'];B.tab=0;renderTabs();break;
     case 'setMenuPos':
       if(d.x!==undefined)B.left=d.x+'vh';
-      if(d.y!==undefined)B.top=d.y+'vh';
+      if(d.y!==undefined){
+        /* menu.lua glisse l'echelle dans y : "19.5vh;transform:scale(0.8);--s:".
+           On en tire un top PROPRE (sinon style.top est refuse) et on memorise
+           l'echelle dans B.uiScale : elle survit ainsi aux close/open. */
+        const ys=String(d.y),m=ys.match(/transform\s*:\s*scale\(\s*([\d.]+)/);
+        if(m){const sc=parseFloat(m[1]);if(sc>0)B.uiScale=clamp(sc,0.3,3)}
+        const n=parseFloat(ys);
+        B.top=(isFinite(n)?n:0)+'vh';
+      }
       if(live()){B.root.style.left=B.left;B.root.style.top=B.top;positionPlayerCard()}break;
     case 'setBanner':if(d.url){B.banner=d.url;if(live()){B.img.src=d.url;B.img.style.display='block'}}break;
     case 'setMenuColor':{

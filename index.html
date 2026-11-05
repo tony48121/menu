@@ -98,7 +98,14 @@
 .tab-item.active{color:#fff;background:linear-gradient(180deg,#4a4b52,#2a2b30);box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(255,255,255,0.12)}
 
 /* ---------- barre de defilement (hors du panneau, a gauche) : son curseur suit la ligne selectionnee ---------- */
-.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) + var(--tabs-height));width:1vh;height:29.45vh}
+/* Rail etendu a la demande : du HAUT des onglets (bas de la banniere) jusqu'au
+   BAS du menu (bas du pied), au lieu de ne couvrir que la liste. top+bottom
+   (plutot qu'une hauteur fixe en vh) fait que le rail suit toujours la hauteur
+   reelle du menu, quel que soit le nombre d'options affichees.
+   Calage exact : top = haut des onglets (banniere + 0.1vh de contour du bloc),
+   bottom:0 = bas du pied. Avant, le rail depassait de ~0.4vh en haut et ~0.9vh
+   en bas (marges -0.3vh + 0.54vh ajoutes en JS a la hauteur de la piste). */
+.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) + 0.1vh);bottom:0;width:1vh}
 /* piste NOIRE pleine hauteur, avec une fleche en haut et une en bas (comme sur la capture) */
 .scrollbar-track{width:100%;height:100%;background:#000;border:0.1vh solid rgba(255,255,255,0.10);box-sizing:border-box;border-radius:0.3vh;position:relative}
 .scrollbar-track::before,.scrollbar-track::after{content:"";position:absolute;left:50%;width:0.34vh;height:0.34vh;box-sizing:border-box;border-style:solid;border-color:#e9ebf0;border-width:0.13vh 0 0 0.13vh;pointer-events:none}
@@ -456,7 +463,7 @@ function buildMenu(){
   const head=$('div','menu-head');head.append(ban,crumb,tabs);
   const card=$('div','menu-card');card.append(body);
   r.append(head,card,sb,foot);app.append(r);
-  Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,brandEl:brand,rows:[],arrowPx:0});
+  Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,sb,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,brandEl:brand,rows:[],arrowPx:0});
   renderTabs();renderCrumb();applyBar();applyBannerOffset();
   return [r];
 }
@@ -610,14 +617,16 @@ function updCounter(){
 }
 function applyBar(){
   if(!B.thumb)return;
-  B.trackEl.style.height=B.trackH+'px';B.thumb.style.top=(B.thumbTop+B.arrowPx)+'px';B.thumb.style.height=B.thumbH+'px';
+  B.thumb.style.top=(B.thumbTop+B.arrowPx)+'px';B.thumb.style.height=B.thumbH+'px';
 }
 function bar(){
   if(!live()||B.lock)return;
   B.lock=requestAnimationFrame(()=>{
     B.lock=null;const L=B.list;if(!live())return;
-    /* la barre couvre la hauteur de la liste ; son curseur suit la ligne SELECTIONNEE */
-    B.trackH=Math.max(20,Math.round(L.clientHeight+innerHeight*0.0054));
+    /* Le RAIL (fond + fleches) couvre maintenant du haut des onglets au bas du
+       menu (hauteur reelle de B.sb, etiree par le CSS top/bottom) ; seul le
+       CURSEUR a l'interieur continue de suivre la ligne SELECTIONNEE dans la liste. */
+    B.trackH=Math.max(20,Math.round(B.sb?B.sb.clientHeight:L.clientHeight));
     B.over=L.scrollHeight>L.clientHeight+1;
     const sels=(Array.isArray(B.menu)?B.menu:[]).reduce((a,o,i)=>(o&&o.type!=='divider'&&a.push(i),a),[]),n=sels.length;
     const k=Math.max(0,sels.indexOf(B.cur)),minH=Math.round(innerHeight*0.024);

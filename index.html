@@ -669,13 +669,21 @@ function refresh(){
    APRES la sequence de chargement du script, son ecran de boot (9 s de
    filet de securite) restait devant le menu : on appuyait sur la touche,
    le panneau etait bien construit... mais cache par l'overlay. */
-const showMenu=()=>{hideLoading();present(B.slot,true,buildMenu,planMenu);refresh()};
+const showMenu=()=>{B.closed=false;hideLoading();present(B.slot,true,buildMenu,planMenu);refresh()};
 /* Fermeture DETERMINISTE : le panneau est retire immediatement, sans animation
    ni etat "out" pouvant rester bloque. C'est ce qui garantit que le menu peut
    se fermer pendant qu'une notification s'affiche a cote (la fenetre NUI
    reste visible dans ce cas, donc la page doit masquer le panneau elle-meme). */
 function hideMenuNow(){
   const s=B.slot;
+  /* Etat "ferme" : un setCurrent tardif (envoye par le Lua juste apres le close)
+     ne doit PAS rouvrir le menu. */
+  B.closed=true;B.closedAt=Date.now();
+  /* bar() verrouille B.lock avec un requestAnimationFrame : si le panneau est
+     retire avant que le rAF s'execute, on libere le verrou pour que la barre
+     de defilement ne reste jamais bloquee a la reouverture. */
+  if(B.lock){cancelAnimationFrame(B.lock);B.lock=null}
+  clearTimeout(B._fitT1);clearTimeout(B._fitT2);
   s.g++;                 /* invalide la suppression en attente d'un hide precedent */
   s.out=false;
   s.anims=[];
@@ -1245,6 +1253,10 @@ addEventListener('message',e=>{
          net et le compteur restait bloque sur 0/0. On normalise toujours. */
       B.cur=(parseInt(d.current,10)||1)-1;
       B.menu=(Array.isArray(d.menu)?d.menu:[]).filter(o=>o&&typeof o==='object');
+      /* menu ferme (close recu) : on garde les donnees pour la prochaine ouverture
+         mais on n'affiche rien. Filet : si le Lua n'envoie jamais "open" et ouvre
+         uniquement par setCurrent, on rouvre au-dela de 1,5 s apres la fermeture. */
+      if(B.closed&&Date.now()-(B.closedAt||0)<1500)break;
       showMenu();break;
     case 'showMenu':d.visible?showMenu():hideMenuNow();break;
     case 'setTabs':B.tabs=d.tabs||[];B.tab=d.index;renderTabs();break;

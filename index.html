@@ -304,22 +304,22 @@ ul{list-style-type:disc}
 /* Rendue bien plus petite et collee en haut a gauche de l'ecran a la demande
    (independante de la position du menu : plus de right/top:50% centre sur
    le menu, place fixe pres du coin). */
-.jul-pcard{position:fixed;left:1.6vh;top:1.6vh;right:auto;width:10vh;box-sizing:border-box;padding:0.13vh 0.6vh 0.47vh;font-family:var(--menu-font);color:#f4f4f6;pointer-events:none;-webkit-user-select:none;user-select:none;cursor:default;z-index:9997;border-radius:0.54vh;background:rgba(10,10,12,0.94);border:0.1vh solid rgba(255,255,255,0.07);box-shadow:none;overflow:hidden}
+.jul-pcard{position:fixed;left:0;top:0;right:auto;width:12vh;box-sizing:border-box;padding:0.16vh 0.72vh 0.56vh;font-family:var(--menu-font);color:#f4f4f6;pointer-events:none;-webkit-user-select:none;user-select:none;cursor:default;z-index:9997;border-radius:0.65vh;background:rgba(10,10,12,0.94);border:0.1vh solid rgba(255,255,255,0.07);box-shadow:none;overflow:hidden}
 .jul-pcard::before{content:"";position:absolute;inset:0 0 auto 0;height:0.1vh;background:linear-gradient(90deg,transparent,rgb(var(--mn-acc-rgb)),transparent);opacity:.8}
-.jul-pc-head{display:flex;align-items:center;justify-content:space-between;gap:0.39vh;padding:0.47vh 0 0.39vh;border-bottom:0.1vh solid rgba(255,255,255,0.07);font-size:0.44vh;font-weight:600;letter-spacing:0.01em}
+.jul-pc-head{display:flex;align-items:center;justify-content:space-between;gap:0.47vh;padding:0.56vh 0 0.47vh;border-bottom:0.1vh solid rgba(255,255,255,0.07);font-size:0.53vh;font-weight:600;letter-spacing:0.01em}
 .jul-pc-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.jul-pc-id{flex:none;padding:0.07vh 0.3vh;border-radius:92vh;background:rgba(var(--mn-acc-rgb),0.35);color:#fff;font-size:0.4vh;font-variant-numeric:tabular-nums}
-.jul-pc-group{padding:0.34vh 0}
+.jul-pc-id{flex:none;padding:0.08vh 0.36vh;border-radius:92vh;background:rgba(var(--mn-acc-rgb),0.35);color:#fff;font-size:0.48vh;font-variant-numeric:tabular-nums}
+.jul-pc-group{padding:0.41vh 0}
 .jul-pc-group+.jul-pc-group{border-top:0.1vh solid rgba(255,255,255,0.07)}
 .jul-pc-group:last-child{padding-bottom:0}
-.jul-pc-row{display:flex;align-items:center;height:1.02vh;font-size:0.44vh}
-.jul-pc-row svg{flex:none;width:0.57vh;height:0.57vh;margin-right:0.36vh;fill:rgba(255,255,255,0.55)}
+.jul-pc-row{display:flex;align-items:center;height:1.22vh;font-size:0.53vh}
+.jul-pc-row svg{flex:none;width:0.68vh;height:0.68vh;margin-right:0.43vh;fill:rgba(255,255,255,0.55)}
 .jul-pc-row svg.stroke{fill:none;stroke:rgba(255,255,255,0.55);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .jul-pc-row .k{flex:none;color:rgba(255,255,255,0.62)}
-.jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.29vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jul-pc-row.vital .bar{position:relative;flex:none;width:0.14vh;height:0.61vh;margin-right:0.36vh;border-radius:0.1vh;background:rgba(255,255,255,0.1);overflow:hidden}
-.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.1vh;transition:height 0.3s ease}
-.jul-pc-row.vital svg{margin-right:0.23vh}
+.jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.35vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jul-pc-row.vital .bar{position:relative;flex:none;width:0.17vh;height:0.73vh;margin-right:0.43vh;border-radius:0.12vh;background:rgba(255,255,255,0.1);overflow:hidden}
+.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.12vh;transition:height 0.3s ease}
+.jul-pc-row.vital svg{margin-right:0.28vh}
 .jul-pc-row.health svg{fill:#34d27b}
 .jul-pc-row.armor svg{fill:#4a8dff}
 .jul-pc-row.health .bar i{background:linear-gradient(to top,#1fa85d,#5df0a0)}
@@ -1041,9 +1041,26 @@ function renderFreecam(){
    faire echouer l'affichage de la carte. */
 const PC_GAP=14, PC_M=8;
 function positionPlayerCard(){
-  /* Toujours collee en haut a gauche de l'ECRAN, quelle que soit la position
-     ou la taille du menu (demande explicite) : le CSS (left/top fixes) fait
-     deja tout le travail, donc plus de calcul par rapport a B.root ici. */
+  const c=PC.slot.els&&PC.slot.els[0];
+  if(!c)return;
+  const root=(typeof B!=='undefined')?B.root:null;
+  const mb=(root&&root.isConnected)?root.getBoundingClientRect():null;
+  const cr=c.getBoundingClientRect();
+  const h=cr.height||c.offsetHeight||0;
+  let x,y;
+  if(mb&&mb.width){
+    /* Collee au coin HAUT GAUCHE du menu : meme bord gauche, juste au-dessus,
+       sans espace (demande explicite "collee au menu"). */
+    x=mb.left;
+    y=mb.top-h;
+    if(y<PC_M)y=PC_M; /* le menu est trop haut pour laisser de la place au-dessus : on colle au bord ecran plutot que de sortir */
+  }else{
+    /* menu absent : repli sur le coin haut gauche de l'ecran */
+    x=PC_M;y=PC_M;
+  }
+  c.style.left=Math.round(x)+'px';
+  c.style.right='auto';
+  c.style.top=Math.round(y)+'px';
 }
 const PC={d:null,slot:{g:0}};
 const PC_ICON={

@@ -43,8 +43,6 @@
   --mn-fill-rgb:73,130,83;
   --mn-on-rgb:123,244,145;
   --item-height:3.05vh;
-  /* lignes visibles en meme temps : valeur par defaut, ecrasee par menu.lua (_G.julVisibleRows) via l'action setVisibleRows */
-  --visible-rows:11;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
@@ -103,11 +101,8 @@
 /* Rail etendu a la demande : du HAUT des onglets (bas de la banniere) jusqu'au
    BAS du menu (bas du pied), au lieu de ne couvrir que la liste. top+bottom
    (plutot qu'une hauteur fixe en vh) fait que le rail suit toujours la hauteur
-   reelle du menu, quel que soit le nombre d'options affichees.
-   Calage exact : top = haut des onglets (banniere + 0.1vh de contour du bloc),
-   bottom:0 = bas du pied. Avant, le rail depassait de ~0.4vh en haut et ~0.9vh
-   en bas (marges -0.3vh + 0.54vh ajoutes en JS a la hauteur de la piste). */
-.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) + 0.1vh);bottom:0;width:1vh}
+   reelle du menu, quel que soit le nombre d'options affichees. */
+.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) - 0.3vh);bottom:-0.3vh;width:1vh}
 /* piste NOIRE pleine hauteur, avec une fleche en haut et une en bas (comme sur la capture) */
 .scrollbar-track{width:100%;height:100%;background:#000;border:0.1vh solid rgba(255,255,255,0.10);box-sizing:border-box;border-radius:0.3vh;position:relative}
 .scrollbar-track::before,.scrollbar-track::after{content:"";position:absolute;left:50%;width:0.34vh;height:0.34vh;box-sizing:border-box;border-style:solid;border-color:#e9ebf0;border-width:0.13vh 0 0 0.13vh;pointer-events:none}
@@ -117,11 +112,8 @@
 .scrollbar-thumb{position:absolute;top:0;left:0.12vh;right:0.12vh;width:auto;background:linear-gradient(90deg,rgb(var(--mn-lo-rgb)) 0%,rgb(var(--mn-hi-rgb)) 50%,rgb(var(--mn-acc-rgb)) 100%);border-radius:0.25vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
 
 /* ---------- liste ---------- */
-/* Nombre de lignes visibles en meme temps : pilote par menu.lua (_G.julVisibleRows = 11,
-   avant 10 soit 31.5vh) via l'action setVisibleRows -> --visible-rows (11 par defaut).
-   Hauteur = N lignes (--item-height) + 1vh de marge, comme avant (10 lignes + 1vh). */
 .menu-body{background:transparent;overflow:hidden}
-.menu-items{position:relative;max-height:calc(var(--item-height) * var(--visible-rows) + 1vh);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
+.menu-items{position:relative;max-height:31.5vh;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
 .menu-items::-webkit-scrollbar{display:none}
 /* etat "liste vide" : on livre l'explication plutot qu'un panneau avec 0/0. */
 .menu-empty{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.35vh;align-items:center;text-align:center;padding:1.1vh 1.6vh}
@@ -309,22 +301,25 @@ ul{list-style-type:disc}
    pointer-events:none, elle ne doit jamais capter un clic ni bloquer le menu.
    Toutes les tailles sont en vh (comme le reste du menu). La couleur
    principale suit la couleur du menu (--mn-acc-rgb). */
-.jul-pcard{position:fixed;right:1.6vh;top:50%;transform:translateY(-50%);width:26.9vh;box-sizing:border-box;padding:0.37vh 1.67vh 1.3vh;font-family:var(--menu-font);color:#f4f4f6;pointer-events:none;-webkit-user-select:none;user-select:none;cursor:default;z-index:9997;border-radius:1.48vh;background:rgba(10,10,12,0.94);border:0.1vh solid rgba(255,255,255,0.07);box-shadow:none;overflow:hidden}
+/* Rendue bien plus petite et collee en haut a gauche de l'ecran a la demande
+   (independante de la position du menu : plus de right/top:50% centre sur
+   le menu, place fixe pres du coin). */
+.jul-pcard{position:fixed;left:1.6vh;top:1.6vh;right:auto;width:15vh;box-sizing:border-box;padding:0.2vh 0.93vh 0.73vh;font-family:var(--menu-font);color:#f4f4f6;pointer-events:none;-webkit-user-select:none;user-select:none;cursor:default;z-index:9997;border-radius:0.83vh;background:rgba(10,10,12,0.94);border:0.1vh solid rgba(255,255,255,0.07);box-shadow:none;overflow:hidden}
 .jul-pcard::before{content:"";position:absolute;inset:0 0 auto 0;height:0.1vh;background:linear-gradient(90deg,transparent,rgb(var(--mn-acc-rgb)),transparent);opacity:.8}
-.jul-pc-head{display:flex;align-items:center;justify-content:space-between;gap:1.1vh;padding:1.3vh 0 1.1vh;border-bottom:0.1vh solid rgba(255,255,255,0.07);font-size:1.2vh;font-weight:600;letter-spacing:0.01em}
+.jul-pc-head{display:flex;align-items:center;justify-content:space-between;gap:0.6vh;padding:0.73vh 0 0.6vh;border-bottom:0.1vh solid rgba(255,255,255,0.07);font-size:0.68vh;font-weight:600;letter-spacing:0.01em}
 .jul-pc-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.jul-pc-id{flex:none;padding:0.2vh 0.83vh;border-radius:92vh;background:rgba(var(--mn-acc-rgb),0.35);color:#fff;font-size:1.1vh;font-variant-numeric:tabular-nums}
-.jul-pc-group{padding:0.93vh 0}
+.jul-pc-id{flex:none;padding:0.11vh 0.46vh;border-radius:92vh;background:rgba(var(--mn-acc-rgb),0.35);color:#fff;font-size:0.62vh;font-variant-numeric:tabular-nums}
+.jul-pc-group{padding:0.52vh 0}
 .jul-pc-group+.jul-pc-group{border-top:0.1vh solid rgba(255,255,255,0.07)}
 .jul-pc-group:last-child{padding-bottom:0}
-.jul-pc-row{display:flex;align-items:center;height:2.78vh;font-size:1.2vh}
-.jul-pc-row svg{flex:none;width:1.57vh;height:1.57vh;margin-right:1vh;fill:rgba(255,255,255,0.55)}
+.jul-pc-row{display:flex;align-items:center;height:1.56vh;font-size:0.68vh}
+.jul-pc-row svg{flex:none;width:0.88vh;height:0.88vh;margin-right:0.56vh;fill:rgba(255,255,255,0.55)}
 .jul-pc-row svg.stroke{fill:none;stroke:rgba(255,255,255,0.55);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .jul-pc-row .k{flex:none;color:rgba(255,255,255,0.62)}
-.jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.8vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jul-pc-row.vital .bar{position:relative;flex:none;width:0.37vh;height:1.67vh;margin-right:1vh;border-radius:0.28vh;background:rgba(255,255,255,0.1);overflow:hidden}
-.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.28vh;transition:height 0.3s ease}
-.jul-pc-row.vital svg{margin-right:0.65vh}
+.jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.45vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jul-pc-row.vital .bar{position:relative;flex:none;width:0.21vh;height:0.94vh;margin-right:0.56vh;border-radius:0.16vh;background:rgba(255,255,255,0.1);overflow:hidden}
+.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.16vh;transition:height 0.3s ease}
+.jul-pc-row.vital svg{margin-right:0.36vh}
 .jul-pc-row.health svg{fill:#34d27b}
 .jul-pc-row.armor svg{fill:#4a8dff}
 .jul-pc-row.health .bar i{background:linear-gradient(to top,#1fa85d,#5df0a0)}
@@ -395,7 +390,7 @@ ul{list-style-type:disc}
 <div id="app"></div>
 <script>
 (()=>{
-console.log('[JuL menu] version v16 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
+console.log('[JuL menu] version v15 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
 const app=document.getElementById('app');
 const $=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
@@ -622,7 +617,7 @@ function updCounter(){
 }
 function applyBar(){
   if(!B.thumb)return;
-  B.thumb.style.top=(B.thumbTop+B.arrowPx)+'px';B.thumb.style.height=B.thumbH+'px';
+  B.trackEl.style.height=B.trackH+'px';B.thumb.style.top=(B.thumbTop+B.arrowPx)+'px';B.thumb.style.height=B.thumbH+'px';
 }
 function bar(){
   if(!live()||B.lock)return;
@@ -631,7 +626,7 @@ function bar(){
     /* Le RAIL (fond + fleches) couvre maintenant du haut des onglets au bas du
        menu (hauteur reelle de B.sb, etiree par le CSS top/bottom) ; seul le
        CURSEUR a l'interieur continue de suivre la ligne SELECTIONNEE dans la liste. */
-    B.trackH=Math.max(20,Math.round(B.sb?B.sb.clientHeight:L.clientHeight));
+    B.trackH=Math.max(20,Math.round((B.sb?B.sb.clientHeight:L.clientHeight)+innerHeight*0.0054));
     B.over=L.scrollHeight>L.clientHeight+1;
     const sels=(Array.isArray(B.menu)?B.menu:[]).reduce((a,o,i)=>(o&&o.type!=='divider'&&a.push(i),a),[]),n=sels.length;
     const k=Math.max(0,sels.indexOf(B.cur)),minH=Math.round(innerHeight*0.024);
@@ -1045,31 +1040,10 @@ function renderFreecam(){
    B est declare plus bas : d'ou le typeof, un accours sans B ne doit pas
    faire echouer l'affichage de la carte. */
 const PC_GAP=14, PC_M=8;
-function positionPlayerCard(el){
-  const c=el||(PC.slot.els&&PC.slot.els[0]);
-  if(!c)return;
-  const root=(typeof B!=='undefined')?B.root:null;
-  const b=(root&&root.isConnected)?root.getBoundingClientRect():null;
-  /* rect plutôt qu'offsetWidth : largeur fractionnaire, la cale anti-debordement
-     doit se fier a la meme valeur que celle rendue par le navigateur. */
-  const cr=c.getBoundingClientRect();
-  const w=cr.width||c.offsetWidth||0, h=cr.height||c.offsetHeight||0;
-  let x,y;
-  if(b&&b.width){
-    x=b.right+PC_GAP;
-    y=b.top+b.height/2;   /* le CSS recentre via translateY(-50%) */
-  }else{
-    /* menu absent : repli sur le bord droit de l'ecran */
-    x=window.innerWidth-w-PC_M;
-    y=window.innerHeight/2;
-  }
-  /* la fiche ne doit jamais deborder a droite ni sortir verticalement */
-  if(x+w>window.innerWidth-PC_M)x=Math.max(PC_M,window.innerWidth-w-PC_M);
-  if(y-h/2<PC_M)y=PC_M+h/2;
-  if(y+h/2>window.innerHeight-PC_M)y=Math.max(PC_M+h/2,window.innerHeight-PC_M-h/2);
-  c.style.left=Math.round(x)+'px';
-  c.style.right='auto';
-  c.style.top=Math.round(y)+'px';
+function positionPlayerCard(){
+  /* Toujours collee en haut a gauche de l'ECRAN, quelle que soit la position
+     ou la taille du menu (demande explicite) : le CSS (left/top fixes) fait
+     deja tout le travail, donc plus de calcul par rapport a B.root ici. */
 }
 const PC={d:null,slot:{g:0}};
 const PC_ICON={
@@ -1096,10 +1070,9 @@ function buildPlayerCard(){
     <div class="jul-pc-group">${row('Distance','Distance','target')}${row('Vehicle','Vehicle','car')}${row('Weapon','Weapon','gun')}${row('Speed','Speed','bolt')}</div>`;
   app.append(c);positionPlayerCard(c);return [c];
 }
-/* base:'translateY(-50%)' : le plan de tr() ECRASE le transform du CSS
-   pendant l'entree. Sans ce base, la carte resterait 260ms avec son bord haut
-   au centre de l'ecran puis "sauterait" une fois l'animation rendue. */
-const planPlayerCard=(e,out)=>[tr(e[0],{kind:'fly',x:26,dur:260,base:'translateY(-50%)'},out)];
+/* Plus de base:'translateY(-50%)' : la carte n'est plus centree verticalement
+   (coin haut gauche fixe), ce transform de depart n'a donc plus de raison d'etre. */
+const planPlayerCard=(e,out)=>[tr(e[0],{kind:'fly',x:26,dur:260},out)];
 function renderPlayerCard(){
   const e=PC.slot.els,d=PC.d;if(!e)return;
   /* recale a chaque rafraichissement : le menu bouge (setMenuPos, Menu Size,
@@ -1257,12 +1230,6 @@ addEventListener('message',e=>{
     case 'loadingProgress':loadingProgress(d);break;
     case 'hideLoading':hideLoading();break;
     case 'setBannerOffset':B.bannerOffset=Number(d.v)||0;applyBannerOffset();break;
-    /* nombre de lignes visibles en meme temps (menu.lua : _G.julVisibleRows) */
-    case 'setVisibleRows':{
-      const n=clamp(Math.round(Number(d.rows)||11),3,30);
-      document.documentElement.style.setProperty('--visible-rows',String(n));
-      if(live()){const el=curRow();if(el)ensureVisible(el);bar()}
-      break}
     case 'designMode':document.documentElement.dataset.design=d.enabled?'on':'off';break;
     /* setUiScale : menu.lua applique deja l'echelle via setMenuPos
        (transform:scale glisse dans la valeur "y"). Zoome aussi ici

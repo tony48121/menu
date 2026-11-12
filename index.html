@@ -13,9 +13,9 @@ html,body,#app{background:transparent!important}
 ::-webkit-scrollbar{display:none;width:0;height:0}
 
 :root{
-  --accent-rgb:84,150,96;
-  --accent-light:178,208,183;
-  --line-rgb:178,208,183;
+  --accent-rgb:120,120,120;
+  --accent-light:180,180,180;
+  --line-rgb:180,180,180;
   --color-main:rgba(var(--accent-rgb),0.35);
   --color-border:rgba(var(--accent-rgb),0.35);
   --color-shadow:rgba(var(--accent-rgb),0.35);
@@ -29,20 +29,20 @@ html,body,#app{background:transparent!important}
      barre de defilement. Tout est recalcule par mnApplyColor() au chargement
      puis a chaque setMenuColor. Les variables sont des triplets "r,g,b" :
      l'opacite se regle dans le CSS avec rgba(var(--mn-x-rgb),alpha).
-     Valeurs ci-dessous = repli (vert du menu par defaut).
+     Valeurs ci-dessous = repli (gris du menu par defaut).
        bg   = fond de la liste (noir legerement teinte)
        acc  = couleur du menu (filets, contours, barre de defilement)
        hi   = fill eclairci (haut des degrades)   lo = fill assombri (bas)
        fill = acc assombri au besoin pour que le texte BLANC reste lisible
               dessus (onglet actif, ligne selectionnee, interrupteur allume)
        on   = acc tres lumineux, pour le texte/les icones d'accent            */
-  --mn-bg-rgb:5,9,6;
-  --mn-char-rgb:32,36,38;
-  --mn-acc-rgb:84,150,96;
-  --mn-hi-rgb:106,153,114;
-  --mn-lo-rgb:37,65,42;
-  --mn-fill-rgb:73,130,83;
-  --mn-on-rgb:123,244,145;
+  --mn-bg-rgb:8,8,8;
+  --mn-char-rgb:34,34,36;
+  --mn-acc-rgb:120,120,120;
+  --mn-hi-rgb:150,150,150;
+  --mn-lo-rgb:60,60,60;
+  --mn-fill-rgb:100,100,100;
+  --mn-on-rgb:200,200,200;
   --item-height:2.6vh;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
@@ -1442,8 +1442,8 @@ function notify(header,message,duration,type){
   setTimeout(()=>dismissNt(el),dur);
   return el;
 }
-/* defaut = le vert de reference ; le Lua le remplace via setMenuColor */
-mnApplyColor(84,150,96);
+/* defaut = le gris de reference ; le Lua le remplace via setMenuColor */
+mnApplyColor(120,120,120);
 
 /* ================= MESSAGES DU JEU ================= */
 addEventListener('message',e=>{

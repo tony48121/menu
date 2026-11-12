@@ -1812,10 +1812,9 @@ if(location.protocol==='file:'){
   function show() {
     const d = window.__cpData || {};
     const vh = window.innerHeight / 100;
-    const vw = window.innerWidth / 100;
     const menuX = (d.menuX !== undefined) ? d.menuX : 20.25;
     const menuY = (d.menuY !== undefined) ? d.menuY : 19.5;
-    const x = menuX * vw;
+    const x = menuX * vh;
     const y = menuY * vh;
     const w = 37 * vh;
     const h = 40 * vh;

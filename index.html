@@ -384,10 +384,222 @@ ul{list-style-type:disc}
 .loading-bar{width:min(48vh,72vw);height:0.65vh;border-radius:1vh;background:rgba(255,255,255,0.1);overflow:hidden}
 .loading-fill{height:100%;width:0%;border-radius:1vh;background:linear-gradient(90deg,rgb(var(--mn-acc-rgb)),rgb(var(--mn-on-rgb)));transition:width 0.35s ease}
 .loading-pct{font-family:var(--mono);font-size:1vh;font-weight:700;color:rgb(var(--mn-on-rgb))}
+/* ============ Couleur principale du menu : change-la ici (une seule fois) ============ */
+  :root {
+    --accent: #ff5a2c;
+    --accent-rgb: 255, 90, 44;
+
+    --bg: #000000;
+    --field: #0a0a0a;
+    --line: #2a2a2d;
+    --text: #f4f4f5;
+    --muted: #8d8d93;
+
+    /* Variables pilotées par le JS */
+    --hue-color: hsl(14, 100%, 50%);
+    --solid: rgb(255, 255, 255);
+    --solid-0: rgba(255, 255, 255, 0);
+    --rgba: rgba(255, 255, 255, 1);
+
+    --checker: repeating-conic-gradient(#3b3b40 0% 25%, #232326 0% 50%) 0 0 / 10px 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Aperçu dans un navigateur (hors FiveM) */
+  body.preview {
+    background: radial-gradient(circle at 30% 20%, #4a5260 0%, #2a2d34 55%, #1b1d22 100%);
+  }
+
+  /* ============ Panneau ============ */
+  .picker {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 999999;
+    width: 320px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--accent-rgb), 0.55);
+    background: var(--bg);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -47%) scale(0.98);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  .picker.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .area {
+    display: flex;
+    gap: 14px;
+  }
+
+  /* ============ Carré saturation / luminosité ============ */
+  .sv {
+    position: relative;
+    flex: 1;
+    height: 248px;
+    border-radius: 8px;
+    cursor: crosshair;
+    touch-action: none;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0), #000),
+      linear-gradient(to right, #fff, var(--hue-color));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  }
+
+  /* ============ Slider de teinte (vertical) ============ */
+  .hue {
+    position: relative;
+    width: 14px;
+    height: 248px;
+    border-radius: 7px;
+    cursor: pointer;
+    touch-action: none;
+    background: linear-gradient(to bottom,
+      #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  }
+
+  /* ============ Slider alpha (horizontal) ============ */
+  .alpha {
+    position: relative;
+    height: 14px;
+    margin-top: 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    touch-action: none;
+    background:
+      linear-gradient(to right, var(--solid-0), var(--solid)),
+      var(--checker);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  }
+
+  /* ============ Curseurs ============ */
+  .knob {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.55);
+  }
+  #svKnob    { background: var(--solid); left: 0; top: 0; }
+  #hueKnob   { background: var(--hue-color); left: 50%; top: 0; }
+  #alphaKnob { background: var(--solid); top: 50%; left: 100%; }
+
+  .track:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  /* ============ Lignes Hex / RGBA ============ */
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .row + .row { margin-top: 10px; }
+
+  .label {
+    width: 48px;
+    flex-shrink: 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .swatch {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: linear-gradient(var(--rgba), var(--rgba)), var(--checker);
+  }
+
+  .input {
+    height: 32px;
+    min-width: 0;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    color: var(--text);
+    font: 700 14px/1 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .input:hover { border-color: #34343a; }
+  .input:focus {
+    border-color: var(--accent);
+    background: #0f0f0f;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.16);
+  }
+  .input::selection { background: rgba(var(--accent-rgb), 0.45); }
+
+  #hex {
+    flex: 1;
+    text-align: left;
+    padding: 0 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .chan { flex: 1; width: 0; }
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div class="picker" id="picker">
+  <div class="area">
+    <div class="sv track" id="sv" tabindex="0" aria-label="Saturation et luminosité">
+      <div class="knob" id="svKnob"></div>
+    </div>
+    <div class="hue track" id="hue" tabindex="0" aria-label="Teinte">
+      <div class="knob" id="hueKnob"></div>
+    </div>
+  </div>
+
+  <div class="alpha track" id="alpha" tabindex="0" aria-label="Opacité">
+    <div class="knob" id="alphaKnob"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Hex</span>
+    <div class="swatch" id="swatch"></div>
+    <input class="input" id="hex" type="text" value="#FFFFFF" maxlength="9" spellcheck="false" autocomplete="off" aria-label="Hexadécimal">
+  </div>
+
+  <div class="row">
+    <span class="label">RGBA</span>
+    <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Rouge">
+    <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Vert">
+    <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Bleu">
+    <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Alpha">
+  </div>
+</div>
 <script>
 (()=>{
 console.log('[JuL menu] version v15 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
@@ -1375,6 +1587,268 @@ if(location.protocol==='file:'){
   };
   setTimeout(go,50);
 }
+})();
+
+(() => {
+  'use strict';
+
+  // ---------- NUI ----------
+  const RES = typeof GetParentResourceName === 'function' ? GetParentResourceName() : null;
+
+  function post(name, data) {
+    if (!RES) return;
+    fetch(`https://${RES}/${name}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(data || {})
+    }).catch(() => {});
+  }
+
+  // ---------- Éléments ----------
+  const picker  = document.getElementById('picker');
+  const sv      = document.getElementById('sv');
+  const hueEl   = document.getElementById('hue');
+  const alphaEl = document.getElementById('alpha');
+  const svKnob    = document.getElementById('svKnob');
+  const hueKnob   = document.getElementById('hueKnob');
+  const alphaKnob = document.getElementById('alphaKnob');
+  const hexIn   = document.getElementById('hex');
+  const chans   = Array.from(document.querySelectorAll('.chan'));
+  const rootStyle = document.documentElement.style;
+
+  // ---------- État (H en degrés, S/V/A entre 0 et 1) ----------
+  const state = { h: 14, s: 0, v: 1, a: 1 };
+
+  const clamp = (n, min = 0, max = 1) => Math.min(max, Math.max(min, n));
+
+  // ---------- Conversions ----------
+  function hsvToRgb(h, s, v) {
+    const f = (n) => {
+      const k = (n + h / 60) % 6;
+      return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+    };
+    return [f(5), f(3), f(1)].map((x) => Math.round(x * 255));
+  }
+
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d) {
+      if (max === r)      h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else                h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return { h, s: max ? d / max : 0, v: max };
+  }
+
+  const toHex = (r, g, b) =>
+    '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+  function parseHex(str) {
+    let h = String(str).trim().replace(/^#/, '');
+    if (/^[0-9a-f]{3}$/i.test(h)) h = h.split('').map((c) => c + c).join('');
+    if (!/^([0-9a-f]{6}|[0-9a-f]{8})$/i.test(h)) return null;
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16),
+      a: h.length === 8 ? parseInt(h.slice(6, 8), 16) : null
+    };
+  }
+
+  function setRgb(r, g, b, a) {
+    const hsv = rgbToHsv(r, g, b);
+    state.s = hsv.s;
+    state.v = hsv.v;
+    // On garde la teinte quand la couleur est grise ou noire (sinon elle saute)
+    if (hsv.s > 0 && hsv.v > 0) state.h = hsv.h;
+    if (a !== null && a !== undefined) state.a = clamp(a / 255);
+  }
+
+  function current() {
+    const [r, g, b] = hsvToRgb(state.h, state.s, state.v);
+    return { r, g, b, a: Math.round(state.a * 255), hex: toHex(r, g, b) };
+  }
+
+  // ---------- Rendu ----------
+  function render(keep) {
+    const c = current();
+    rootStyle.setProperty('--hue-color', `hsl(${state.h}, 100%, 50%)`);
+    rootStyle.setProperty('--solid', `rgb(${c.r}, ${c.g}, ${c.b})`);
+    rootStyle.setProperty('--solid-0', `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+    rootStyle.setProperty('--rgba', `rgba(${c.r}, ${c.g}, ${c.b}, ${state.a})`);
+
+    svKnob.style.left  = (state.s * 100) + '%';
+    svKnob.style.top   = ((1 - state.v) * 100) + '%';
+    hueKnob.style.top  = (state.h / 360 * 100) + '%';
+    alphaKnob.style.left = (state.a * 100) + '%';
+
+    if (keep !== hexIn) hexIn.value = c.hex;
+    [c.r, c.g, c.b, c.a].forEach((val, i) => {
+      if (keep !== chans[i]) chans[i].value = String(val);
+    });
+  }
+
+  let raf = 0;
+  function emit() {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      post('colorChange', current());
+    });
+  }
+
+  function commit(keep) {
+    render(keep);
+    emit();
+  }
+
+  // ---------- Glisser (carré, teinte, alpha) ----------
+  function drag(el, onMove) {
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      el.setPointerCapture(e.pointerId);
+
+      const move = (ev) => {
+        const r = el.getBoundingClientRect();
+        onMove(clamp((ev.clientX - r.left) / r.width), clamp((ev.clientY - r.top) / r.height));
+        commit();
+      };
+      const up = () => {
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', up);
+        el.removeEventListener('pointercancel', up);
+      };
+
+      move(e);
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+      e.preventDefault();
+    });
+  }
+
+  drag(sv,      (x, y) => { state.s = x; state.v = 1 - y; });
+  drag(hueEl,   (x, y) => { state.h = y * 360; });
+  drag(alphaEl, (x)    => { state.a = x; });
+
+  // ---------- Clavier sur les curseurs ----------
+  function keys(el, handler) {
+    el.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 10 : 1;
+      let dx = 0, dy = 0;
+      if (e.key === 'ArrowLeft')  dx = -step;
+      else if (e.key === 'ArrowRight') dx = step;
+      else if (e.key === 'ArrowUp')    dy = -step;
+      else if (e.key === 'ArrowDown')  dy = step;
+      else return;
+      e.preventDefault();
+      handler(dx, dy);
+      commit();
+    });
+  }
+
+  keys(sv,      (dx, dy) => { state.s = clamp(state.s + dx / 100); state.v = clamp(state.v - dy / 100); });
+  keys(hueEl,   (dx, dy) => { state.h = clamp(state.h + dy + dx, 0, 360); });
+  keys(alphaEl, (dx, dy) => { state.a = clamp(state.a + (dx - dy) / 100); });
+
+  // ---------- Champ Hex ----------
+  hexIn.addEventListener('input', () => {
+    const v = hexIn.value.trim().replace(/^#/, '');
+    if (v.length !== 6 && v.length !== 8) return;
+    const p = parseHex(v);
+    if (!p) return;
+    setRgb(p.r, p.g, p.b, p.a);
+    commit(hexIn);
+  });
+  hexIn.addEventListener('change', () => {
+    const p = parseHex(hexIn.value);
+    if (p) setRgb(p.r, p.g, p.b, p.a);
+    commit();
+  });
+  hexIn.addEventListener('blur', () => render());
+  hexIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') hexIn.blur(); });
+
+  // ---------- Champs R G B A ----------
+  chans.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '').slice(0, 3);
+      if (inp.value === '') return;
+      const n = Math.min(255, parseInt(inp.value, 10));
+      if (String(n) !== inp.value && parseInt(inp.value, 10) > 255) inp.value = String(n);
+      const c = current();
+      const vals = [c.r, c.g, c.b, c.a];
+      vals[i] = n;
+      setRgb(vals[0], vals[1], vals[2], vals[3]);
+      commit(inp);
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const step = (e.shiftKey ? 10 : 1) * (e.key === 'ArrowUp' ? 1 : -1);
+        const cur = parseInt(inp.value || '0', 10) || 0;
+        inp.value = String(clamp(cur + step, 0, 255));
+        inp.dispatchEvent(new Event('input'));
+      } else if (e.key === 'Enter') {
+        inp.blur();
+      }
+    });
+    inp.addEventListener('blur', () => render());
+  });
+
+  // Sélectionne tout le contenu au clic dans un champ
+  [hexIn, ...chans].forEach((inp) => {
+    inp.addEventListener('focus', () => setTimeout(() => inp.select(), 0));
+  });
+
+  // ---------- Affichage ----------
+  function show() { picker.classList.add('show'); }
+  function hide() { picker.classList.remove('show'); }
+
+  function closePicker() {
+    hide();
+    post('colorPickerDone', current());
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && RES && picker.classList.contains('show')) closePicker();
+  });
+  window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  // ---------- Messages venant du Lua ----------
+  function applyColor(c) {
+    if (!c) return;
+    if (typeof c === 'string') {
+      const p = parseHex(c);
+      if (p) setRgb(p.r, p.g, p.b, p.a);
+    } else if (c.hex) {
+      const p = parseHex(c.hex);
+      if (p) setRgb(p.r, p.g, p.b, p.a !== null ? p.a : (c.a !== undefined ? c.a : null));
+    } else if (c.r !== undefined) {
+      setRgb(clamp(+c.r, 0, 255), clamp(+c.g, 0, 255), clamp(+c.b, 0, 255), c.a !== undefined ? clamp(+c.a, 0, 255) : 255);
+    }
+    render();
+  }
+
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.action === 'openColorPicker')          { applyColor(d.color); show(); }
+    else if (d.action === 'closeColorPicker')    { hide(); }
+    else if (d.action === 'setColorPicker') { applyColor(d.color); }
+  });
+
+  // ---------- Démarrage ----------
+  render();
+  if (!RES) {
+    document.body.classList.add('preview');
+    show();
+  }
 })();
 </script>
 </body>

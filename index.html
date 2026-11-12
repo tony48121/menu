@@ -64,7 +64,7 @@
      .menu-footer : barre noire du bas (JUL | logo | compteur)
    .menu-root ne dessine plus rien lui-meme : il ne fait que les empiler. */
 .menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;display:flex;flex-direction:column;gap:0.5vh}
-.menu-head,.menu-card{position:relative;overflow:hidden;border-radius:1.1vh;background:#0b0b0d;border:0.1vh solid rgba(255,255,255,0.12)}
+.menu-head,.menu-card{position:relative;overflow:hidden;border-radius:1.1vh;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
 .menu-banner{position:relative;height:var(--banner-height);overflow:hidden;border-radius:1vh 1vh 0 0;background:#050506}
@@ -90,7 +90,7 @@
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
 .menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgb(var(--mn-char-rgb));overflow:hidden;font-size:1.06vh}
-.tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s}
+.tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s;background:rgba(var(--mn-acc-rgb),0.12)}
 .tab-item:hover{color:#c9ccd6}
 /* titre seul ("Main Menu", nom de sous-menu, "Freecam") : EXACTEMENT la couleur de l'onglet actif
    (gris en relief, opaque), sur toute la largeur. :only-child = marche meme sans la classe .single */
@@ -171,7 +171,7 @@
 /* ---------- pied : nom | logo | compteur ---------- */
 /* Barre detachee : presque pleine (noir), meme contour et meme rayon que la carte,
    un espace de 0.5vh au-dessus (gap de .menu-root). Rien ne la relie a la liste. */
-.menu-footer{background:#060608;/* hauteur 3.4vh (avant 4.4vh) */display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:3.4vh;box-sizing:border-box;padding:0 1.3vh;border:0.1vh solid rgba(255,255,255,0.12);border-radius:1vh;overflow:hidden;box-shadow:0 0.4vh 1.2vh rgba(0,0,0,0.35)}
+.menu-footer{background:rgba(6,6,8,0.94);/* hauteur 3.4vh (avant 4.4vh) */display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:3.4vh;box-sizing:border-box;padding:0 1.3vh;border:0.1vh solid rgba(255,255,255,0.12);border-radius:1vh;overflow:hidden;box-shadow:0 0.4vh 1.2vh rgba(0,0,0,0.35)}
 .footer-who{display:flex;align-items:center;gap:0.9vh;min-width:0}
 /* Logo image optionnel (FOOTER_LOGO_URL / setFooterLogo) : "screen" rend le noir transparent. */
 .footer-logo{display:flex;align-items:center;height:100%}

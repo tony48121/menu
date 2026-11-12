@@ -42,7 +42,7 @@
   --mn-lo-rgb:37,65,42;
   --mn-fill-rgb:73,130,83;
   --mn-on-rgb:123,244,145;
-  --item-height:2.55vh;
+  --item-height:2.6vh;
   --tabs-height:3.75vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
@@ -113,7 +113,7 @@
 
 /* ---------- liste ---------- */
 .menu-body{background:transparent;overflow:hidden}
-.menu-items{position:relative;max-height:31.5vh;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
+.menu-items{position:relative;max-height:34.6vh;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0.37vh 0}
 .menu-items::-webkit-scrollbar{display:none}
 /* etat "liste vide" : on livre l'explication plutot qu'un panneau avec 0/0. */
 .menu-empty{position:relative;z-index:1;display:flex;flex-direction:column;gap:0.35vh;align-items:center;text-align:center;padding:1.1vh 1.6vh}
@@ -129,10 +129,10 @@
 .menu-item.is-selected{border-bottom-color:transparent}
 .item-label{display:flex;align-items:center;gap:1vh;min-width:0;flex:1}
 /* icones a gauche (le Lua envoie item.icon, ex. "ph-user") */
-.row-icon{display:inline-block;flex:none;width:1.35vh;font-size:1.35vh;line-height:1;text-align:center;color:#c9ccd6}
+.row-icon{display:inline-block;flex:none;width:1.38vh;font-size:1.38vh;line-height:1;text-align:center;color:#c9ccd6}
 .menu-item.is-selected .row-icon{color:#fff}
-.menu-item .name{font-size:1.08vh;color:#f1f2f6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.slider-val{flex:none;width:3.15vh;text-align:right;color:#6f7280;font-size:1.05vh;font-variant-numeric:tabular-nums}
+.menu-item .name{font-size:1.1vh;color:#f1f2f6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slider-val{flex:none;width:3.15vh;text-align:right;color:#6f7280;font-size:1.07vh;font-variant-numeric:tabular-nums}
 .components-container{display:flex;align-items:center;gap:1vh;flex-shrink:0}
 .component{display:flex;align-items:center;gap:1vh}
 .caret-icon{display:flex;align-items:center;color:#8c90a0}
@@ -158,13 +158,13 @@
 .range-component input[type="range"]::-moz-range-thumb{width:0.37vh;height:1vh;border-radius:0.2vh;background:#fff;border:none;cursor:pointer}
 
 /* ---------- selecteur "— VALEUR —" ---------- */
-.scroll-value{display:flex;align-items:center;gap:0.65vh;font-size:0.92vh;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:#9a9eae;max-width:17vh}
+.scroll-value{display:flex;align-items:center;gap:0.65vh;font-size:0.94vh;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:#9a9eae;max-width:17vh}
 .scroll-value .val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .scroll-value .arrow{flex:none;font-size:0;width:0.74vh;height:0.1vh;background:currentColor;opacity:0.8}
 .scroll-value.arrows .arrow{width:auto;height:auto;background:transparent}
 
 /* ---------- separateur : filet - titre - filet ---------- */
-.separator-container{display:flex;align-items:center;height:2.78vh;margin:0 0.74vh;padding:0 0.2vh;gap:1.1vh;box-sizing:border-box;background:transparent}
+.separator-container{display:flex;align-items:center;height:2.55vh;margin:0 0.74vh;padding:0 0.2vh;gap:1.1vh;box-sizing:border-box;background:transparent}
 .separator-bar{display:block;flex:1;height:0.1vh;background:rgba(255,255,255,0.7)}
 .separator-text{color:#fff;font-size:1.02vh;font-weight:600;white-space:nowrap}
 

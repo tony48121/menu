@@ -600,6 +600,9 @@ ul{list-style-type:disc}
     <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Bleu">
     <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Alpha">
   </div>
+  <div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px">
+    <button id="cpDone" type="button" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(var(--accent-rgb),0.55);background:rgba(var(--accent-rgb),0.2);color:#fff;cursor:pointer;font:inherit">Fermer</button>
+  </div>
 </div>
 <script>
 (()=>{
@@ -1832,13 +1835,17 @@ if(location.protocol==='file:'){
       picker.style.transform = 'translate(-50%, -50%) scale(1)';
     }
     picker.classList.add('show');
+    document.documentElement.style.cursor = 'default';
   }
-  function hide() { picker.classList.remove('show'); }
+  function hide() { picker.classList.remove('show'); document.documentElement.style.cursor = ''; }
 
   function closePicker() {
     hide();
     post('colorPickerDone', current());
   }
+
+  const cpDoneBtn = document.getElementById('cpDone');
+  if (cpDoneBtn) cpDoneBtn.addEventListener('click', closePicker);
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && RES && picker.classList.contains('show')) closePicker();

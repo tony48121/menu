@@ -557,7 +557,7 @@ function mkRow(o){
     else if(t==='color')cc.append(comp('<span class="swatch"></span>'));
     else if(t==='checkbox'){const c=comp('<label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
       c.querySelector('input').onchange=e=>{r._o.checked=e.target.checked;if(B.cur===r._i)postNui('change',{value:e.target.checked})};cc.append(c)}
-    else if(t==='slider'){const c=comp('<div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div><span class="slider-val"></span>');
+    else if(t==='slider'){const c=comp('<span class="slider-val"></span><div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div>');
       const rg=c.querySelector('input');
       rg.oninput=e=>{r._o.value=+e.target.value;patchRow(r,r._o,r._i)};
       /* change = relachement du curseur : on previent menu.lua une seule fois

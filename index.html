@@ -1836,6 +1836,13 @@ if(location.protocol==='file:'){
     }
     picker.classList.add('show');
     document.documentElement.style.cursor = 'default';
+    setTimeout(function(){
+      const btn = document.getElementById('cpDone');
+      if (btn) {
+        const r = btn.getBoundingClientRect();
+        post('colorPickerButtonRect', { x: r.left, y: r.top, w: r.width, h: r.height });
+      }
+    }, 0);
   }
   function hide() { picker.classList.remove('show'); document.documentElement.style.cursor = ''; }
 

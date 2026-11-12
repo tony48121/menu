@@ -1046,14 +1046,14 @@ function positionPlayerCard(){
   const root=(typeof B!=='undefined')?B.root:null;
   const mb=(root&&root.isConnected)?root.getBoundingClientRect():null;
   const cr=c.getBoundingClientRect();
-  const h=cr.height||c.offsetHeight||0;
+  const w=cr.width||c.offsetWidth||0;
   let x,y;
   if(mb&&mb.width){
-    /* Collee au coin HAUT GAUCHE du menu : meme bord gauche, juste au-dessus,
-       sans espace (demande explicite "collee au menu"). */
-    x=mb.left;
-    y=mb.top-h;
-    if(y<PC_M)y=PC_M; /* le menu est trop haut pour laisser de la place au-dessus : on colle au bord ecran plutot que de sortir */
+    /* Collee a DROITE du menu : meme bord haut, juste apres son bord droit,
+       sans espace (demande explicite "a droite du menu, a droite collee"). */
+    x=mb.right;
+    y=mb.top;
+    if(x+w>window.innerWidth-PC_M)x=Math.max(PC_M,window.innerWidth-w-PC_M); /* pas la place a droite : on rentre plutot que de sortir de l'ecran */
   }else{
     /* menu absent : repli sur le coin haut gauche de l'ecran */
     x=PC_M;y=PC_M;

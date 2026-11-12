@@ -89,13 +89,13 @@
    Avec 7 onglets (categories), les libelles depassent leur cellule et se
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
-.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgba(255,255,255,0.04);overflow:hidden;font-size:1.06vh}
+.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgba(var(--mn-acc-rgb),0.08);overflow:hidden;font-size:1.06vh}
 .tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s}
 .tab-item:hover{color:#c9ccd6}
 /* titre seul ("Main Menu", nom de sous-menu, "Freecam") : EXACTEMENT la couleur de l'onglet actif
    (gris en relief, opaque), sur toute la largeur. :only-child = marche meme sans la classe .single */
-.menu-tabs .tab-item:only-child,.menu-tabs.single .tab-item,.menu-tabs .tab-item:only-child:hover,.menu-tabs.single .tab-item:hover{color:#fff!important;background:linear-gradient(180deg,rgb(var(--mn-fill-rgb)),rgb(var(--mn-lo-rgb)))!important;box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(var(--mn-acc-rgb),0.22)!important;cursor:default;font-size:1.15vh}
-.tab-item.active{color:#fff;background:linear-gradient(180deg,rgb(var(--mn-fill-rgb)),rgb(var(--mn-lo-rgb)));box-shadow:inset 0 0.1vh 0 rgba(255,255,255,0.18),0 0.2vh 1vh rgba(var(--mn-acc-rgb),0.22)}
+.menu-tabs .tab-item:only-child,.menu-tabs.single .tab-item,.menu-tabs .tab-item:only-child:hover,.menu-tabs.single .tab-item:hover{color:#fff!important;background:linear-gradient(180deg,rgba(var(--mn-acc-rgb),0.40),rgba(var(--mn-acc-rgb),0.18))!important;box-shadow:inset 0 0.1vh 0 rgb(var(--mn-acc-rgb)),0 0.2vh 1vh rgba(var(--mn-acc-rgb),0.25)!important;cursor:default;font-size:1.15vh}
+.tab-item.active{color:#fff;background:linear-gradient(180deg,rgba(var(--mn-acc-rgb),0.40),rgba(var(--mn-acc-rgb),0.18));box-shadow:inset 0 0.1vh 0 rgb(var(--mn-acc-rgb)),0 0.2vh 1vh rgba(var(--mn-acc-rgb),0.25)}
 
 /* ---------- barre de defilement (hors du panneau, a gauche) : son curseur suit la ligne selectionnee ---------- */
 /* Rail etendu a la demande : du HAUT des onglets (bas de la banniere) jusqu'au

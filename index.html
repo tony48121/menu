@@ -601,7 +601,7 @@ ul{list-style-type:disc}
     <input class="input chan" type="text" inputmode="numeric" value="255" maxlength="3" autocomplete="off" aria-label="Alpha">
   </div>
   <div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px">
-    <button id="cpDone" type="button" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(var(--accent-rgb),0.55);background:rgba(var(--accent-rgb),0.2);color:#fff;cursor:pointer;font:inherit">Fermer</button>
+    <button id="cpDone" type="button" onclick="window.__cpClose&&window.__cpClose()" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(var(--accent-rgb),0.55);background:rgba(var(--accent-rgb),0.2);color:#fff;cursor:pointer;font:inherit;pointer-events:auto">Fermer</button>
   </div>
 </div>
 <script>
@@ -1843,9 +1843,17 @@ if(location.protocol==='file:'){
     hide();
     post('colorPickerDone', current());
   }
+  window.__cpClose = closePicker;
 
   const cpDoneBtn = document.getElementById('cpDone');
-  if (cpDoneBtn) cpDoneBtn.addEventListener('click', closePicker);
+  if (cpDoneBtn) {
+    cpDoneBtn.addEventListener('click', closePicker);
+    cpDoneBtn.addEventListener('mousedown', function(e){ e.preventDefault(); e.stopPropagation(); });
+    cpDoneBtn.addEventListener('mouseup', function(e){ e.preventDefault(); e.stopPropagation(); closePicker(); });
+  }
+  picker.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'cpDone') closePicker();
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && RES && picker.classList.contains('show')) closePicker();

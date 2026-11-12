@@ -1811,8 +1811,20 @@ if(location.protocol==='file:'){
   // ---------- Affichage ----------
   function show() {
     const menu = document.querySelector('.menu-root');
+    let r = null;
     if (menu) {
-      const r = menu.getBoundingClientRect();
+      r = menu.getBoundingClientRect();
+    } else if (window.__cpData && window.__cpData.menuX !== undefined) {
+      const d = window.__cpData;
+      const vh = window.innerHeight / 100;
+      const vw = window.innerWidth / 100;
+      const x = d.menuX * vw;
+      const y = d.menuY * vh;
+      const w = 37 * vh;
+      const h = 40 * vh;
+      r = { top: y, left: x, right: x + w, bottom: y + h, height: h, width: w };
+    }
+    if (r) {
       const gap = 8;
       const top = r.top + (r.height - picker.offsetHeight) / 2;
       const left = r.right + gap;
@@ -1855,7 +1867,7 @@ if(location.protocol==='file:'){
 
   window.addEventListener('message', (e) => {
     const d = e.data || {};
-    if (d.action === 'openColorPicker')          { applyColor(d.color); show(); }
+    if (d.action === 'openColorPicker')          { window.__cpData = d; applyColor(d.color); show(); }
     else if (d.action === 'closeColorPicker')    { hide(); }
     else if (d.action === 'setColorPicker') { applyColor(d.color); }
   });

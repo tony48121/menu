@@ -89,8 +89,8 @@
    Avec 7 onglets (categories), les libelles depassent leur cellule et se
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
-.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgb(var(--mn-char-rgb));overflow:hidden;font-size:1.06vh}
-.tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s;background:rgba(var(--mn-acc-rgb),0.15)}
+.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:rgba(0,0,0,0.4);overflow:hidden;font-size:1.06vh}
+.tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s;background:transparent}
 .tab-item:hover{color:#c9ccd6}
 /* titre seul ("Main Menu", nom de sous-menu, "Freecam") : EXACTEMENT la couleur de l'onglet actif
    (gris en relief, opaque), sur toute la largeur. :only-child = marche meme sans la classe .single */

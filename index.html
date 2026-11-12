@@ -1814,7 +1814,7 @@ if(location.protocol==='file:'){
     if (menu) {
       const r = menu.getBoundingClientRect();
       const gap = 8;
-      const top = r.top + gap;
+      const top = r.top + (r.height - picker.offsetHeight) / 2;
       const left = r.right + gap;
       picker.style.top = Math.max(8, top) + 'px';
       picker.style.left = Math.max(8, left) + 'px';

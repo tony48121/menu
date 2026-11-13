@@ -782,8 +782,8 @@ function mkRow(o){
       rg.onchange=e=>{if(B.cur===r._i)postNui('change',{value:+e.target.value})};cc.append(c)}
     else if(t==='scroll')cc.append(comp('<div class="scroll-value"><span class="arrow">-</span><span class="val"></span><span class="arrow">-</span></div>'));
   });
-  /* case + barre sur la MEME ligne : le bouton prend la place de la valeur chiffree */
-  if(cc.querySelector('.toggle-switch')&&cc.querySelector('.range-component'))cc.classList.add('combo-toggle');
+  /* case + barre/valeur sur la MEME ligne : le bouton prend la place de la valeur chiffree */
+  if(cc.querySelector('.toggle-switch')&&(cc.querySelector('.range-component')||cc.querySelector('.scroll-value')))cc.classList.add('combo-toggle');
   r.append(lab,cc);return r;
 }
 function patchRow(r,o,i){

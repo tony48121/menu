@@ -163,6 +163,8 @@ html,body,#app{background:transparent!important}
 .scroll-value .val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .scroll-value .arrow{flex:none;font-size:0;width:0.74vh;height:0.1vh;background:currentColor;opacity:0.8}
 .scroll-value.arrows .arrow{width:auto;height:auto;background:transparent}
+.scroll-value.no-arrows .arrow{display:none}
+.scroll-value.no-arrows{gap:0}
 
 /* ---------- separateur : filet - titre - filet ---------- */
 .separator-container{display:flex;align-items:center;height:2.55vh;margin:0 0.74vh;padding:0 0.2vh;gap:1.1vh;box-sizing:border-box;background:transparent}
@@ -800,7 +802,11 @@ function patchRow(r,o,i){
     r.querySelector('.range-fill').style.width=o.max>o.min?((o.value-o.min)/(o.max-o.min))*100+'%':'0%';
   }
   const sc=r.querySelector('.scroll-value .val');
-  if(sc)sc.parentElement.classList.toggle('arrows',!!o.arrows);
+  if(sc){
+    const sv=sc.parentElement;
+    sv.classList.toggle('arrows',!!o.arrows);
+    sv.classList.toggle('no-arrows',!!o.hideArrows);
+  }
   if(sc)sc.textContent=o.options?.[o.selected-1]?.label||o.options?.[0]?.label||(!o.options||o.options.length===0?'Loading...':'None');
   const sw=r.querySelector('.swatch');if(sw)sw.style.background=o.color||'#fff';
 }

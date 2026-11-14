@@ -572,6 +572,13 @@ ul{list-style-type:disc}
     text-transform: uppercase;
   }
   .chan { flex: 1; width: 0; }
+/* capture touche Warp Vehicle 1 */
+.warp-key-capture{position:fixed;inset:0;display:grid;place-items:center;z-index:1000000;pointer-events:none}
+.warp-key-capture[hidden]{display:none}
+.warp-key-capture-box{display:flex;flex-direction:column;align-items:center;gap:1vh;padding:1.4vh 1.8vh;background:rgba(8,8,10,0.92);border:0.12vh solid rgba(255,255,255,0.18);border-radius:1vh;box-shadow:0 0.8vh 2vh rgba(0,0,0,0.5);min-width:18vh}
+.warp-key-capture-title{font-size:1.1vh;font-weight:700;color:#fff;letter-spacing:0.04em;text-transform:uppercase}
+.warp-key-capture-square{width:7vh;height:7vh;display:grid;place-items:center;border:0.18vh solid rgba(255,255,255,0.9);border-radius:0.6vh;background:rgba(255,255,255,0.06);color:#fff;font-size:2.4vh;font-weight:800;line-height:1}
+.warp-key-capture-hint{font-size:0.95vh;color:#b8bcc8}
 </style>
 </head>
 <body>
@@ -607,6 +614,13 @@ ul{list-style-type:disc}
     <button id="cpDone" type="button" onclick="window.__cpClose&&window.__cpClose()" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(var(--accent-rgb),0.55);background:rgba(var(--accent-rgb),0.2);color:#fff;cursor:pointer;font:inherit;pointer-events:auto">Fermer</button>
   </div>
 </div>
+  <div id="warp-key-capture" class="warp-key-capture" hidden>
+    <div class="warp-key-capture-box">
+      <div class="warp-key-capture-title">Touche Warp Vehicle 1</div>
+      <div class="warp-key-capture-square" id="warp-key-capture-square">?</div>
+      <div class="warp-key-capture-hint">Appuie sur une touche</div>
+    </div>
+  </div>
 <script>
 (()=>{
 console.log('[JuL menu] version v15 (pont complet avec menu.lua : open/close, setData, key, keybinds, loading, theme)');
@@ -796,6 +810,7 @@ function patchRow(r,o,i){
   const nm=r.querySelector('.name');nm.textContent=o.label??'';const ic=r.querySelector('.row-icon');if(ic&&o.icon)ic.className='ph '+o.icon+' row-icon';
   const sv=r.querySelector('.slider-val');if(sv)sv.textContent=o.value??'';
   const cb=r.querySelector('input[type=checkbox]');if(cb)cb.checked=!!o.checked;
+  const warpSq=r.querySelector('.toggle-prefix-square');if(warpSq && o.label==='Warp Vehicle 1') warpSq.textContent=String(o.warpKeyLabel||'F');
   const rg=r.querySelector('input[type=range]');
   if(rg){
     [['min',o.min],['max',o.max],['step',o.step]].forEach(([k,v])=>v==null?rg.removeAttribute(k):rg.setAttribute(k,v));
@@ -1169,6 +1184,17 @@ const planKey=(e,out)=>[
   e[1].animate(out?[{opacity:1,transform:'none'},{opacity:0,transform:'translateY(6px) scale(.98)'}]
                   :[{opacity:0,transform:'translateY(10px) scale(.98)'},{opacity:1,transform:'none'}],
     {duration:out?200:280,easing:out?E_IN:'cubic-bezier(.2,.9,.3,1)',fill:out?'forwards':'none'})];
+function warpKeyCaptureUI(show, label){
+  const el=document.getElementById('warp-key-capture');
+  const sq=document.getElementById('warp-key-capture-square');
+  if(!el||!sq)return;
+  if(show){
+    sq.textContent=String(label||'?');
+    el.hidden=false;
+  } else {
+    el.hidden=true;
+  }
+}
 function keyUI(show){
   present(K.slot,show,buildKey,planKey);
   const e=K.slot.els;if(!e)return;
@@ -1463,6 +1489,8 @@ addEventListener('message',e=>{
   switch(d.action){
     /* ---- actions envoyees par menu.lua (pont interface <-> menu) ---- */
     case 'open':showMenu();break;
+    case 'showWarpKeyCapture':warpKeyCaptureUI(true,d.label||d.key||'?');break;
+    case 'hideWarpKeyCapture':warpKeyCaptureUI(false);break;
     case 'close':hideMenuNow();break;
     case 'setData':applyFrame(d.data);break;
     case 'theme':B.theme=String(d.name||'');document.documentElement.dataset.theme=B.theme;break;

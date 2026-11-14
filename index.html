@@ -616,7 +616,7 @@ ul{list-style-type:disc}
 </div>
   <div id="warp-key-capture" class="warp-key-capture" hidden>
     <div class="warp-key-capture-box">
-      <div class="warp-key-capture-title">Touche Warp Vehicle 1</div>
+      <div class="warp-key-capture-title" id="warp-key-capture-title">Touche</div>
       <div class="warp-key-capture-square" id="warp-key-capture-square">?</div>
       <div class="warp-key-capture-hint">Appuie sur une touche, Entrée pour confirmer</div>
     </div>
@@ -789,7 +789,7 @@ function mkRow(o){
     else if(t==='action')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>'));
     else if(t==='link')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>'));
     else if(t==='color')cc.append(comp('<span class="swatch"></span>'));
-    else if(t==='checkbox'){const isWarp1=o.label==='Warp Vehicle 1';const c=comp('<label class="toggle-switch">'+(isWarp1?'<span class="toggle-prefix-square">F</span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
+    else if(t==='checkbox'){const hasKeyBox=o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle';const keyLbl=(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'E'));const c=comp('<label class="toggle-switch">'+(hasKeyBox?'<span class="toggle-prefix-square">'+keyLbl+'</span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
       c.querySelector('input').onchange=e=>{r._o.checked=e.target.checked;if(B.cur===r._i)postNui('change',{value:e.target.checked})};cc.append(c)}
     else if(t==='slider'){const c=comp('<span class="slider-val"></span><div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div>');
       const rg=c.querySelector('input');
@@ -810,7 +810,7 @@ function patchRow(r,o,i){
   const nm=r.querySelector('.name');nm.textContent=o.label??'';const ic=r.querySelector('.row-icon');if(ic&&o.icon)ic.className='ph '+o.icon+' row-icon';
   const sv=r.querySelector('.slider-val');if(sv)sv.textContent=o.value??'';
   const cb=r.querySelector('input[type=checkbox]');if(cb)cb.checked=!!o.checked;
-  const warpSq=r.querySelector('.toggle-prefix-square');if(warpSq && o.label==='Warp Vehicle 1') warpSq.textContent=String(o.warpKeyLabel||'F');
+  const keySq=r.querySelector('.toggle-prefix-square');if(keySq && (o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle')) keySq.textContent=String(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'E'));
   const rg=r.querySelector('input[type=range]');
   if(rg){
     [['min',o.min],['max',o.max],['step',o.step]].forEach(([k,v])=>v==null?rg.removeAttribute(k):rg.setAttribute(k,v));
@@ -1184,12 +1184,14 @@ const planKey=(e,out)=>[
   e[1].animate(out?[{opacity:1,transform:'none'},{opacity:0,transform:'translateY(6px) scale(.98)'}]
                   :[{opacity:0,transform:'translateY(10px) scale(.98)'},{opacity:1,transform:'none'}],
     {duration:out?200:280,easing:out?E_IN:'cubic-bezier(.2,.9,.3,1)',fill:out?'forwards':'none'})];
-function warpKeyCaptureUI(show, label){
+function warpKeyCaptureUI(show, label, title){
   const el=document.getElementById('warp-key-capture');
   const sq=document.getElementById('warp-key-capture-square');
+  const tt=document.getElementById('warp-key-capture-title');
   if(!el||!sq)return;
   if(show){
     sq.textContent=String(label||'?');
+    if(tt) tt.textContent=String(title||'Touche');
     el.hidden=false;
   } else {
     el.hidden=true;
@@ -1489,7 +1491,7 @@ addEventListener('message',e=>{
   switch(d.action){
     /* ---- actions envoyees par menu.lua (pont interface <-> menu) ---- */
     case 'open':showMenu();break;
-    case 'showWarpKeyCapture':warpKeyCaptureUI(true,d.label||d.key||'?');break;
+    case 'showWarpKeyCapture':warpKeyCaptureUI(true,d.label||d.key||'?', d.title||'Touche');break;
     case 'hideWarpKeyCapture':warpKeyCaptureUI(false);break;
     case 'close':hideMenuNow();break;
     case 'setData':applyFrame(d.data);break;

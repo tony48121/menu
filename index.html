@@ -149,7 +149,7 @@ html,body,#app{background:transparent!important}
 .toggle-thumb{position:absolute;top:0.28vh;left:0.28vh;width:1.3vh;height:1.3vh;border-radius:50%;background:#f2f3f6;box-shadow:0 0.1vh 0.3vh rgba(0,0,0,0.35);transition:transform 0.18s cubic-bezier(.3,.8,.3,1)}
 .toggle-switch input:checked ~ .toggle-track{background:rgb(var(--mn-acc-rgb))}
 .toggle-switch input:checked ~ .toggle-track .toggle-thumb{transform:translateX(1.48vh);background:#fff}
-.toggle-prefix-square{display:inline-block;width:1.55vh;height:1.55vh;border:0.14vh solid rgba(255,255,255,0.85);border-radius:0.22vh;box-sizing:border-box;flex:none}
+.toggle-prefix-square{display:inline-flex;align-items:center;justify-content:center;width:1.55vh;height:1.55vh;border:0.14vh solid rgba(255,255,255,0.85);border-radius:0.22vh;box-sizing:border-box;flex:none;color:#fff;font-size:0.95vh;font-weight:700;line-height:1}
 
 /* ---------- curseur ---------- */
 .range-component{position:relative;width:8.5vh;height:1.6vh;display:flex;align-items:center}
@@ -775,7 +775,7 @@ function mkRow(o){
     else if(t==='action')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>'));
     else if(t==='link')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>'));
     else if(t==='color')cc.append(comp('<span class="swatch"></span>'));
-    else if(t==='checkbox'){const isWarp1=o.label==='Warp Vehicle 1';const c=comp('<label class="toggle-switch">'+(isWarp1?'<span class="toggle-prefix-square"></span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
+    else if(t==='checkbox'){const isWarp1=o.label==='Warp Vehicle 1';const c=comp('<label class="toggle-switch">'+(isWarp1?'<span class="toggle-prefix-square">F</span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
       c.querySelector('input').onchange=e=>{r._o.checked=e.target.checked;if(B.cur===r._i)postNui('change',{value:e.target.checked})};cc.append(c)}
     else if(t==='slider'){const c=comp('<span class="slider-val"></span><div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div>');
       const rg=c.querySelector('input');

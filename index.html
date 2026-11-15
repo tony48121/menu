@@ -2089,7 +2089,7 @@ if(location.protocol==='file:'){
   window.addEventListener('keydown', (e) => {
     if (!isOpen) return;
     if (mode === 'text') {
-      if (e.code === 'Escape') { e.preventDefault(); cancelKey(); }
+      if (e.code === 'Escape' || e.code === 'Delete') { e.preventDefault(); cancelKey(); }
       else if ((e.code === 'Enter' || e.code === 'NumpadEnter') && !e.isComposing) { e.preventDefault(); submitText(); }
       return;
     }

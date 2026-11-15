@@ -575,7 +575,8 @@ ul{list-style-type:disc}
 .warp-key-capture-square{width:7vh;height:7vh;display:grid;place-items:center;border:0.18vh solid rgba(255,255,255,0.9);border-radius:0.6vh;background:rgba(255,255,255,0.06);color:#fff;font-size:2.4vh;font-weight:800;line-height:1}
 .warp-key-capture-hint{font-size:0.95vh;color:#b8bcc8}
 
-/* Keybind prompt (Set Menu Keybind) */
+
+/* Keybind prompt (F7 item keybind) */
 #jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 #jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 #jul-keybind-prompt-root .jkp-prompt{position:relative;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease}
@@ -1939,5 +1940,99 @@ if(location.protocol==='file:'){
   }
 })();
 </script>
+
+<div id="jul-keybind-prompt-root">
+  <div class="jkp-stage">
+    <div class="jkp-prompt" id="jkp-prompt">
+      <div class="jkp-head">
+        <span class="jkp-title" id="jkp-title"></span>
+      </div>
+      <div class="jkp-body">
+        <span class="jkp-key" id="jkp-key"></span>
+        <span class="jkp-caret"></span>
+      </div>
+      <div class="jkp-line"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(() => {
+  const rootWrap = document.getElementById('jul-keybind-prompt-root');
+  if(!rootWrap) return;
+  const promptEl = document.getElementById('jkp-prompt');
+  const titleEl  = document.getElementById('jkp-title');
+  const keyEl    = document.getElementById('jkp-key');
+  const IN_FIVEM = typeof GetParentResourceName === 'function';
+  const post = (name, data = {}) => {
+    if (!IN_FIVEM) { console.log('[NUI ->]', name, data); return; }
+    fetch(`https://${GetParentResourceName()}/${name}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(data),
+    }).catch(() => {});
+  };
+  const KEYS = {
+    ShiftLeft:['SHIFT','LSHIFT'], ShiftRight:['SHIFT','RSHIFT'],
+    ControlLeft:['CTRL','LCONTROL'], ControlRight:['CTRL','RCONTROL'],
+    AltLeft:['ALT','LMENU'], AltRight:['ALT','RMENU'],
+    Space:['SPACE','SPACE'], Enter:['ENTER','RETURN'],
+    Tab:['TAB','TAB'], Backspace:['BACKSPACE','BACK'],
+    Delete:['DELETE','DELETE'], Insert:['INSERT','INSERT'],
+    Home:['HOME','HOME'], End:['END','END'],
+    PageUp:['PAGE UP','PRIOR'], PageDown:['PAGE DOWN','NEXT'],
+    ArrowUp:['UP','UP'], ArrowDown:['DOWN','DOWN'],
+    ArrowLeft:['LEFT','LEFT'], ArrowRight:['RIGHT','RIGHT'],
+    CapsLock:['CAPS LOCK','CAPITAL'],
+  };
+  function describe(e) {
+    if (KEYS[e.code]) return { label: KEYS[e.code][0], mapper: KEYS[e.code][1] };
+    let m;
+    if ((m = /^Key([A-Z])$/.exec(e.code))) return { label: m[1], mapper: m[1] };
+    if ((m = /^Digit(\d)$/.exec(e.code))) return { label: m[1], mapper: m[1] };
+    if (/^F\d{1,2}$/.test(e.code)) return { label: e.code, mapper: e.code };
+    if ((m = /^Numpad(\d)$/.exec(e.code))) return { label: 'NUM ' + m[1], mapper: 'NUMPAD' + m[1] };
+    return { label: String(e.key || e.code).toUpperCase(), mapper: null };
+  }
+  function setAccent(hex) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return;
+    const n = parseInt(m[1], 16);
+    rootWrap.style.setProperty('--accent', '#' + m[1]);
+    rootWrap.style.setProperty('--accent-rgb', `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`);
+  }
+  let isOpen = false, current = null, placeholder = 'Press a key...';
+  function setKey(label) { keyEl.textContent = label || placeholder; keyEl.classList.toggle('empty', !label); }
+  function openPrompt(d = {}) {
+    if (d.color) setAccent(d.color);
+    if (typeof d.placeholder === 'string') placeholder = d.placeholder;
+    titleEl.textContent = d.title || '';
+    current = null; setKey(d.key || '');
+    isOpen = true; promptEl.classList.add('show');
+  }
+  function closePrompt() { isOpen = false; current = null; promptEl.classList.remove('show'); }
+  function confirmKey() {
+    if (!current) return;
+    const result = { label: current.label, mapper: current.mapper, code: current.code };
+    closePrompt(); post('keySelected', result);
+  }
+  function cancelKey() { closePrompt(); post('cancel'); }
+  window.addEventListener('keydown', (e) => {
+    if (!isOpen) return; e.preventDefault(); if (e.repeat) return;
+    if (e.code === 'Escape') { cancelKey(); return; }
+    const k = describe(e); current = { label: k.label, mapper: k.mapper, code: e.code }; setKey(k.label);
+  });
+  window.addEventListener('keyup', (e) => {
+    if (!isOpen || !current || e.code !== current.code) return; e.preventDefault(); confirmKey();
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.action === 'keybindPrompt:open') openPrompt(d);
+    else if (d.action === 'keybindPrompt:close') closePrompt();
+    else if (d.action === 'keybindPrompt:setKey') setKey(d.key);
+  });
+})();
+</script>
+
 </body>
 </html>

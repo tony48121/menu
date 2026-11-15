@@ -322,7 +322,7 @@ ul{list-style-type:disc}
 .jul-pc-row .k{flex:none;color:rgba(255,255,255,0.62)}
 .jul-pc-row .v{flex:0 1 auto;min-width:0;margin-left:auto;padding-left:0.7vh;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jul-pc-row.vital .bar{position:relative;flex:none;width:0.35vh;height:1.5vh;margin-right:0.85vh;border-radius:0.3vh;background:rgba(255,255,255,0.1);overflow:hidden}
-.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.3vh;transition:height 0.3s ease}
+.jul-pc-row.vital .bar i{position:absolute;inset:auto 0 0 0;height:var(--v,0%);border-radius:0.3vh}
 .jul-pc-row.vital svg{margin-right:0.55vh}
 .jul-pc-row.health svg{fill:#34d27b}
 .jul-pc-row.armor svg{fill:#4a8dff}
@@ -789,7 +789,7 @@ function mkRow(o){
     else if(t==='action')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>'));
     else if(t==='link')cc.append(comp('<span class="caret-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>'));
     else if(t==='color')cc.append(comp('<span class="swatch"></span>'));
-    else if(t==='checkbox'){const hasKeyBox=o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle';const keyLbl=(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'E'));const c=comp('<label class="toggle-switch">'+(hasKeyBox?'<span class="toggle-prefix-square">'+keyLbl+'</span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
+    else if(t==='checkbox'){const hasKeyBox=o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle';const keyLbl=(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'Y'));const c=comp('<label class="toggle-switch">'+(hasKeyBox?'<span class="toggle-prefix-square">'+keyLbl+'</span>':'')+'<input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>');
       c.querySelector('input').onchange=e=>{r._o.checked=e.target.checked;if(B.cur===r._i)postNui('change',{value:e.target.checked})};cc.append(c)}
     else if(t==='slider'){const c=comp('<span class="slider-val"></span><div class="range-component"><div class="range-track"></div><div class="range-fill"></div><input type="range"></div>');
       const rg=c.querySelector('input');
@@ -810,7 +810,7 @@ function patchRow(r,o,i){
   const nm=r.querySelector('.name');nm.textContent=o.label??'';const ic=r.querySelector('.row-icon');if(ic&&o.icon)ic.className='ph '+o.icon+' row-icon';
   const sv=r.querySelector('.slider-val');if(sv)sv.textContent=o.value??'';
   const cb=r.querySelector('input[type=checkbox]');if(cb)cb.checked=!!o.checked;
-  const keySq=r.querySelector('.toggle-prefix-square');if(keySq && (o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle')) keySq.textContent=String(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'E'));
+  const keySq=r.querySelector('.toggle-prefix-square');if(keySq && (o.label==='Warp Vehicle 1'||o.label==='Carry Vehicle')) keySq.textContent=String(o.keyLabel||(o.label==='Warp Vehicle 1'?'F':'Y'));
   const rg=r.querySelector('input[type=range]');
   if(rg){
     [['min',o.min],['max',o.max],['step',o.step]].forEach(([k,v])=>v==null?rg.removeAttribute(k):rg.setAttribute(k,v));
@@ -1338,7 +1338,7 @@ function buildPlayerCard(){
     <div class="jul-pc-head"><span class="jul-pc-title" data-k="Title">-</span><span class="jul-pc-id" data-k="Player ID">-</span></div>
     <div class="jul-pc-group">${row('Character','Character','user')}${row('Phone','Phone','phone')}${row('Radio','Radio','radio')}${row('Job','Job','job')}${row('Group','Group','group')}</div>
     <div class="jul-pc-group">${vital('health','Health','Health','heart')}${vital('armor','Armor','Armor','shield')}</div>
-    <div class="jul-pc-group">${row('Distance','Distance','target')}${row('Vehicle','Vehicle','car')}${row('Weapon','Weapon','gun')}${row('Speed','Speed','bolt')}</div>`;
+    <div class="jul-pc-group">${row('Distance','Distance','target')}${row('Vehicle','Vehicle','car')}${row('Weapon','Weapon','gun')}</div>`;
   app.append(c);positionPlayerCard(c);return [c];
 }
 /* Plus de base:'translateY(-50%)' : la carte n'est plus centree verticalement
@@ -1367,7 +1367,6 @@ function renderPlayerCard(){
   set('Distance',(typeof d.dist==='number')?d.dist.toFixed(1)+'m':d.dist);
   set('Vehicle',has(d.veh)?d.veh:'On Foot');
   set('Weapon',has(d.wep)?d.wep:'Unarmed');
-  set('Speed',(typeof d.speed==='number')?d.speed.toFixed(1)+' km/h':d.speed);
   /* la barre se remplit avec le pourcentage, le chiffre affiche est le brut */
   const hpN=(typeof d.hpN==='number')?d.hpN:null;
   const apN=(typeof d.apN==='number')?d.apN:null;

@@ -628,7 +628,7 @@ ul{list-style-type:disc}
 
 /* Keybind/Text Prompt (Spawn By Name) */
 #jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
-#jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12vh;pointer-events:none}
 #jul-keybind-prompt-root .jkp-prompt{position:relative;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
 #jul-keybind-prompt-root .jkp-prompt.show{opacity:1;transform:none}
 #jul-keybind-prompt-root .jkp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--accent-rgb), .26)}

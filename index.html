@@ -567,19 +567,28 @@ ul{list-style-type:disc}
     text-transform: uppercase;
   }
   .chan { flex: 1; width: 0; }
-/* capture touche (Warp/Carry/Physgun) - nouveau prompt */
-.warp-key-capture{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000000;pointer-events:none;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+/* capture touche Warp Vehicle 1 */
+.warp-key-capture{position:fixed;inset:0;display:grid;place-items:center;z-index:1000000;pointer-events:none}
 .warp-key-capture[hidden]{display:none}
-.warp-key-capture-box{position:relative;width:min(500px,92vw);border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--mn-on-rgb,47,224,106), 0) 55%, rgba(var(--mn-on-rgb,47,224,106), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease}
-.warp-key-capture.show .warp-key-capture-box{opacity:1;transform:none}
-.warp-key-capture-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--mn-on-rgb,47,224,106), .26)}
-.warp-key-capture-title{min-width:0;font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:none}
-.warp-key-capture-body{display:flex;align-items:center;min-height:54px;padding:16px 16px 18px}
-.warp-key-capture-square{font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase;white-space:nowrap;width:auto;height:auto;display:inline;border:none;border-radius:0;background:transparent}
-.warp-key-capture-caret{width:2px;height:16px;margin-left:8px;flex:none;border-radius:1px;background:rgb(var(--mn-on-rgb,47,224,106));box-shadow:0 0 8px rgba(var(--mn-on-rgb,47,224,106), .8);animation:warp-key-blink 1s steps(1) infinite}
-@keyframes warp-key-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
-.warp-key-capture-line{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg, rgba(var(--mn-on-rgb,47,224,106), .95), rgba(var(--mn-on-rgb,47,224,106), .15));box-shadow:0 0 10px rgba(var(--mn-on-rgb,47,224,106), .35)}
-.warp-key-capture-hint{display:none}
+.warp-key-capture-box{display:flex;flex-direction:column;align-items:center;gap:1vh;padding:1.4vh 1.8vh;background:rgba(8,8,10,0.92);border:0.12vh solid rgba(255,255,255,0.18);border-radius:1vh;box-shadow:0 0.8vh 2vh rgba(0,0,0,0.5);min-width:18vh}
+.warp-key-capture-title{font-size:1.1vh;font-weight:700;color:#fff;letter-spacing:0.04em;text-transform:uppercase}
+.warp-key-capture-square{width:7vh;height:7vh;display:grid;place-items:center;border:0.18vh solid rgba(255,255,255,0.9);border-radius:0.6vh;background:rgba(255,255,255,0.06);color:#fff;font-size:2.4vh;font-weight:800;line-height:1}
+.warp-key-capture-hint{font-size:0.95vh;color:#b8bcc8}
+
+/* Keybind prompt (Set Menu Keybind) */
+#jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+#jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#jul-keybind-prompt-root .jkp-prompt{position:relative;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease}
+#jul-keybind-prompt-root .jkp-prompt.show{opacity:1;transform:none}
+#jul-keybind-prompt-root .jkp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--accent-rgb), .26)}
+#jul-keybind-prompt-root .jkp-title{min-width:0;font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#jul-keybind-prompt-root .jkp-body{display:flex;align-items:center;min-height:54px;padding:16px 16px 18px}
+#jul-keybind-prompt-root .jkp-key{font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase;white-space:nowrap}
+#jul-keybind-prompt-root .jkp-key.empty{font-weight:500;letter-spacing:.2px;text-transform:none;color:rgba(255,255,255,.35)}
+#jul-keybind-prompt-root .jkp-caret{width:2px;height:16px;margin-left:8px;flex:none;border-radius:1px;background:var(--accent);box-shadow:0 0 8px rgba(var(--accent-rgb), .8);animation:jkp-blink 1s steps(1) infinite}
+@keyframes jkp-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+#jul-keybind-prompt-root .jkp-line{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg, rgba(var(--accent-rgb), .95), rgba(var(--accent-rgb), .15));box-shadow:0 0 10px rgba(var(--accent-rgb), .35)}
+
 </style>
 </head>
 <body>
@@ -617,14 +626,9 @@ ul{list-style-type:disc}
 </div>
   <div id="warp-key-capture" class="warp-key-capture" hidden>
     <div class="warp-key-capture-box">
-      <div class="warp-key-capture-head">
-        <span class="warp-key-capture-title" id="warp-key-capture-title">Touche</span>
-      </div>
-      <div class="warp-key-capture-body">
-        <span class="warp-key-capture-square" id="warp-key-capture-square">?</span>
-        <span class="warp-key-capture-caret"></span>
-      </div>
-      <div class="warp-key-capture-line"></div>
+      <div class="warp-key-capture-title" id="warp-key-capture-title">Touche</div>
+      <div class="warp-key-capture-square" id="warp-key-capture-square">?</div>
+      <div class="warp-key-capture-hint">Appuie sur une touche, Entrée pour confirmer</div>
     </div>
   </div>
 <script>
@@ -1194,15 +1198,12 @@ function warpKeyCaptureUI(show, label, title){
   const el=document.getElementById('warp-key-capture');
   const sq=document.getElementById('warp-key-capture-square');
   const tt=document.getElementById('warp-key-capture-title');
-  if(!el||!sq) return;
-  if(tt) tt.textContent=String(title||'Touche');
-  sq.textContent=String(label||'?');
+  if(!el||!sq)return;
   if(show){
+    sq.textContent=String(label||'?');
+    if(tt) tt.textContent=String(title||'Touche');
     el.hidden=false;
-    el.classList.remove('show');
-    requestAnimationFrame(()=>el.classList.add('show'));
   } else {
-    el.classList.remove('show');
     el.hidden=true;
   }
 }

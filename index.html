@@ -282,10 +282,9 @@ body,main{all:unset;display:block}
 @media (prefers-reduced-motion:reduce){.nt-toast,.nt-toast.leaving{animation:none}.nt-toast.leaving{opacity:0}}
 
 /* ---------- cible (reticule overlay, Physgun) ---------- */
-.jul-crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:4.6vh;height:4.6vh;pointer-events:none;z-index:9998}
-.jul-cross-ring{position:absolute;top:50%;left:50%;width:2.3vh;height:2.3vh;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0.55vh rgba(0,0,0,0.5)}
-.jul-cross-h{position:absolute;top:50%;left:0;width:100%;height:0.28vh;background-color:#0b0b0b;transform:translateY(-50%);box-shadow:0 0 0 0.08vh rgba(255,255,255,0.5)}
-.jul-cross-v{position:absolute;left:50%;top:0;width:0.28vh;height:100%;background-color:#0b0b0b;transform:translateX(-50%);box-shadow:0 0 0 0.08vh rgba(255,255,255,0.5)}
+.jul-crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:1.2vh;height:1.2vh;pointer-events:none;z-index:9998}
+.jul-cross-h{position:absolute;top:50%;left:0;width:100%;height:0.16vh;background:#fff;transform:translateY(-50%)}
+.jul-cross-v{position:absolute;left:50%;top:0;width:0.16vh;height:100%;background:#fff;transform:translateX(-50%)}
 
 /* ---------- freecam ---------- */
 .hovering-text-wrap{position:fixed;bottom:7.5vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;outline:none;min-width:18.52vh;font-family:var(--font)}
@@ -1234,7 +1233,7 @@ function keyUI(show){
 const X={slot:{g:0}};
 function buildCross(){
   const cr=$('div','jul-crosshair');
-  cr.append($('div','jul-cross-ring'),$('div','jul-cross-h'),$('div','jul-cross-v'));
+  cr.append($('div','jul-cross-h'),$('div','jul-cross-v'));
   app.append(cr);return [cr];
 }
 const planCross=(e,out)=>[tr(e[0],{kind:'scale',start:.7,dur:220,base:'translate(-50%,-50%)'},out)];

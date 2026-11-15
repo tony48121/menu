@@ -299,6 +299,10 @@ html,body,#app{background:transparent!important}
   content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
   background:linear-gradient(90deg,rgba(var(--ip-rgb),.95),rgba(var(--ip-rgb),.15));
   box-shadow:0 0 10px rgba(var(--ip-rgb),.35)}
+/* Vers le bas de l'ecran, mais pas colle au bord (demande explicite) : le
+   voile reste centre horizontalement, seul l'alignement vertical change. */
+.ip-overlay[data-mode="keybind"],.ip-overlay[data-mode="itemkeybind"]{
+  align-items:flex-end;padding-bottom:8vh}
 body,main{all:unset;display:block}
 
 /* ---------- notifications (notifications-simple.html) ----------
@@ -1242,9 +1246,12 @@ function warpKeyCaptureUI(show, label, title){
 function keyUI(show){
   present(K.slot,show,buildKey,planKey);
   const e=K.slot.els;if(!e)return;
-  const box=e[1],q=s=>box.querySelector(s);
+  const ov=e[0],box=e[1],q=s=>box.querySelector(s);
   const raw=String(K.value==null?'':K.value);
   const isKey=K.mode==='keybind'||K.mode==='itemkeybind';
+  /* data-mode sur le VOILE aussi (pas seulement le panneau) : lui seul
+     controle l'alignement (centre vs bas d'ecran), via CSS plus bas. */
+  ov.dataset.mode=String(K.mode);
   /* ce qui depend du mode (icone, sous-titre, pied) n'est refait que s'il change */
   if(box.dataset.mode!==String(K.mode)){
     box.dataset.mode=String(K.mode);

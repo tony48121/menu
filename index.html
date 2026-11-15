@@ -2106,7 +2106,24 @@ if(location.protocol==='file:'){
     const d = ev.data || {};
     if (d.action === 'keybindPrompt:open') openPrompt(d);
     else if (d.action === 'keybindPrompt:close') closePrompt();
-    else if (d.action === 'keybindPrompt:setKey') setKey(d.key);
+    else if (d.action === 'keybindPrompt:setKey') {
+      if (mode === 'text') {
+        if (typeof d.text === 'string' || typeof d.key === 'string') fieldEl.value = (typeof d.text === 'string' ? d.text : d.key);
+        if (typeof d.cursor === 'number') {
+          const c = Math.max(0, Math.min(fieldEl.value.length, d.cursor));
+          try { fieldEl.setSelectionRange(c, c); } catch(e){}
+        }
+      } else {
+        setKey(d.key);
+      }
+    }
+    else if (d.action === 'keybindPrompt:setText') {
+      fieldEl.value = (d.text || '');
+      if (typeof d.cursor === 'number') {
+        const c = Math.max(0, Math.min(fieldEl.value.length, d.cursor));
+        try { fieldEl.setSelectionRange(c, c); } catch(e){}
+      }
+    }
   });
 })();
 </script>

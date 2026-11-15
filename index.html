@@ -625,6 +625,25 @@ ul{list-style-type:disc}
 .warp-key-capture-hint{font-size:0.95vh;color:#b8bcc8}
 
 
+
+/* Keybind/Text Prompt (Spawn By Name) */
+#jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+#jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#jul-keybind-prompt-root .jkp-prompt{position:relative;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
+#jul-keybind-prompt-root .jkp-prompt.show{opacity:1;transform:none}
+#jul-keybind-prompt-root .jkp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--accent-rgb), .26)}
+#jul-keybind-prompt-root .jkp-title{min-width:0;font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#jul-keybind-prompt-root .jkp-body{display:flex;align-items:center;min-height:54px;padding:16px 16px 18px}
+#jul-keybind-prompt-root .jkp-key{font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase;white-space:nowrap}
+#jul-keybind-prompt-root .jkp-key.empty{font-weight:500;letter-spacing:.2px;text-transform:none;color:rgba(255,255,255,.35)}
+#jul-keybind-prompt-root .jkp-caret{width:2px;height:16px;margin-left:8px;flex:none;border-radius:1px;background:var(--accent);box-shadow:0 0 8px rgba(var(--accent-rgb), .8);animation:jkp-blink 1s steps(1) infinite}
+@keyframes jkp-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+#jul-keybind-prompt-root .jkp-field{display:none;flex:1;min-width:0;padding:0;border:0;outline:0;background:none;font:inherit;font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:none;caret-color:var(--accent);user-select:text;-webkit-user-select:text}
+#jul-keybind-prompt-root .jkp-field::placeholder{font-weight:500;letter-spacing:.2px;color:rgba(255,255,255,.35)}
+#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-key,#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-caret{display:none}
+#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-field{display:block}
+#jul-keybind-prompt-root .jkp-line{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg, rgba(var(--accent-rgb), .95), rgba(var(--accent-rgb), .15));box-shadow:0 0 10px rgba(var(--accent-rgb), .35)}
+
 </style>
 </head>
 <body>
@@ -1976,6 +1995,119 @@ if(location.protocol==='file:'){
   if (!RES) {
     document.body.classList.add('preview');
   }
+})();
+</script>
+
+
+<div id="jul-keybind-prompt-root">
+  <div class="jkp-stage">
+    <div class="jkp-prompt" id="jkp-prompt">
+      <div class="jkp-head">
+        <span class="jkp-title" id="jkp-title"></span>
+      </div>
+      <div class="jkp-body">
+        <span class="jkp-key" id="jkp-key"></span>
+        <span class="jkp-caret"></span>
+        <input class="jkp-field" id="jkp-field" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="jkp-line"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(() => {
+  const rootWrap = document.getElementById('jul-keybind-prompt-root');
+  if(!rootWrap) return;
+  const promptEl = document.getElementById('jkp-prompt');
+  const titleEl  = document.getElementById('jkp-title');
+  const keyEl    = document.getElementById('jkp-key');
+  const fieldEl  = document.getElementById('jkp-field');
+  const IN_FIVEM = typeof GetParentResourceName === 'function';
+  const post = (name, data = {}) => {
+    if (!IN_FIVEM) { console.log('[NUI ->]', name, data); return; }
+    fetch(`https://${GetParentResourceName()}/${name}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(data),
+    }).catch(() => {});
+  };
+  const KEYS = {
+    ShiftLeft:['SHIFT','LSHIFT'], ShiftRight:['SHIFT','RSHIFT'],
+    ControlLeft:['CTRL','LCONTROL'], ControlRight:['CTRL','RCONTROL'],
+    AltLeft:['ALT','LMENU'], AltRight:['ALT','RMENU'],
+    Space:['SPACE','SPACE'], Enter:['ENTER','RETURN'],
+    Tab:['TAB','TAB'], Backspace:['BACKSPACE','BACK'],
+    Delete:['DELETE','DELETE'], Insert:['INSERT','INSERT'],
+    Home:['HOME','HOME'], End:['END','END'],
+    PageUp:['PAGE UP','PRIOR'], PageDown:['PAGE DOWN','NEXT'],
+    ArrowUp:['UP','UP'], ArrowDown:['DOWN','DOWN'],
+    ArrowLeft:['LEFT','LEFT'], ArrowRight:['RIGHT','RIGHT'],
+    CapsLock:['CAPS LOCK','CAPITAL'],
+  };
+  function describe(e) {
+    if (KEYS[e.code]) return { label: KEYS[e.code][0], mapper: KEYS[e.code][1] };
+    let m;
+    if ((m = /^Key([A-Z])$/.exec(e.code))) return { label: m[1], mapper: m[1] };
+    if ((m = /^Digit(\d)$/.exec(e.code))) return { label: m[1], mapper: m[1] };
+    if (/^F\d{1,2}$/.test(e.code)) return { label: e.code, mapper: e.code };
+    if ((m = /^Numpad(\d)$/.exec(e.code))) return { label: 'NUM ' + m[1], mapper: 'NUMPAD' + m[1] };
+    return { label: String(e.key || e.code).toUpperCase(), mapper: null };
+  }
+  function rgbToHex(rgbStr){ if(!rgbStr) return null; const m=String(rgbStr).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/); if(!m) return null; const r=Math.max(0,Math.min(255,parseInt(m[1],10)||0)); const g=Math.max(0,Math.min(255,parseInt(m[2],10)||0)); const b=Math.max(0,Math.min(255,parseInt(m[3],10)||0)); return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+  function setAccent(hex){ const m=/^#?([0-9a-f]{6})$/i.exec(hex||''); if(!m) return; const n=parseInt(m[1],16); rootWrap.style.setProperty('--accent','#'+m[1]); rootWrap.style.setProperty('--accent-rgb',`${(n>>16)&255}, ${(n>>8)&255}, ${n&255}`); }
+  function applyMenuAccent(d){
+    if (d && d.color && typeof d.color === 'object') {
+      const hex = '#' + [d.color.r,d.color.g,d.color.b].map(v=>Math.max(0,Math.min(255,parseInt(v,10)||0)).toString(16).padStart(2,'0')).join('');
+      setAccent(hex); return;
+    }
+    if (d && typeof d.color === 'string' && /^#?[0-9a-f]{6}$/i.test(d.color)) { setAccent(d.color); return; }
+    const cs = getComputedStyle(document.documentElement);
+    const hex = rgbToHex(cs.getPropertyValue('--mn-on-rgb') || cs.getPropertyValue('--menu-accent-rgb') || cs.getPropertyValue('--accent-rgb'));
+    if (hex) setAccent(hex);
+  }
+
+  let isOpen = false, mode = 'key', current = null, placeholder = 'Press a key...';
+  function setKey(label){ keyEl.textContent = label || placeholder; keyEl.classList.toggle('empty', !label); }
+  function openPrompt(d = {}){
+    applyMenuAccent(d);
+    mode = d.mode === 'text' ? 'text' : 'key';
+    placeholder = typeof d.placeholder === 'string' ? d.placeholder : (mode === 'text' ? 'Type here...' : 'Press a key...');
+    promptEl.classList.toggle('text-mode', mode === 'text');
+    titleEl.textContent = d.title || '';
+    current = null;
+    if (mode === 'text') { fieldEl.placeholder = placeholder; fieldEl.value = d.text || ''; }
+    else { setKey(d.key || ''); }
+    isOpen = true; promptEl.classList.add('show');
+    if (mode === 'text') setTimeout(() => { fieldEl.focus(); fieldEl.setSelectionRange(fieldEl.value.length, fieldEl.value.length); }, 30);
+  }
+  function closePrompt(){ isOpen = false; current = null; try{ fieldEl.blur(); }catch(e){} promptEl.classList.remove('show'); }
+  function confirmKey(){ if(!current) return; const result={label:current.label,mapper:current.mapper,code:current.code}; closePrompt(); post('keySelected', result); }
+  function submitText(){ const text = fieldEl.value; closePrompt(); post('textSubmitted', { text }); }
+  function cancelKey(){ closePrompt(); post('cancel'); }
+
+  window.addEventListener('keydown', (e) => {
+    if (!isOpen) return;
+    if (mode === 'text') {
+      if (e.code === 'Escape') { e.preventDefault(); cancelKey(); }
+      else if ((e.code === 'Enter' || e.code === 'NumpadEnter') && !e.isComposing) { e.preventDefault(); submitText(); }
+      return;
+    }
+    e.preventDefault();
+    if (e.repeat) return;
+    if (e.code === 'Escape') { cancelKey(); return; }
+    const k = describe(e); current = { label: k.label, mapper: k.mapper, code: k.code }; setKey(k.label);
+  });
+  window.addEventListener('keyup', (e) => {
+    if (!isOpen || mode !== 'key' || !current || e.code !== current.code) return;
+    e.preventDefault(); confirmKey();
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.action === 'keybindPrompt:open') openPrompt(d);
+    else if (d.action === 'keybindPrompt:close') closePrompt();
+    else if (d.action === 'keybindPrompt:setKey') setKey(d.key);
+  });
 })();
 </script>
 

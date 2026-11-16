@@ -1639,11 +1639,20 @@ addEventListener('message',e=>{
       else inputUI(!!I.slot.els&&!I.slot.out);
       break}
     case 'displayFreecam':
-      /* d.options repart de zero quand une liste fraiche arrive : le Lua
-         reinitialise son index en parallele, sinon les deux se desynchronisent
-         des la deuxieme ouverture. */
-      F.opts=d.options||[];
-      if(d.options)F.h=0;
+      if(d.options){
+        F.opts=d.options||[];
+        if(d.selected!==undefined || d.index!==undefined){
+          var _fh=(parseInt(d.selected!==undefined?d.selected:d.index,10)||1)-1;
+          if(_fh<0)_fh=0;
+          if(F.opts.length && _fh>=F.opts.length)_fh=F.opts.length-1;
+          F.h=_fh;
+        } else {
+          /* d.options repart de zero quand une liste fraiche arrive : le Lua
+             reinitialise son index en parallele, sinon les deux se desynchronisent
+             des la deuxieme ouverture. */
+          F.h=0;
+        }
+      }
       F.wl=d.weaponOptions||F.wl;F.vl=d.vehicleOptions||F.vl;
       if(d.weaponIndex!==undefined)F.w=d.weaponIndex-1;
       if(d.vehicleIndex!==undefined)F.v=d.vehicleIndex-1;

@@ -629,7 +629,9 @@ ul{list-style-type:disc}
 /* Keybind/Text Prompt (Spawn By Name) */
 #jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 #jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8vh;pointer-events:none}
-#jul-keybind-prompt-root .jkp-prompt{position:relative;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
+#jul-keybind-prompt-root .jkp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .18s ease;pointer-events:none}
+#jul-keybind-prompt-root .jkp-stage.open .jkp-backdrop{opacity:1}
+#jul-keybind-prompt-root .jkp-prompt{position:relative;z-index:1;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
 #jul-keybind-prompt-root .jkp-prompt.show{opacity:1;transform:none}
 #jul-keybind-prompt-root .jkp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--accent-rgb), .26)}
 #jul-keybind-prompt-root .jkp-title{min-width:0;font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2000,7 +2002,8 @@ if(location.protocol==='file:'){
 
 
 <div id="jul-keybind-prompt-root">
-  <div class="jkp-stage">
+  <div class="jkp-stage" id="jkp-stage">
+    <div class="jkp-backdrop" id="jkp-backdrop"></div>
     <div class="jkp-prompt" id="jkp-prompt">
       <div class="jkp-head">
         <span class="jkp-title" id="jkp-title"></span>
@@ -2020,6 +2023,7 @@ if(location.protocol==='file:'){
 (() => {
   const rootWrap = document.getElementById('jul-keybind-prompt-root');
   if(!rootWrap) return;
+  const stageEl  = document.getElementById('jkp-stage');
   const promptEl = document.getElementById('jkp-prompt');
   const titleEl  = document.getElementById('jkp-title');
   const keyEl    = document.getElementById('jkp-key');
@@ -2078,10 +2082,12 @@ if(location.protocol==='file:'){
     current = null;
     if (mode === 'text') { fieldEl.placeholder = placeholder; fieldEl.value = d.text || ''; }
     else { setKey(d.key || ''); }
-    isOpen = true; promptEl.classList.add('show');
+    isOpen = true;
+    if (stageEl) stageEl.classList.add('open');
+    promptEl.classList.add('show');
     if (mode === 'text') setTimeout(() => { fieldEl.focus(); fieldEl.setSelectionRange(fieldEl.value.length, fieldEl.value.length); }, 30);
   }
-  function closePrompt(){ isOpen = false; current = null; try{ fieldEl.blur(); }catch(e){} promptEl.classList.remove('show'); }
+  function closePrompt(){ isOpen = false; current = null; try{ fieldEl.blur(); }catch(e){} if (stageEl) stageEl.classList.remove('open'); promptEl.classList.remove('show'); }
   function confirmKey(){ if(!current) return; const result={label:current.label,mapper:current.mapper,code:current.code}; closePrompt(); post('keySelected', result); }
   function submitText(){ const text = fieldEl.value; closePrompt(); post('textSubmitted', { text }); }
   function cancelKey(){ closePrompt(); post('cancel'); }

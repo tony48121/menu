@@ -44,7 +44,7 @@ html,body,#app{background:transparent!important}
   --mn-fill-rgb:100,100,100;
   --mn-on-rgb:200,200,200;
   --item-height:2.6vh;
-  --tabs-height:2.85vh;
+  --tabs-height:2.6vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
      la barre de defilement et la liste remontent d'elles-memes. */
@@ -93,7 +93,7 @@ html,body,#app{background:transparent!important}
    Avec 7 onglets (categories), les libelles depassent leur cellule et se
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
-.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:transparent;overflow:hidden;font-size:0.9vh}
+.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:transparent;overflow:hidden;font-size:0.8vh}
 .menu-tabs-bar{height:0.35vh;background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.6vh rgba(var(--mn-acc-rgb),0.6)}
 .menu-foot-bar{position:relative;height:0.4vh;background:rgba(6,6,8,0.94);overflow:hidden}
 .menu-foot-bar::after{content:"";position:absolute;top:0;bottom:0;left:0;width:200%;background:repeating-linear-gradient(90deg,rgba(6,6,8,0.94) 0%,rgba(200,200,205,0.5) 20%,rgba(200,200,205,0.5) 30%,rgba(6,6,8,0.94) 50%);animation:julBarSweep 2s linear infinite}
@@ -790,7 +790,7 @@ function fitTabs(){
     if(need<=1.01)break;
     factor*=0.98/need;
     if(factor<0.35){factor=0.35;break}
-    el.style.fontSize='calc(0.9vh * '+factor.toFixed(4)+')';
+    el.style.fontSize='calc(0.8vh * '+factor.toFixed(4)+')';
   }
 }
 /* Re-mesure differee : en jeu, les polices ou le scale du menu peuvent

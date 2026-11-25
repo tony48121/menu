@@ -44,7 +44,7 @@ html,body,#app{background:transparent!important}
   --mn-fill-rgb:100,100,100;
   --mn-on-rgb:200,200,200;
   --item-height:2.6vh;
-  --tabs-height:3.75vh;
+  --tabs-height:2.85vh;
   --banner-height:10.9vh;
   /* bandeau de titre ("Main Menu") SUPPRIME a la demande : hauteur 0 pour que
      la barre de defilement et la liste remontent d'elles-memes. */
@@ -64,8 +64,11 @@ html,body,#app{background:transparent!important}
      .menu-card   : la liste des categories (meme habillage)
      .menu-footer : barre noire du bas (JUL | logo | compteur)
    .menu-root ne dessine plus rien lui-meme : il ne fait que les empiler. */
-.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;display:flex;flex-direction:column;gap:0.5vh}
-.menu-head,.menu-card{position:relative;overflow:hidden;border-radius:1.1vh;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
+.menu-root{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#f1f2f6;position:fixed;width:37vh;z-index:1000;display:flex;flex-direction:column;gap:0}
+.menu-head,.menu-card{position:relative;overflow:hidden;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
+.menu-head{background:#000}
+.menu-head{border-radius:1.1vh 1.1vh 0 0;border-bottom:none}
+.menu-card{border-radius:0;border-top:none;border-bottom:none}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
 .menu-banner{position:relative;height:var(--banner-height);overflow:hidden;border-radius:1vh 1vh 0 0;background:#050506}
@@ -90,7 +93,11 @@ html,body,#app{background:transparent!important}
    Avec 7 onglets (categories), les libelles depassent leur cellule et se
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
-.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:transparent;overflow:hidden;font-size:1.06vh}
+.menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:transparent;overflow:hidden;font-size:0.9vh}
+.menu-tabs-bar{height:0.35vh;background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.6vh rgba(var(--mn-acc-rgb),0.6)}
+.menu-foot-bar{position:relative;height:0.4vh;background:rgba(6,6,8,0.94);overflow:hidden}
+.menu-foot-bar::after{content:"";position:absolute;top:0;bottom:0;left:0;width:200%;background:repeating-linear-gradient(90deg,rgba(6,6,8,0.94) 0%,rgba(200,200,205,0.5) 20%,rgba(200,200,205,0.5) 30%,rgba(6,6,8,0.94) 50%);animation:julBarSweep 2s linear infinite}
+@keyframes julBarSweep{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .tab-item{flex:1 1 0;min-width:0;padding:0 .3vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;font-size:inherit;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;color:#5d6070;user-select:none;cursor:pointer;transition:color 0.15s,background 0.15s;background:transparent}
 .tab-item:hover{color:#c9ccd6}
 /* titre seul ("Main Menu", nom de sous-menu, "Freecam") : EXACTEMENT la couleur de l'onglet actif
@@ -103,14 +110,15 @@ html,body,#app{background:transparent!important}
    BAS du menu (bas du pied), au lieu de ne couvrir que la liste. top+bottom
    (plutot qu'une hauteur fixe en vh) fait que le rail suit toujours la hauteur
    reelle du menu, quel que soit le nombre d'options affichees. */
-.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) - 0.3vh);bottom:-0.3vh;width:1vh}
-/* piste NOIRE pleine hauteur, avec une fleche en haut et une en bas (comme sur la capture) */
-.scrollbar-track{width:100%;height:100%;background:#000;border:0.1vh solid rgba(255,255,255,0.10);box-sizing:border-box;border-radius:0.3vh;position:relative}
-.scrollbar-track::before,.scrollbar-track::after{content:"";position:absolute;left:50%;width:0.34vh;height:0.34vh;box-sizing:border-box;border-style:solid;border-color:#e9ebf0;border-width:0.13vh 0 0 0.13vh;pointer-events:none}
-.scrollbar-track::before{top:0.42vh;transform:translateX(-50%) rotate(45deg)}
-.scrollbar-track::after{bottom:0.42vh;transform:translateX(-50%) rotate(225deg)}
-/* curseur BLEU (couleur du menu) : degrade horizontal, bords plus sombres, centre plus clair */
-.scrollbar-thumb{position:absolute;top:0;left:0.12vh;right:0.12vh;width:auto;background:linear-gradient(90deg,rgb(var(--mn-lo-rgb)) 0%,rgb(var(--mn-hi-rgb)) 50%,rgb(var(--mn-acc-rgb)) 100%);border-radius:0.25vh;transition:top 0.16s ease-out,height 0.16s ease-out;min-height:2.2vh}
+.menu-scrollbar{position:absolute;left:-1.7vh;top:calc(var(--banner-height) + var(--crumb-h) + 0.35vh + var(--tabs-height));bottom:2.58vh;width:1vh}
+/* rail transparent + fleches chevron + curseur degrade (barre fournie par Sam, reproduite a l'identique) */
+.scrollbar-track{width:100%;height:100%;background:transparent;border:none;box-sizing:border-box;position:relative}
+.scrollbar-track::before{content:"";position:absolute;left:50%;width:0.35vh;top:1vh;bottom:1vh;transform:translateX(-50%);background:rgba(5,5,5,0.55);border-radius:0.16vh}
+.scrollbar-arrow{position:absolute;left:50%;transform:translateX(-50%);width:0.55vh;height:0.55vh;display:flex;align-items:center;justify-content:center;color:#8a9399;pointer-events:none}
+.scrollbar-arrow svg{width:100%;height:100%;display:block}
+.scrollbar-arrow.up{top:0.12vh}
+.scrollbar-arrow.down{bottom:0.12vh}
+.scrollbar-thumb{position:absolute;left:50%;width:0.75vh;margin-left:-0.375vh;border-radius:0.12vh;background:linear-gradient(to right,rgb(var(--mn-hi-rgb)),rgb(var(--mn-acc-rgb)) 50%,rgb(var(--mn-hi-rgb)));transition:top 0.16s ease-out,height 0.16s ease-out;min-height:9vh;box-shadow:0 0 0.6vh rgba(var(--mn-acc-rgb),0.9),0 0 1.2vh rgba(var(--mn-acc-rgb),0.6),0 0 2vh rgba(var(--mn-acc-rgb),0.35)}
 
 /* ---------- liste ---------- */
 .menu-body{background:transparent;overflow:hidden}
@@ -175,16 +183,14 @@ html,body,#app{background:transparent!important}
 /* ---------- pied : nom | logo | compteur ---------- */
 /* Barre detachee : presque pleine (noir), meme contour et meme rayon que la carte,
    un espace de 0.5vh au-dessus (gap de .menu-root). Rien ne la relie a la liste. */
-.menu-footer{background:rgba(6,6,8,0.94);/* hauteur 3.4vh (avant 4.4vh) */display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:3.4vh;box-sizing:border-box;padding:0 1.3vh;border:0.1vh solid rgba(255,255,255,0.12);border-radius:1vh;overflow:hidden;box-shadow:0 0.4vh 1.2vh rgba(0,0,0,0.35)}
-.footer-who{display:flex;align-items:center;gap:0.9vh;min-width:0}
+.menu-footer{background:rgba(6,6,8,0.94);/* hauteur 3.4vh (avant 4.4vh) */display:grid;grid-template-columns:1fr 1fr;align-items:center;height:2.58vh;box-sizing:border-box;padding:0 1.3vh;border:0.1vh solid rgba(255,255,255,0.12);border-top:none;border-radius:0 0 1vh 1vh;overflow:hidden;box-shadow:0 0.4vh 1.2vh rgba(0,0,0,0.35)}
+.footer-who{display:flex;align-items:center;gap:0.7vh;min-width:0}
 /* Logo image optionnel (FOOTER_LOGO_URL / setFooterLogo) : "screen" rend le noir transparent. */
 .footer-logo{display:flex;align-items:center;height:100%}
 .footer-logo:empty{display:none}
-.footer-logo img{height:1.8vh;width:auto;display:block;mix-blend-mode:screen}
-.footer-brand{font-size:1.04vh;font-weight:700;letter-spacing:0.04em;color:#f1f2f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.footer-mark{display:flex;align-items:center;justify-content:center}
-.footer-mark svg{width:1.5vh;height:1.5vh;opacity:0.9}
-.footer-counter{justify-self:end;font-size:1.04vh;font-weight:700;font-variant-numeric:tabular-nums;color:#e3e5ec;white-space:nowrap}
+.footer-logo img{height:1.4vh;width:auto;display:block;mix-blend-mode:screen}
+.footer-brand{font-size:0.88vh;font-weight:700;letter-spacing:0.04em;color:#f1f2f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.footer-counter{justify-self:end;font-size:0.88vh;font-weight:700;font-variant-numeric:tabular-nums;color:#e3e5ec;white-space:nowrap}
 
 /* ---------- saisie ---------- */
 .input-overlay{position:fixed;top:0;left:0;transform:none;width:100%;height:100%;background:rgb(0,0,0,0.5);z-index:999999;color:white;font-weight:500;font-family:var(--font);font-size:1.2vh}
@@ -625,27 +631,6 @@ ul{list-style-type:disc}
 .warp-key-capture-hint{font-size:0.95vh;color:#b8bcc8}
 
 
-
-/* Keybind/Text Prompt (Spawn By Name) */
-#jul-keybind-prompt-root{position:fixed;inset:0;pointer-events:none;z-index:1000002;--accent:#2fe06a;--accent-rgb:47,224,106;font-family:'Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
-#jul-keybind-prompt-root .jkp-stage{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8vh;pointer-events:none}
-#jul-keybind-prompt-root .jkp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .18s ease;pointer-events:none}
-#jul-keybind-prompt-root .jkp-stage.open .jkp-backdrop{opacity:1}
-#jul-keybind-prompt-root .jkp-prompt{position:relative;z-index:1;width:500px;max-width:92vw;border-radius:6px;overflow:hidden;background:linear-gradient(180deg, rgba(var(--accent-rgb), 0) 55%, rgba(var(--accent-rgb), .06) 100%),linear-gradient(180deg, #0c0e0d 0%, #070808 100%);border:1px solid rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.985);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
-#jul-keybind-prompt-root .jkp-prompt.show{opacity:1;transform:none}
-#jul-keybind-prompt-root .jkp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(var(--accent-rgb), .26)}
-#jul-keybind-prompt-root .jkp-title{min-width:0;font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#jul-keybind-prompt-root .jkp-body{display:flex;align-items:center;min-height:54px;padding:16px 16px 18px}
-#jul-keybind-prompt-root .jkp-key{font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase;white-space:nowrap}
-#jul-keybind-prompt-root .jkp-key.empty{font-weight:500;letter-spacing:.2px;text-transform:none;color:rgba(255,255,255,.35)}
-#jul-keybind-prompt-root .jkp-caret{width:2px;height:16px;margin-left:8px;flex:none;border-radius:1px;background:var(--accent);box-shadow:0 0 8px rgba(var(--accent-rgb), .8);animation:jkp-blink 1s steps(1) infinite}
-@keyframes jkp-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
-#jul-keybind-prompt-root .jkp-field{display:none;flex:1;min-width:0;padding:0;border:0;outline:0;background:none;font:inherit;font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:none;caret-color:var(--accent);user-select:text;-webkit-user-select:text}
-#jul-keybind-prompt-root .jkp-field::placeholder{font-weight:500;letter-spacing:.2px;color:rgba(255,255,255,.35)}
-#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-key,#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-caret{display:none}
-#jul-keybind-prompt-root .jkp-prompt.text-mode .jkp-field{display:block}
-#jul-keybind-prompt-root .jkp-line{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg, rgba(var(--accent-rgb), .95), rgba(var(--accent-rgb), .15));box-shadow:0 0 10px rgba(var(--accent-rgb), .35)}
-
 </style>
 </head>
 <body>
@@ -748,7 +733,10 @@ function buildMenu(){
   if(B.banner)img.src=B.banner;else img.style.display='none';
   ban.append(chrome,img);
   const crumb=$('div','menu-crumb'),tabs=$('div','menu-tabs');
-  const sb=$('div','menu-scrollbar'),trk=$('div','scrollbar-track'),thumb=$('div','scrollbar-thumb');trk.append(thumb);sb.append(trk);
+  const sb=$('div','menu-scrollbar'),trk=$('div','scrollbar-track'),thumb=$('div','scrollbar-thumb');
+  const arrUp=$('div','scrollbar-arrow up');arrUp.innerHTML='<svg viewBox="0 0 10 10"><path d="M1 7 5 3 9 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const arrDown=$('div','scrollbar-arrow down');arrDown.innerHTML='<svg viewBox="0 0 10 10"><path d="M1 3 5 7 9 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  trk.append(arrUp,thumb,arrDown);sb.append(trk);
   const body=$('div','menu-body'),list=$('div','menu-items');list.onscroll=onScroll;
   const hl=$('div','selection-highlight');hl.style.top=B.hlTop+'px';list.append(hl);body.append(list);
   const foot=$('div','menu-footer'),cnt=$('span','footer-counter');const logo=$('span','footer-logo');
@@ -757,12 +745,13 @@ function buildMenu(){
      fait survivre un logo configure. */
   if(B.logoUrl)applyFooterLogo(logo,B.logoUrl);
   const who=$('div','footer-who'),brand=$('span','footer-brand',B.userName||'JUL');who.append(logo,brand);
-  const mid=$('div','footer-mark');mid.innerHTML='<svg viewBox="0 0 40 40" fill="#e3e5ec"><path d="M14 6h20v18c0 6.6-5.4 12-12 12h-2C13.4 36 8 30.6 8 24v-2h10v2c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V12H14z"/></svg>';
-  foot.append(who,mid,cnt);
+  foot.append(who,cnt);
   /* trois blocs distincts : en-tete (banniere + onglets), liste, pied */
-  const head=$('div','menu-head');head.append(ban,crumb,tabs);
+  const tabsBar=$('div','menu-tabs-bar');
+  const head=$('div','menu-head');head.append(ban,crumb,tabsBar,tabs);
   const card=$('div','menu-card');card.append(body);
-  r.append(head,card,sb,foot);app.append(r);
+  const footBar=$('div','menu-foot-bar');
+  r.append(head,card,sb,footBar,foot);app.append(r);
   Object.assign(B,{root:r,img,crumbEl:crumb,tabsEl:tabs,sb,trackEl:trk,thumb,list,hl,cnt,logoEl:logo,brandEl:brand,rows:[],arrowPx:0});
   renderTabs();renderCrumb();applyBar();applyBannerOffset();
   return [r];
@@ -801,7 +790,7 @@ function fitTabs(){
     if(need<=1.01)break;
     factor*=0.98/need;
     if(factor<0.35){factor=0.35;break}
-    el.style.fontSize='calc(1.06vh * '+factor.toFixed(4)+')';
+    el.style.fontSize='calc(0.9vh * '+factor.toFixed(4)+')';
   }
 }
 /* Re-mesure differee : en jeu, les polices ou le scale du menu peuvent
@@ -1225,7 +1214,7 @@ const IP_SVG={
 const IP_FOOT={
   typeable:[['Enter','Confirm'],['Esc','Cancel'],['⌫','Delete']],
   keybind:[['Enter','Confirm'],['Esc','Cancel']],
-  itemkeybind:[['Enter','Confirm'],['Esc','Cancel']]};
+  itemkeybind:[['Key','Bind'],['Esc','Cancel']]};
 function buildKey(){
   const ov=$('div','ip-overlay'),box=$('div','ip-panel'),head=$('div','ip-head');
   const badge=$('div','ip-badge'),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -1639,20 +1628,11 @@ addEventListener('message',e=>{
       else inputUI(!!I.slot.els&&!I.slot.out);
       break}
     case 'displayFreecam':
-      if(d.options){
-        F.opts=d.options||[];
-        if(d.selected!==undefined || d.index!==undefined){
-          var _fh=(parseInt(d.selected!==undefined?d.selected:d.index,10)||1)-1;
-          if(_fh<0)_fh=0;
-          if(F.opts.length && _fh>=F.opts.length)_fh=F.opts.length-1;
-          F.h=_fh;
-        } else {
-          /* d.options repart de zero quand une liste fraiche arrive : le Lua
-             reinitialise son index en parallele, sinon les deux se desynchronisent
-             des la deuxieme ouverture. */
-          F.h=0;
-        }
-      }
+      /* d.options repart de zero quand une liste fraiche arrive : le Lua
+         reinitialise son index en parallele, sinon les deux se desynchronisent
+         des la deuxieme ouverture. */
+      F.opts=d.options||[];
+      if(d.options)F.h=0;
       F.wl=d.weaponOptions||F.wl;F.vl=d.vehicleOptions||F.vl;
       if(d.weaponIndex!==undefined)F.w=d.weaponIndex-1;
       if(d.vehicleIndex!==undefined)F.v=d.vehicleIndex-1;
@@ -2006,140 +1986,6 @@ if(location.protocol==='file:'){
   if (!RES) {
     document.body.classList.add('preview');
   }
-})();
-</script>
-
-
-<div id="jul-keybind-prompt-root">
-  <div class="jkp-stage" id="jkp-stage">
-    <div class="jkp-backdrop" id="jkp-backdrop"></div>
-    <div class="jkp-prompt" id="jkp-prompt">
-      <div class="jkp-head">
-        <span class="jkp-title" id="jkp-title"></span>
-      </div>
-      <div class="jkp-body">
-        <span class="jkp-key" id="jkp-key"></span>
-        <span class="jkp-caret"></span>
-        <input class="jkp-field" id="jkp-field" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      </div>
-      <div class="jkp-line"></div>
-    </div>
-  </div>
-</div>
-
-
-<script>
-(() => {
-  const rootWrap = document.getElementById('jul-keybind-prompt-root');
-  if(!rootWrap) return;
-  const stageEl  = document.getElementById('jkp-stage');
-  const promptEl = document.getElementById('jkp-prompt');
-  const titleEl  = document.getElementById('jkp-title');
-  const keyEl    = document.getElementById('jkp-key');
-  const fieldEl  = document.getElementById('jkp-field');
-  const IN_FIVEM = typeof GetParentResourceName === 'function';
-  const post = (name, data = {}) => {
-    if (!IN_FIVEM) { console.log('[NUI ->]', name, data); return; }
-    fetch(`https://${GetParentResourceName()}/${name}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify(data),
-    }).catch(() => {});
-  };
-  const KEYS = {
-    ShiftLeft:['SHIFT','LSHIFT'], ShiftRight:['SHIFT','RSHIFT'],
-    ControlLeft:['CTRL','LCONTROL'], ControlRight:['CTRL','RCONTROL'],
-    AltLeft:['ALT','LMENU'], AltRight:['ALT','RMENU'],
-    Space:['SPACE','SPACE'], Enter:['ENTER','RETURN'],
-    Tab:['TAB','TAB'], Backspace:['BACKSPACE','BACK'],
-    Delete:['DELETE','DELETE'], Insert:['INSERT','INSERT'],
-    Home:['HOME','HOME'], End:['END','END'],
-    PageUp:['PAGE UP','PRIOR'], PageDown:['PAGE DOWN','NEXT'],
-    ArrowUp:['UP','UP'], ArrowDown:['DOWN','DOWN'],
-    ArrowLeft:['LEFT','LEFT'], ArrowRight:['RIGHT','RIGHT'],
-    CapsLock:['CAPS LOCK','CAPITAL'],
-  };
-  function describe(e) {
-    if (KEYS[e.code]) return { label: KEYS[e.code][0], mapper: KEYS[e.code][1] };
-    let m;
-    if ((m = /^Key([A-Z])$/.exec(e.code))) return { label: m[1], mapper: m[1] };
-    if ((m = /^Digit(\d)$/.exec(e.code))) return { label: m[1], mapper: m[1] };
-    if (/^F\d{1,2}$/.test(e.code)) return { label: e.code, mapper: e.code };
-    if ((m = /^Numpad(\d)$/.exec(e.code))) return { label: 'NUM ' + m[1], mapper: 'NUMPAD' + m[1] };
-    return { label: String(e.key || e.code).toUpperCase(), mapper: null };
-  }
-  function rgbToHex(rgbStr){ if(!rgbStr) return null; const m=String(rgbStr).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/); if(!m) return null; const r=Math.max(0,Math.min(255,parseInt(m[1],10)||0)); const g=Math.max(0,Math.min(255,parseInt(m[2],10)||0)); const b=Math.max(0,Math.min(255,parseInt(m[3],10)||0)); return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
-  function setAccent(hex){ const m=/^#?([0-9a-f]{6})$/i.exec(hex||''); if(!m) return; const n=parseInt(m[1],16); rootWrap.style.setProperty('--accent','#'+m[1]); rootWrap.style.setProperty('--accent-rgb',`${(n>>16)&255}, ${(n>>8)&255}, ${n&255}`); }
-  function applyMenuAccent(d){
-    if (d && d.color && typeof d.color === 'object') {
-      const hex = '#' + [d.color.r,d.color.g,d.color.b].map(v=>Math.max(0,Math.min(255,parseInt(v,10)||0)).toString(16).padStart(2,'0')).join('');
-      setAccent(hex); return;
-    }
-    if (d && typeof d.color === 'string' && /^#?[0-9a-f]{6}$/i.test(d.color)) { setAccent(d.color); return; }
-    const cs = getComputedStyle(document.documentElement);
-    const hex = rgbToHex(cs.getPropertyValue('--mn-on-rgb') || cs.getPropertyValue('--menu-accent-rgb') || cs.getPropertyValue('--accent-rgb'));
-    if (hex) setAccent(hex);
-  }
-
-  let isOpen = false, mode = 'key', current = null, placeholder = 'Press a key...';
-  function setKey(label){ keyEl.textContent = label || placeholder; keyEl.classList.toggle('empty', !label); }
-  function openPrompt(d = {}){
-    applyMenuAccent(d);
-    mode = d.mode === 'text' ? 'text' : 'key';
-    placeholder = typeof d.placeholder === 'string' ? d.placeholder : (mode === 'text' ? 'Type here...' : 'Press a key...');
-    promptEl.classList.toggle('text-mode', mode === 'text');
-    titleEl.textContent = d.title || '';
-    current = null;
-    if (mode === 'text') { fieldEl.placeholder = placeholder; fieldEl.value = d.text || ''; }
-    else { setKey(d.key || ''); }
-    isOpen = true;
-    if (stageEl) stageEl.classList.add('open');
-    promptEl.classList.add('show');
-    if (mode === 'text') setTimeout(() => { fieldEl.focus(); fieldEl.setSelectionRange(fieldEl.value.length, fieldEl.value.length); }, 30);
-  }
-  function closePrompt(){ isOpen = false; current = null; try{ fieldEl.blur(); }catch(e){} if (stageEl) stageEl.classList.remove('open'); promptEl.classList.remove('show'); }
-  function confirmKey(){ if(!current) return; const result={label:current.label,mapper:current.mapper,code:current.code}; closePrompt(); post('keySelected', result); }
-  function submitText(){ const text = fieldEl.value; closePrompt(); post('textSubmitted', { text }); }
-  function cancelKey(){ closePrompt(); post('cancel'); }
-
-  window.addEventListener('keydown', (e) => {
-    if (!isOpen) return;
-    if (mode === 'text') {
-      if (e.code === 'Escape' || e.code === 'Delete') { e.preventDefault(); cancelKey(); }
-      else if ((e.code === 'Enter' || e.code === 'NumpadEnter') && !e.isComposing) { e.preventDefault(); submitText(); }
-      return;
-    }
-    e.preventDefault();
-    if (e.repeat) return;
-    if (e.code === 'Escape') { cancelKey(); return; }
-    const k = describe(e); current = { label: k.label, mapper: k.mapper, code: k.code }; setKey(k.label);
-  });
-  window.addEventListener('keyup', (e) => {
-    if (!isOpen || mode !== 'key' || !current || e.code !== current.code) return;
-    e.preventDefault(); confirmKey();
-  });
-  window.addEventListener('message', (ev) => {
-    const d = ev.data || {};
-    if (d.action === 'keybindPrompt:open') openPrompt(d);
-    else if (d.action === 'keybindPrompt:close') closePrompt();
-    else if (d.action === 'keybindPrompt:setKey') {
-      if (mode === 'text') {
-        if (typeof d.text === 'string' || typeof d.key === 'string') fieldEl.value = (typeof d.text === 'string' ? d.text : d.key);
-        if (typeof d.cursor === 'number') {
-          const c = Math.max(0, Math.min(fieldEl.value.length, d.cursor));
-          try { fieldEl.setSelectionRange(c, c); } catch(e){}
-        }
-      } else {
-        setKey(d.key);
-      }
-    }
-    else if (d.action === 'keybindPrompt:setText') {
-      fieldEl.value = (d.text || '');
-      if (typeof d.cursor === 'number') {
-        const c = Math.max(0, Math.min(fieldEl.value.length, d.cursor));
-        try { fieldEl.setSelectionRange(c, c); } catch(e){}
-      }
-    }
-  });
 })();
 </script>
 

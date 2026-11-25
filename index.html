@@ -926,7 +926,7 @@ function bar(){
     B.trackH=Math.max(20,Math.round((B.sb?B.sb.clientHeight:L.clientHeight)+innerHeight*0.0054));
     B.over=L.scrollHeight>L.clientHeight+1;
     const sels=(Array.isArray(B.menu)?B.menu:[]).reduce((a,o,i)=>(o&&o.type!=='divider'&&a.push(i),a),[]),n=sels.length;
-    const k=Math.max(0,sels.indexOf(B.cur)),minH=Math.round(innerHeight*0.034);
+    const k=Math.max(0,sels.indexOf(B.cur)),minH=Math.round(innerHeight*0.054);
     /* zone utile du curseur = piste moins les deux fleches (haut et bas) */
     B.arrowPx=Math.round(innerHeight*0.011);
     const U=Math.max(10,B.trackH-2*B.arrowPx);

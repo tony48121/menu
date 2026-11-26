@@ -262,52 +262,48 @@ html,body,#app{background:transparent!important}
 @media (prefers-reduced-motion:reduce){.ip-caret{animation:none}}
 
 /* ===== Design "keybind-prompt" (fourni par l'utilisateur), applique
-   uniquement aux DEUX modes de capture de touche (Choose Menu Key, Choose
-   Key : <option>) : panneau sombre minimal, pas d'icone/sous-titre/pied,
-   juste le titre, la touche en gros + un curseur clignotant, et un filet
-   degrade en bas. Le mode de saisie de texte (Spawn Vehicle, plaque...)
-   n'est pas touche. --ip-rgb reste la couleur du theme du menu (comme
-   partout ailleurs), pas une couleur fixe : le panneau suit donc la
+   maintenant a TOUS les modes de prompt (texte, keybind, itemkeybind) :
+   panneau sombre minimal, pas d'icone/sous-titre/pied, juste le titre, la
+   valeur en gros + un curseur clignotant, et un filet degrade en bas.
+   L'ancien design "fancy" (badge, sous-titre, pied Enter/Esc/Delete) est
+   totalement supprime, y compris pour la saisie de texte (Paste banner
+   image URL, plaque, etc.). --ip-rgb reste la couleur du theme du menu
+   (comme partout ailleurs), pas une couleur fixe : le panneau suit donc la
    couleur choisie dans Settings. */
-.ip-panel[data-mode="keybind"],.ip-panel[data-mode="itemkeybind"]{
+.ip-panel{
   width:min(500px,92vw);border-radius:6px;box-shadow:none;
   border:1px solid rgba(255,255,255,.06);
   background:
     linear-gradient(180deg,rgba(var(--ip-rgb),0) 55%,rgba(var(--ip-rgb),.06) 100%),
     linear-gradient(180deg,#0c0e0d 0%,#070808 100%);
 }
-.ip-panel[data-mode="keybind"]::before,.ip-panel[data-mode="itemkeybind"]::before{content:none}
-.ip-panel[data-mode="keybind"] .ip-badge,.ip-panel[data-mode="itemkeybind"] .ip-badge,
-.ip-panel[data-mode="keybind"] .ip-sub,.ip-panel[data-mode="itemkeybind"] .ip-sub,
-.ip-panel[data-mode="keybind"] .ip-label,.ip-panel[data-mode="itemkeybind"] .ip-label,
-.ip-panel[data-mode="keybind"] .ip-prompt,.ip-panel[data-mode="itemkeybind"] .ip-prompt,
-.ip-panel[data-mode="keybind"] .ip-count,.ip-panel[data-mode="itemkeybind"] .ip-count,
-.ip-panel[data-mode="keybind"] .ip-foot,.ip-panel[data-mode="itemkeybind"] .ip-foot{display:none}
-.ip-panel[data-mode="keybind"] .ip-head,.ip-panel[data-mode="itemkeybind"] .ip-head{
+.ip-panel::before{content:none}
+.ip-badge,.ip-sub,.ip-label,.ip-prompt,.ip-count,.ip-foot{display:none}
+.ip-head{
   padding:13px 16px;background:none;border-bottom:1px solid rgba(var(--ip-rgb),.26)}
-.ip-panel[data-mode="keybind"] .ip-head::after,.ip-panel[data-mode="itemkeybind"] .ip-head::after{content:none}
-.ip-panel[data-mode="keybind"] .ip-title,.ip-panel[data-mode="itemkeybind"] .ip-title{
+.ip-head::after{content:none}
+.ip-title{
   font-size:13px;font-weight:600;letter-spacing:.2px;color:#f2f4f3}
-.ip-panel[data-mode="keybind"] .ip-body,.ip-panel[data-mode="itemkeybind"] .ip-body{
+.ip-body{
   display:flex;align-items:center;min-height:54px;padding:16px 16px 18px}
-.ip-panel[data-mode="keybind"] .ip-field,.ip-panel[data-mode="itemkeybind"] .ip-field{
+.ip-field{
   height:auto;padding:0;background:none;border-radius:0}
-.ip-panel[data-mode="keybind"] .ip-field::before,.ip-panel[data-mode="itemkeybind"] .ip-field::before{content:none}
-.ip-panel[data-mode="keybind"] .ip-text,.ip-panel[data-mode="itemkeybind"] .ip-text{
+.ip-field::before{content:none}
+.ip-text{
   font-size:15px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase}
-.ip-panel[data-mode="keybind"] .ip-ph,.ip-panel[data-mode="itemkeybind"] .ip-ph{
+.ip-ph{
   font-weight:500;letter-spacing:.2px;text-transform:none;color:rgba(255,255,255,.35)}
-.ip-panel[data-mode="keybind"] .ip-caret,.ip-panel[data-mode="itemkeybind"] .ip-caret{
+.ip-caret{
   width:2px;height:16px;margin-left:8px;border-radius:1px;
   background:rgb(var(--ip-rgb));box-shadow:0 0 8px rgba(var(--ip-rgb),.8);
   animation:ip-blink 1s steps(1) infinite}
-.ip-panel[data-mode="keybind"]::after,.ip-panel[data-mode="itemkeybind"]::after{
+.ip-panel::after{
   content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
   background:linear-gradient(90deg,rgba(var(--ip-rgb),.95),rgba(var(--ip-rgb),.15));
   box-shadow:0 0 10px rgba(var(--ip-rgb),.35)}
 /* Vers le bas de l'ecran, mais pas colle au bord (demande explicite) : le
    voile reste centre horizontalement, seul l'alignement vertical change. */
-.ip-overlay[data-mode="keybind"],.ip-overlay[data-mode="itemkeybind"]{
+.ip-overlay{
   align-items:flex-end;padding-bottom:8vh}
 body,main{all:unset;display:block}
 

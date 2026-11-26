@@ -723,11 +723,10 @@ function applyFooterLogo(lg,url){
 function buildMenu(){
   const r=$('div','menu-root');r.style.cssText=`top:${B.top};left:${B.left};transform-origin:top left`+(B.uiScale&&B.uiScale!==1?`;transform:scale(${B.uiScale})`:'');
   const ban=$('div','menu-banner'),img=$('img');img.alt='';
-  /* banniere chromee JUL par defaut ; une image (setBanner) se pose par-dessus */
-  const chrome=$('div','b-chrome');
-  chrome.innerHTML='<div class="b-brand"><div class="b-row"><svg viewBox="0 0 40 40" fill="none"><path d="M14 6h20v18c0 6.6-5.4 12-12 12h-2C13.4 36 8 30.6 8 24v-2h10v2c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V12H14z" fill="url(#jul-gm)"/><defs><linearGradient id="jul-gm" x1="6" y1="6" x2="34" y2="34"><stop stop-color="#fff"/><stop offset=".55" stop-color="#8a8e9a"/><stop offset="1" stop-color="#e6e8ee"/></linearGradient></defs></svg><b>JUL</b></div><small>MENU</small></div>';
+  /* ancienne banniere chromee JUL par defaut totalement supprimee : la zone
+     banniere reste vide (fond uni) tant qu'aucune image (setBanner) n'est posee. */
   if(B.banner)img.src=B.banner;else img.style.display='none';
-  ban.append(chrome,img);
+  ban.append(img);
   const crumb=$('div','menu-crumb'),tabs=$('div','menu-tabs');
   const sb=$('div','menu-scrollbar'),trk=$('div','scrollbar-track'),thumb=$('div','scrollbar-thumb');
   const arrUp=$('div','scrollbar-arrow up');arrUp.innerHTML='<svg viewBox="0 0 10 10"><path d="M1 7 5 3 9 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';

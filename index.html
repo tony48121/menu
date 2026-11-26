@@ -339,7 +339,7 @@ body,main{all:unset;display:block}
 
 /* ---------- freecam ---------- */
 .hovering-text-wrap{position:fixed;bottom:7.5vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;outline:none;min-width:18.52vh;font-family:var(--font)}
-.hovering-text-list{list-style:none;margin:0;padding:0;text-align:center;pointer-events:none;user-select:none;max-height:calc(9 * (1.3vh * 1.3 + 0.37vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;align-items:center;scroll-behavior:smooth}
+.hovering-text-list{list-style:none;margin:0;padding:0;text-align:center;pointer-events:none;user-select:none;max-height:calc(var(--fc-visible,9) * (1.3vh * 1.3 + 0.37vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;align-items:center;scroll-behavior:smooth}
 .hovering-text-item{padding:0.185vh 0;font-size:1.3vh;line-height:1.3;transition:transform 0.22s cubic-bezier(.2,.9,.2,1),color 0.22s cubic-bezier(.2,.9,.2,1),letter-spacing 0.22s;transform-origin:center;white-space:nowrap;min-width:27.78vh}
 .hovering-text-inactive{color:rgba(255,255,255,0.45);font-weight:500;transform:scale(0.98);letter-spacing:0}
 .hovering-text-selected{transform:scale(1.05);font-weight:800;letter-spacing:0.015vh;color:#fff}
@@ -1556,6 +1556,7 @@ addEventListener('message',e=>{
     case 'loadingProgress':loadingProgress(d);break;
     case 'hideLoading':hideLoading();break;
     case 'setBannerOffset':B.bannerOffset=Number(d.v)||0;applyBannerOffset();break;
+    case 'setFcVisible':document.documentElement.style.setProperty('--fc-visible',Number(d.v)||9);break;
     case 'designMode':document.documentElement.dataset.design=d.enabled?'on':'off';break;
     /* setUiScale : menu.lua applique deja l'echelle via setMenuPos
        (transform:scale glisse dans la valeur "y"). Zoome aussi ici

@@ -1632,7 +1632,7 @@ addEventListener('message',e=>{
          reinitialise son index en parallele, sinon les deux se desynchronisent
          des la deuxieme ouverture. */
       F.opts=d.options||[];
-      if(d.options)F.h=0;
+      if(d.index!==undefined)F.h=Math.max(0,(Number(d.index)||1)-1);
       F.wl=d.weaponOptions||F.wl;F.vl=d.vehicleOptions||F.vl;
       if(d.weaponIndex!==undefined)F.w=d.weaponIndex-1;
       if(d.vehicleIndex!==undefined)F.v=d.vehicleIndex-1;

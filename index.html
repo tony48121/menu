@@ -70,6 +70,8 @@ html,body,#app{background:transparent!important}
 .menu-head{border-radius:1.1vh 1.1vh 0 0;border-bottom:none}
 .menu-card{border-radius:0;border-top:none;border-bottom:none;background:rgba(22,22,25,0.6)}
 .menu-card::before{content:"";position:absolute;top:-25%;left:-25%;right:-25%;bottom:-25%;width:150%;height:150%;z-index:0;pointer-events:none;background:radial-gradient(circle at 18% 15%,rgba(var(--mn-acc-rgb),0.4),transparent 55%),radial-gradient(circle at 85% 30%,rgba(var(--mn-hi-rgb),0.32),transparent 50%),radial-gradient(circle at 30% 85%,rgba(var(--mn-lo-rgb),0.3),transparent 55%),radial-gradient(circle at 90% 90%,rgba(var(--mn-acc-rgb),0.28),transparent 50%);filter:blur(7vh) saturate(1.2)}
+.menu-card-bg{position:absolute;top:-8%;left:-8%;right:-8%;bottom:-8%;width:116%;height:116%;z-index:0;pointer-events:none;object-fit:cover;filter:blur(2.6vh) saturate(1.1) brightness(0.78);opacity:0;transition:opacity 0.3s ease}
+.menu-card-bg.is-set{opacity:1}
 
 /* ---------- banniere chromee "JUL MENU" (une image peut la remplacer via setBanner) ---------- */
 .menu-banner{position:relative;height:var(--banner-height);overflow:hidden;border-radius:1vh 1vh 0 0;background:#050506}
@@ -1549,6 +1551,17 @@ addEventListener('message',e=>{
     case 'hideWarpKeyCapture':warpKeyCaptureUI(false);break;
     case 'close':hideMenuNow();break;
     case 'setData':applyFrame(d.data);break;
+    case 'setBgCapture':{
+      const cardEl=document.querySelector('.menu-card');
+      if(cardEl&&d.url){
+        let bgImg=cardEl.querySelector('.menu-card-bg');
+        if(!bgImg){bgImg=document.createElement('img');bgImg.className='menu-card-bg';cardEl.insertBefore(bgImg,cardEl.firstChild);}
+        bgImg.classList.remove('is-set');
+        bgImg.onload=()=>bgImg.classList.add('is-set');
+        bgImg.src=d.url;
+      }
+      break;
+    }
     case 'theme':B.theme=String(d.name||'');document.documentElement.dataset.theme=B.theme;break;
     case 'key':onKey(d.key);break;
     case 'setKeybinds':renderKeybinds(d.rows);break;

@@ -98,7 +98,7 @@ html,body,#app{background:transparent!important}
    collent les uns aux autres : cellules EGALES (flex:1 1 0 + min-width:0),
    marge interne, et fitTabs() reduit la police (en vh) si un libelle deborde. */
 .menu-tabs{display:flex;height:var(--tabs-height);box-sizing:border-box;background:#060608;overflow:hidden;font-size:0.8vh}
-.menu-tabs-bar{height:0.35vh;background:rgb(var(--mn-acc-rgb));box-shadow:0 0 0.6vh rgba(var(--mn-acc-rgb),0.6)}
+.menu-tabs-bar{height:0.35vh;background:rgb(var(--mn-acc-rgb))}
 .menu-foot-bar{position:relative;height:0.4vh;background:#060608;overflow:hidden}
 .menu-foot-bar::after{content:"";position:absolute;top:0;bottom:0;left:0;width:200%;background:repeating-linear-gradient(90deg,#060608 0%,#060608 9%,rgba(var(--mn-acc-rgb),0.7) 17%,rgba(var(--mn-acc-rgb),0.7) 33%,#060608 41%,#060608 50%);animation:julBarSweep 2s linear infinite}
 @keyframes julBarSweep{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}

@@ -38,6 +38,7 @@ html,body,#app{background:transparent!important}
        on   = acc tres lumineux, pour le texte/les icones d'accent            */
   --mn-bg-rgb:8,8,8;
   --mn-card-alpha:0.88;
+  --mn-card-lum:51;
   --mn-char-rgb:34,34,36;
   --mn-acc-rgb:120,120,120;
   --mn-hi-rgb:150,150,150;
@@ -69,7 +70,7 @@ html,body,#app{background:transparent!important}
 .menu-head,.menu-card{position:relative;overflow:hidden;background:rgba(0,0,0,0.75);border:0.1vh solid rgba(255,255,255,0.12)}
 .menu-head{background:#000}
 .menu-head{border-radius:1.1vh 1.1vh 0 0;border-bottom:none}
-.menu-card{border-radius:0;border-top:none;border-bottom:none;background:rgba(34,34,40,var(--mn-card-alpha,0.88))}
+.menu-card{border-radius:0;border-top:none;border-bottom:none;background:rgba(var(--mn-card-lum,50),var(--mn-card-lum,50),var(--mn-card-lum,50),var(--mn-card-alpha,0.88))}
 .menu-card-bg{position:absolute;top:-8%;left:-8%;right:-8%;bottom:-8%;width:116%;height:116%;z-index:0;pointer-events:none;object-fit:cover;filter:blur(2.6vh) saturate(1.1) brightness(0.78);opacity:0;transition:opacity 0.3s ease}
 .menu-card-bg.is-set{opacity:1}
 
@@ -1583,6 +1584,12 @@ addEventListener('message',e=>{
       /* slider Transparence (0..100) -> alpha du fond des categories (.menu-card) */
       const pct=clamp(Number(d.v),0,100);
       document.documentElement.style.setProperty('--mn-card-alpha',(isFinite(pct)?pct:88)/100);
+      break;
+    }
+    case 'setMenuLum':{
+      /* slider Luminosite du fond (0..100) -> valeur RGB 0..255 du fond (.menu-card) */
+      const pct=clamp(Number(d.v),0,100);
+      document.documentElement.style.setProperty('--mn-card-lum',Math.round((isFinite(pct)?pct:20)*2.55));
       break;
     }
     case 'setCurrent':

@@ -135,7 +135,7 @@ html,body,#app{background:transparent!important}
 /* selection : bande teintee de la couleur du menu, avec une BARRE A GAUCHE (ombre interne,
    collee au bord du panneau). Plus de barres en haut ni en bas. */
 .selection-highlight{position:absolute;left:0;right:0.65vh;height:var(--item-height);box-sizing:border-box;border-radius:0 0.55vh 0.55vh 0;
-  background:linear-gradient(90deg,rgba(var(--mn-acc-rgb),0.30) 0%,rgba(var(--mn-acc-rgb),0.14) 55%,rgba(var(--mn-acc-rgb),0.07) 100%);
+  background:rgba(var(--mn-acc-rgb),0.14);
   box-shadow:inset 0.3vh 0 0 rgb(var(--mn-acc-rgb)),0 0 0.9vh rgba(var(--mn-acc-rgb),0.22);
   z-index:0;pointer-events:none;will-change:top;transform:translateZ(0)}
 .menu-item{display:flex;justify-content:space-between;align-items:center;gap:1vh;margin:0 0.65vh;padding:0 0.93vh;height:var(--item-height);box-sizing:border-box;position:relative;z-index:1;cursor:pointer;border:0.1vh solid transparent;border-bottom-color:rgba(255,255,255,0.1);border-radius:0.83vh}
